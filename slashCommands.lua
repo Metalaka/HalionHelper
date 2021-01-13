@@ -73,8 +73,7 @@ end
 
 m:InitializeSlashCommands()
 
--- TODO: lumi transi
--- changemnt de realm ?
+-- TODO:
 -- save des positions
 -- /hh movable
 -- election ?

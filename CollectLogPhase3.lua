@@ -14,7 +14,7 @@ mod.modules.CollectLogPhase3 = {
         corporeality = nil,
     },
     prefs = {
-        iconsSet = "SPELL"
+        iconsSet = "REALM"
     },
     --
     corporealityAuras = {
@@ -334,8 +334,9 @@ function mod.modules.CollectLogPhase3:Initialize()
     function self.frame:PLAYER_REGEN_ENABLED()
 
         _self.enable = false
-        _self.isFirstCorporeality = false
+        _self.isFirstCorporeality = true
 
+        _self.timer:StartTimer(0)
         if _self.CorporealityBar:IsShown() then
             _self.CorporealityBar:Hide()
         end
