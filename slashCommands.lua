@@ -8,7 +8,7 @@ local m = mod.modules.slashCommands
 
 m.frame = CreateFrame("FRAME", "HalionHelperAddonFrame")
 m.frame:RegisterEvent("PLAYER_ENTERING_WORLD") -- Fired when the player enters the world, enters/leaves an instance, or respawns at a graveyard. Also fires any other time the player sees a loading screen.
-m.frame:RegisterEvent("PLAYER_REGEN_DISABLED") -- Fired whenever you enter combat, as normal regen rates are disabled during combat. This means that either you are in the hate list of a NPC or that you've been taking part in a pvp action (either as attacker or victim).
+--m.frame:RegisterEvent("PLAYER_REGEN_DISABLED") -- Fired whenever you enter combat, as normal regen rates are disabled during combat. This means that either you are in the hate list of a NPC or that you've been taking part in a pvp action (either as attacker or victim).
 --m.frame:RegisterEvent("PLAYER_REGEN_ENABLED") -- Fired whenever you enter combat, as normal regen rates are disabled during combat. This means that either you are in the hate list of a NPC or that you've been taking part in a pvp action (either as attacker or victim).
 --m.frame:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 --m.frame:RegisterEvent("UPDATE_WORLD_STATES")
@@ -72,3 +72,10 @@ function m:MoveUI()
 end
 
 m:InitializeSlashCommands()
+
+-- TODO: lumi transi
+-- changemnt de realm ?
+-- save des positions
+-- /hh movable
+-- election ?
+-- si une seul addon ? hide P3

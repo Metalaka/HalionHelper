@@ -1,5 +1,7 @@
 local mod = _G.HalionHelper
 
+mod.CORPOREALITY_AURA = 74826
+
 mod.modules.CollectLogPhase3 = {
     enable = false,
     amount = {
@@ -21,7 +23,7 @@ mod.modules.CollectLogPhase3 = {
         [74834] = { dealt = -30, taken = -50, }, --  30% less dealt,  50% less taken
         [74833] = { dealt = -20, taken = -30, }, --  20% less dealt,  30% less taken
         [74832] = { dealt = -10, taken = -15, }, --  10% less dealt,  15% less taken
-        [74826] = { dealt = 1, taken = 1, }, --  normal
+        [mod.CORPOREALITY_AURA] = { dealt = 1, taken = 1, }, --  normal
         [74827] = { dealt = 15, taken = 20, }, --  15% more dealt,  20% more taken
         [74828] = { dealt = 30, taken = 50, }, --  30% more dealt,  50% more taken
         [74829] = { dealt = 60, taken = 100, }, --  60% more dealt, 100% more taken
@@ -100,6 +102,9 @@ function mod.modules.CollectLogPhase3:Initialize()
                     self.enable = true
                     self.timer:StartTimer(5) -- display 5sec wait timer
                     mod:ScheduleTimer(function() _self:StartMonitor() end, 5)
+
+                    -- send transition event to Physical Realm
+                    SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P3_TRANSI, nil, "RAID")
                 else
                     self:StartMonitor()
                 end
@@ -273,10 +278,10 @@ function mod.modules.CollectLogPhase3:Initialize()
                 self.StatusBar.timeText:SetText(string.format("%.1f", value * 100) .. " %")
                 local shoudGoTwilight = _self:ShoudGoTwilight()
 
---                if shoudGoTwilight and value > 0.5 and _self.side.corporeality.taken == 1 then
---                    self.StatusBar:SetStatusBarColor(1, 0.6, 0.05)
---                else
-                    if (shoudGoTwilight and value > 0.5) or (not shoudGoTwilight and value < 0.5) then
+                --                if shoudGoTwilight and value > 0.5 and _self.side.corporeality.taken == 1 then
+                --                    self.StatusBar:SetStatusBarColor(1, 0.6, 0.05)
+                --                else
+                if (shoudGoTwilight and value > 0.5) or (not shoudGoTwilight and value < 0.5) then
                     self.StatusBar:SetStatusBarColor(1, 0, 0)
                 else
                     self.StatusBar:SetStatusBarColor(0, 1, 0)
@@ -299,17 +304,21 @@ function mod.modules.CollectLogPhase3:Initialize()
             frame.elapsed = 0
 
             local payload = _self.side.npcId .. ":" .. _self.amount[_self.side.npcId]
-            SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P3, payload, "RAID")
+            SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P3_DATA, payload, "RAID")
         end
     end)
 
     function self.frame:CHAT_MSG_ADDON(prefix, message)
 
-        if not _self.enable or not _self.side.npcId then
-            return
-        end
+        if not _self.enable and prefix == mod.ADDON_MESSAGE_PREFIX_P3_TRANSI and not mod:IsInTwilightRealm() then
+            _self.enable = true
+            _self.isFirstCorporeality = false
+            _self.side.npcId = mod.NPC_ID_HALION_PHYSICAL
+            _self.side.corporeality = _self.corporealityAuras[mod.CORPOREALITY_AURA]
 
-        if (prefix == mod.ADDON_MESSAGE_PREFIX_P3) then
+            _self.timer:StartTimer(5) -- display 5sec wait timer
+            mod:ScheduleTimer(function() _self:StartMonitor() end, 5)
+        elseif _self.enable and prefix == mod.ADDON_MESSAGE_PREFIX_P3_DATA then
             local npcId, amount = mod:cut(message, ":")
             npcId = tonumber(npcId)
 
@@ -324,11 +333,11 @@ function mod.modules.CollectLogPhase3:Initialize()
 
     function self.frame:PLAYER_REGEN_ENABLED()
 
-        self.enable = false
-        self.isFirstCorporeality = false
+        _self.enable = false
+        _self.isFirstCorporeality = false
 
-        if self.CorporealityBar:IsShown() then
-            self.CorporealityBar:Hide()
+        if _self.CorporealityBar:IsShown() then
+            _self.CorporealityBar:Hide()
         end
     end
 end
