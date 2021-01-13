@@ -1,7 +1,5 @@
 local mod = _G.HalionHelper
 
-mod.CORPOREALITY_AURA = 74826
-
 mod.modules.CollectLogPhase3 = {
     enable = false,
     amount = {
@@ -9,6 +7,7 @@ mod.modules.CollectLogPhase3 = {
         [mod.NPC_ID_HALION_TWILIGHT] = 0,
     },
     isFirstCorporeality = true,
+    shoudGoTwilight = nil,
     side = {
         npcId = nil,
         corporeality = nil,
@@ -159,6 +158,9 @@ function mod.modules.CollectLogPhase3:Initialize()
         function self:StartMonitor()
             self.amount[self.side.npcId] = 0
             self.timer:StartTimer(15)
+            self.CorporealityBar.startDelay = 0.5
+
+            self.shoudGoTwilight = self:ShoudGoTwilight()
 
             if not self.CorporealityBar:IsShown() then
                 self.CorporealityBar:Show()
@@ -263,11 +265,14 @@ function mod.modules.CollectLogPhase3:Initialize()
             self.CorporealityBar.PhysicalIcon:SetPoint("RIGHT")
             self:SetIcon(self.CorporealityBar.PhysicalIcon, self.iconsSets[self.prefs.iconsSet].Physical)
 
+            self.CorporealityBar.startDelay = 0
+
             self.CorporealityBar:SetScript("OnUpdate", function(frame, elapsed)
 
                 frame.elapsed = (frame.elapsed or 0) + elapsed
-                if frame.elapsed > mod.SLEEP_DELAY then
+                if frame.elapsed > mod.SLEEP_DELAY and frame.elapsed > frame.startDelay then
                     frame.elapsed = 0
+                    frame.startDelay = 0
 
                     _self.CorporealityBar:SetValue(_self:CalculatePercent())
                 end
@@ -276,12 +281,11 @@ function mod.modules.CollectLogPhase3:Initialize()
             function self.CorporealityBar:SetValue(value)
                 self.StatusBar:SetValue(value)
                 self.StatusBar.timeText:SetText(string.format("%.1f", value * 100) .. " %")
-                local shoudGoTwilight = _self:ShoudGoTwilight()
 
                 --                if shoudGoTwilight and value > 0.5 and _self.side.corporeality.taken == 1 then
                 --                    self.StatusBar:SetStatusBarColor(1, 0.6, 0.05)
                 --                else
-                if (shoudGoTwilight and value > 0.5) or (not shoudGoTwilight and value < 0.5) then
+                if (_self.shoudGoTwilight and value > 0.5) or (not _self.shoudGoTwilight and value < 0.5) then
                     self.StatusBar:SetStatusBarColor(1, 0, 0)
                 else
                     self.StatusBar:SetStatusBarColor(0, 1, 0)

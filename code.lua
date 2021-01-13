@@ -22,6 +22,7 @@ mod.ADDON_MESSAGE_PREFIX_P3_TRANSI = "HH_P3_TRANSI"
 
 mod.NPC_ID_HALION_PHYSICAL = 39863
 mod.NPC_ID_HALION_TWILIGHT = 40142
+mod.CORPOREALITY_AURA = 74826
 
 -- Main Frame
 mod.frame = CreateFrame("Frame", "HalionHelper_AddonFrame")
