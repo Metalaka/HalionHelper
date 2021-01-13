@@ -1,0 +1,23 @@
+## Interface: 30300
+## Title: HalionHelper
+## Version: 1.0.0a
+## Notes: POC:
+## SavedVariables: HalionHelperDB
+
+#@no-lib-strip@
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+Libs\AceAddon-3.0\AceAddon-3.0.xml
+Libs\AceLocale-3.0\AceLocale-3.0.xml
+Libs\AceTimer-3.0\AceTimer-3.0.xml
+Libs\AceEvent-3.0\AceEvent-3.0.xml
+#@end-no-lib-strip@
+
+code.lua
+
+BarHelper.lua
+CollectHealthPhase2.lua
+UIPhase2.lua
+CollectLogPhase3.lua
+
+slashCommands.lua
