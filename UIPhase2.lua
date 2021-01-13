@@ -15,7 +15,7 @@ function mod.modules.UIPhase2:Initialize()
 
 --
 
-    self.progressBar = mod.modules.Bar:NewBar("HalionHelper_UIPhase2")
+    self.progressBar = mod.modules.Bar:NewBar("HalionHelper_UIPhase2", nil)
     self.progressBar.StatusBar:SetStatusBarColor(0, 1, 0)
 
     function self.progressBar:SetValue(value)

@@ -180,13 +180,7 @@ function mod.modules.CollectLogPhase3:Initialize()
         end
 
         local UIFrame = CreateFrame("Frame", "HalionHelper_CollectLogPhase3_UIFrame", UIParent)
-    self.UIFrame = UIFrame
-        -- moves
-        UIFrame:SetMovable(true)
-        UIFrame:EnableMouse(true)
-        UIFrame:RegisterForDrag("LeftButton")
-        UIFrame:SetScript("OnDragStart", UIFrame.StartMoving)
-        UIFrame:SetScript("OnDragStop", UIFrame.StopMovingOrSizing)
+        self.UIFrame = UIFrame
         UIFrame:SetPoint("CENTER")
         UIFrame:SetSize(200, 80)
 
@@ -279,9 +273,10 @@ function mod.modules.CollectLogPhase3:Initialize()
                 self.StatusBar.timeText:SetText(string.format("%.1f", value * 100) .. " %")
                 local shoudGoTwilight = _self:ShoudGoTwilight()
 
-                if shoudGoTwilight and value > 0.5 and _self.side.corporeality.taken == 1 then
-                    self.StatusBar:SetStatusBarColor(1, 0.6, 0.05)
-                elseif (shoudGoTwilight and value > 0.5) or (not shoudGoTwilight and value < 0.5) then
+--                if shoudGoTwilight and value > 0.5 and _self.side.corporeality.taken == 1 then
+--                    self.StatusBar:SetStatusBarColor(1, 0.6, 0.05)
+--                else
+                    if (shoudGoTwilight and value > 0.5) or (not shoudGoTwilight and value < 0.5) then
                     self.StatusBar:SetStatusBarColor(1, 0, 0)
                 else
                     self.StatusBar:SetStatusBarColor(0, 1, 0)

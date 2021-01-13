@@ -12,7 +12,7 @@ function mod.modules.Bar:Initialize()
     function self:Disable()
     end
 
---
+    --
 
     function self:DefineDefaultTexture()
         self.texture = "Interface\\Addons\\FlatStatusBar\\Textures\\statusbar\\Flat"
@@ -24,19 +24,13 @@ function mod.modules.Bar:Initialize()
             self.texture = "Interface\\TargetingFrame\\UI-StatusBar"
         end
     end
+
     -- Run it !
     self:DefineDefaultTexture()
 
     function self:NewBar(name, parent)
 
         local frame = CreateFrame("Frame", name, parent or UIParent)
-
-        -- moves
---        frame:SetMovable(true)
---        frame:EnableMouse(true)
---        frame:RegisterForDrag("LeftButton")
---        frame:SetScript("OnDragStart", frame.StartMoving)
---        frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
 
         -- todo get position from db
         frame:SetPoint("CENTER")
@@ -68,5 +62,4 @@ function mod.modules.Bar:Initialize()
 
         return frame
     end
-
 end

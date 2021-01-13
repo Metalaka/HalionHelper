@@ -31,17 +31,44 @@ function m:InitializeSlashCommands()
             return
         end
 
+        m:MoveUI()
+    end
+end
+
+function m:MoveUI()
+
+    function self:ToggleMovable(frame)
+
+        if not frame:IsMovable() then
+            frame:SetMovable(true)
+            frame:EnableMouse(true)
+            frame:RegisterForDrag("LeftButton")
+            frame:SetScript("OnDragStart", frame.StartMoving)
+            frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
+        else
+            frame:SetMovable(false)
+            frame:EnableMouse(false)
+        end
+    end
+
+    if not mod.modules.CollectLogPhase3.CorporealityBar:IsShown() then
+
+        self:ToggleMovable(mod.modules.UIPhase2.progressBar)
+        self:ToggleMovable(mod.modules.CollectLogPhase3.UIFrame)
 
         mod.modules.UIPhase2.progressBar:SetValue(0.666)
         mod.modules.CollectLogPhase3.timer:StartTimer(15)
         mod.modules.CollectLogPhase3.CorporealityBar:Show()
 
+        DEFAULT_CHAT_FRAME:AddMessage("HalionHelper: movable mode enabled. Disable it to save potitions.")
+    else
+        self:ToggleMovable(mod.modules.UIPhase2.progressBar)
+        self:ToggleMovable(mod.modules.CollectLogPhase3.UIFrame)
 
-
-
+        mod.modules.UIPhase2.progressBar:SetValue(0)
+        mod.modules.CollectLogPhase3.timer:StartTimer(0)
+        mod.modules.CollectLogPhase3.CorporealityBar:Hide()
     end
 end
-
-
 
 m:InitializeSlashCommands()
