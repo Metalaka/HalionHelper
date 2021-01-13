@@ -3,13 +3,27 @@ local mod = _G.HalionHelper
 mod.modules.CollectLogPhase3 = {
     enable = false,
     amount = {
-        [40142] = 0, -- shadow
-        [39863] = 0, -- light
+        [mod.NPC_ID_HALION_PHYSICAL] = 0,
+        [mod.NPC_ID_HALION_TWILIGHT] = 0,
     },
     isFirstCorporeality = true,
     side = {
         npcId = nil,
         corporeality = nil,
+    },
+    iconsSets = {
+        ["REALM"] = {
+--            Twilight = 75486, -- Dusk Shroud
+            Twilight = 74807, -- Twilight Realm
+            Physical = 75949, -- Meteor Strike
+        },
+        ["SPELL"] = {
+            Twilight = 77846, -- Twilight Cutter
+            Physical = 75887, -- Blazing Aura
+        },
+    },
+    prefs = {
+        iconsSet = "SPELL"
     },
 }
 
@@ -33,20 +47,27 @@ function mod.modules.CollectLogPhase3:Initialize()
 
     local _self = mod.modules.CollectLogPhase3
 
+    function self.side:IsPhysical()
+        return self.npcId == mod.NPC_ID_HALION_PHYSICAL
+    end
+
+    function self.side:IsTwilight()
+        return self.npcId == mod.NPC_ID_HALION_TWILIGHT
+    end
 
 
     local buffs = {
-        [74836] = { done = 0, taken = 0, }, --  70% less dealt, 100% less taken
-        [74835] = { done = 0, taken = 0, }, --  50% less dealt,  80% less taken
-        [74834] = { done = 0, taken = 0, }, --  30% less dealt,  50% less taken
-        [74833] = { done = 0, taken = 0, }, --  20% less dealt,  30% less taken
-        [74832] = { done = 0, taken = 0, }, --  10% less dealt,  15% less taken
-        [74826] = { done = 0, taken = 0, }, --  normal
-        [74827] = { done = 0, taken = 0, }, --  15% more dealt,  20% more taken
-        [74828] = { done = 0, taken = 0, }, --  30% more dealt,  50% more taken
-        [74829] = { done = 0, taken = 0, }, --  60% more dealt, 100% more taken
-        [74830] = { done = 0, taken = 0, }, -- 100% more dealt, 200% more taken
-        [74831] = { done = 0, taken = 0, }, -- 200% more dealt, 400% more taken
+        [74836] = { dealt = -70, taken = 0, }, --  70% less dealt, 100% less taken
+        [74835] = { dealt = -50, taken = 0, }, --  50% less dealt,  80% less taken
+        [74834] = { dealt = -30, taken = 0, }, --  30% less dealt,  50% less taken
+        [74833] = { dealt = -20, taken = 0, }, --  20% less dealt,  30% less taken
+        [74832] = { dealt = -10, taken = 0, }, --  10% less dealt,  15% less taken
+        [74826] = { dealt = 1, taken = 0, }, --  normal
+        [74827] = { dealt = 15, taken = 0, }, --  15% more dealt,  20% more taken
+        [74828] = { dealt = 30, taken = 0, }, --  30% more dealt,  50% more taken
+        [74829] = { dealt = 60, taken = 0, }, --  60% more dealt, 100% more taken
+        [74830] = { dealt = 100, taken = 0, }, -- 100% more dealt, 200% more taken
+        [74831] = { dealt = 200, taken = 0, }, -- 200% more dealt, 400% more taken
     }
 
     function self:SwingDamage(timestamp, eventtype, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, amount, overkill, school, resisted, blocked, absorbed, critical, glancing, crushing)
@@ -69,9 +90,6 @@ function mod.modules.CollectLogPhase3:Initialize()
 
             self.side.npcId = tonumber(dstGUID:sub(-12, -7), 16)
             self.side.corporeality = buff
-
-            --            DEFAULT_CHAT_FRAME:AddMessage(eventtype .. ": " .. spellId)
-            --            DEFAULT_CHAT_FRAME:AddMessage(srcGUID .. ": " .. dstGUID)
 
             if self.isFirstCorporeality then
                 self.isFirstCorporeality = false
@@ -167,24 +185,6 @@ function mod.modules.CollectLogPhase3:Initialize()
         end
     end
 
-
-    --[[local CORPOREALITY = GetSpellInfo(74826)
-
-
-
-    function self:GetCorporeality()
-
-        if UnitExists("boss1") and UnitAura("boss1", CORPOREALITY) then
-            return UnitAura("boss1", CORPOREALITY)
-        end
-        if UnitExists("boss2") and UnitAura("boss2", CORPOREALITY) then
-            return UnitAura("boss2", CORPOREALITY)
-        end
-
-        return nil
-    end]]
-
-
     function self:CreateTimer()
 
         self.timer = mod.modules.Bar:NewBar("HalionHelper_CollectLogPhase3_Timer")
@@ -237,9 +237,45 @@ function mod.modules.CollectLogPhase3:Initialize()
             return self.amount[39863] / max(total, 1)
         end
 
-        -- shadow | light
+        -- 0 = Twilight / 1 = Physical / defaut = Twilight ?
+        function self:ShoudGoTwilight()
+            local c = self.side.corporeality
+
+            if self.side:IsTwilight() and c.dealt >= 1 then
+                return true
+            elseif self.side:IsPhysical() and c.dealt < 1 then
+                return true
+            else
+                return false
+            end
+        end
+
+        function self:SetIcon(entry, spellId)
+            if not entry then return end
+
+            local icon = select(3, GetSpellInfo(spellId))
+
+            entry:SetNormalTexture(icon)
+            if (icon) then
+                entry:GetNormalTexture():SetTexCoord(.07, .93, .07, .93)
+            end
+        end
+
         self.CorporealityBar = mod.modules.Bar:NewBar("HalionHelper_CollectLogPhase3_CorporealityBar")
         self.CorporealityBar.StatusBar:SetValue(0.5)
+
+        self.CorporealityBar.TwilightIcon = CreateFrame("Button", nil, self.CorporealityBar)
+        self.CorporealityBar.TwilightIcon:SetHeight(30)
+        self.CorporealityBar.TwilightIcon:SetWidth(30)
+        self.CorporealityBar.TwilightIcon:SetPoint("LEFT")
+        self:SetIcon(self.CorporealityBar.TwilightIcon, self.iconsSets[self.prefs.iconsSet].Twilight)
+
+        self.CorporealityBar.PhysicalIcon = CreateFrame("Button", nil, self.CorporealityBar)
+        self.CorporealityBar.PhysicalIcon:SetHeight(30)
+        self.CorporealityBar.PhysicalIcon:SetWidth(30)
+        self.CorporealityBar.PhysicalIcon:SetPoint("RIGHT")
+        self:SetIcon(self.CorporealityBar.PhysicalIcon, self.iconsSets[self.prefs.iconsSet].Physical)
+        self.CorporealityBar:Show()
 
         self.CorporealityBar:SetScript("OnUpdate", function(frame, elapsed)
 
@@ -254,6 +290,13 @@ function mod.modules.CollectLogPhase3:Initialize()
         function self.CorporealityBar:SetValue(value)
             self.StatusBar:SetValue(value)
             self.StatusBar.timeText:SetText(string.format("%.1f", value * 100) .. " %")
+            local shoudGoTwilight = _self:ShoudGoTwilight()
+
+            if (shoudGoTwilight and value > 0.5) or (not shoudGoTwilight and value < 0.5) then
+                self.StatusBar:SetStatusBarColor(1, 0, 0)
+            else
+                self.StatusBar:SetStatusBarColor(0, 1, 0)
+            end
         end
     end
 end

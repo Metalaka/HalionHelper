@@ -49,7 +49,13 @@ function mod.modules.Bar:Initialize()
         frame.StatusBar:SetStatusBarTexture(self.texture)
         frame.StatusBar:GetStatusBarTexture():SetHorizTile(false)
         frame.StatusBar:GetStatusBarTexture():SetVertTile(false)
+--        frame.StatusBar:SetStatusBarColor(1, 0, 0)
         frame.StatusBar:SetMinMaxValues(0, 1)
+
+        frame.StatusBar.Background = frame.StatusBar:CreateTexture(nil, "BACKGROUND")
+        frame.StatusBar.Background:SetTexture(self.texture)
+        frame.StatusBar.Background:SetAllPoints()
+        frame.StatusBar.Background:SetVertexColor(0, 0, 0, 0.33)
 
         frame.StatusBar.timeText = frame.StatusBar:CreateFontString(nil, "OVERLAY")
         frame.StatusBar.timeText:SetPoint("CENTER")

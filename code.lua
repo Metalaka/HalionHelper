@@ -19,6 +19,9 @@ mod.ADDON_MESSAGE_PREFIX_DATA = "HH_boss2"
 mod.ADDON_MESSAGE_PREFIX_END = "HH_boss2_end"
 mod.ADDON_MESSAGE_PREFIX_P3 = "HH_P3"
 
+mod.NPC_ID_HALION_PHYSICAL = 39863
+mod.NPC_ID_HALION_TWILIGHT = 40142
+
 -- Main Frame
 mod.frame = CreateFrame("Frame", "HalionHelper_AddonFrame")
 function mod.frame:ADDON_LOADED(addon)
@@ -96,7 +99,7 @@ function mod:InitializeAddon()
     self.modules.CollectLogPhase3:Initialize()
 
     self:Enable()
-    DEFAULT_CHAT_FRAME:AddMessage("HH loaded")
+    DEFAULT_CHAT_FRAME:AddMessage("H.H loaded")
 end
 
 function mod:Enable()
