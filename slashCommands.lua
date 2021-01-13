@@ -34,7 +34,14 @@ function m:InitializeSlashCommands()
 
         mod.modules.UIPhase2.progressBar:SetValue(0.666)
         mod.modules.CollectLogPhase3.timer:StartTimer(15)
+        mod.modules.CollectLogPhase3.CorporealityBar:Show()
+
+
+
+
     end
 end
+
+
 
 m:InitializeSlashCommands()

@@ -27,16 +27,16 @@ function mod.modules.Bar:Initialize()
     -- Run it !
     self:DefineDefaultTexture()
 
-    function self:NewBar(name)
+    function self:NewBar(name, parent)
 
-        local frame = CreateFrame("Frame", name, UIParent)
+        local frame = CreateFrame("Frame", name, parent or UIParent)
 
         -- moves
-        frame:SetMovable(true)
-        frame:EnableMouse(true)
-        frame:RegisterForDrag("LeftButton")
-        frame:SetScript("OnDragStart", frame.StartMoving)
-        frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
+--        frame:SetMovable(true)
+--        frame:EnableMouse(true)
+--        frame:RegisterForDrag("LeftButton")
+--        frame:SetScript("OnDragStart", frame.StartMoving)
+--        frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
 
         -- todo get position from db
         frame:SetPoint("CENTER")
@@ -49,7 +49,6 @@ function mod.modules.Bar:Initialize()
         frame.StatusBar:SetStatusBarTexture(self.texture)
         frame.StatusBar:GetStatusBarTexture():SetHorizTile(false)
         frame.StatusBar:GetStatusBarTexture():SetVertTile(false)
---        frame.StatusBar:SetStatusBarColor(1, 0, 0)
         frame.StatusBar:SetMinMaxValues(0, 1)
 
         frame.StatusBar.Background = frame.StatusBar:CreateTexture(nil, "BACKGROUND")

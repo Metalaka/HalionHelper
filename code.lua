@@ -99,7 +99,7 @@ function mod:InitializeAddon()
     self.modules.CollectLogPhase3:Initialize()
 
     self:Enable()
-    DEFAULT_CHAT_FRAME:AddMessage("H.H loaded")
+    DEFAULT_CHAT_FRAME:AddMessage("HH loaded")
 end
 
 function mod:Enable()
@@ -128,12 +128,12 @@ function mod:Disable()
 end
 
 
-function cut(ftext, fcursor)
+function mod:cut(ftext, fcursor)
     local find = string.find(ftext, fcursor);
     return string.sub(ftext, 0, find - 1), string.sub(ftext, find + 1);
 end
 
-function max(a, b)
+function mod:max(a, b)
     if a > b then return a end
     return b
 end
