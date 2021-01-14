@@ -1,8 +1,6 @@
 local mod = _G.HalionHelper
 
-mod.modules.bar = {
-    texture = nil,
-}
+mod.modules.bar = {}
 
 function mod.modules.bar:Initialize()
 
@@ -32,7 +30,7 @@ function mod.modules.bar:Initialize()
         frame.statusBar:SetMinMaxValues(0, 1)
 
         frame.statusBar.background = frame.statusBar:CreateTexture(nil, "BACKGROUND")
-        frame.statusBar.background:SetTexture(self.texture)
+        frame.statusBar.background:SetTexture(mod.db.profile.texture)
         frame.statusBar.background:SetAllPoints()
         frame.statusBar.background:SetVertexColor(0, 0, 0, 0.33)
 
