@@ -4,7 +4,7 @@ mod.modules.slashCommands = {}
 
 function mod.modules.slashCommands:Initialize()
 
-    local _self = mod.modules.slashCommands
+    local _self = self
 
     mod:RegisterChatCommand("halionhelper", "ChatCommand")
 
@@ -12,10 +12,10 @@ function mod.modules.slashCommands:Initialize()
 
         local arg1 = self:GetArgs(args, 1)
 
-        if arg1 == "move" and mod.Enabled then
+        if arg1 == "move" and mod.enabled then
             _self:MoveUI()
         else
-            if not mod.Enabled then
+            if not mod.enabled then
                 mod:Print("Addon is currently disabled! Please go inside The Ruby Sanctum to enable it.")
             end
 
@@ -41,29 +41,25 @@ function mod.modules.slashCommands:Initialize()
             end
         end
 
-        if not mod.modules.CollectLogPhase3.CorporealityBar:IsShown() then
+        self:ToggleMovable(mod.modules.phase2Ui.progressBar)
+        self:ToggleMovable(mod.modules.phase3CollectLog.ui.uiFrame)
 
-            self:ToggleMovable(mod.modules.UIPhase2.progressBar)
-            self:ToggleMovable(mod.modules.CollectLogPhase3.UIFrame)
-
-            mod.modules.UIPhase2.progressBar:SetValue(0.666)
-            mod.modules.CollectLogPhase3.timer:StartTimer(15)
-            mod.modules.CollectLogPhase3.CorporealityBar:Show()
+        if not mod.modules.phase3CollectLog.ui.corporealityBar:IsShown() then
+            mod.modules.phase2Ui.progressBar:SetValue(0.666)
+            mod.modules.phase3CollectLog.ui.timer:StartTimer(15)
+            mod.modules.phase3CollectLog.ui.corporealityBar:Show()
 
             mod:Print("movable mode enabled. Disable it to save potitions.")
         else
-            self:ToggleMovable(mod.modules.UIPhase2.progressBar)
-            self:ToggleMovable(mod.modules.CollectLogPhase3.UIFrame)
+            mod.modules.phase2Ui.progressBar:SetValue(0)
+            mod.modules.phase3CollectLog.ui.timer:StartTimer(0)
+            mod.modules.phase3CollectLog.ui.corporealityBar:Hide()
 
-            mod.modules.UIPhase2.progressBar:SetValue(0)
-            mod.modules.CollectLogPhase3.timer:StartTimer(0)
-            mod.modules.CollectLogPhase3.CorporealityBar:Hide()
-
-            local point, _, _, x, y = mod.modules.UIPhase2.progressBar:GetPoint(1)
+            local point, _, _, x, y = mod.modules.phase2Ui.progressBar:GetPoint(1)
             mod.db.profile.P2.point = point
             mod.db.profile.P2.x = x
             mod.db.profile.P2.y = y
-            local point, _, _, x, y = mod.modules.CollectLogPhase3.UIFrame:GetPoint(1)
+            local point, _, _, x, y = mod.modules.phase3CollectLog.ui.uiFrame:GetPoint(1)
             mod.db.profile.P3.point = point
             mod.db.profile.P3.x = x
             mod.db.profile.P3.y = y

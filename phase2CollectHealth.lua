@@ -1,11 +1,12 @@
 local mod = _G.HalionHelper
 
-mod.modules.CollectHealthPhase2 = {}
+mod.modules.phase2CollectHealth = {}
 
-function mod.modules.CollectHealthPhase2:Initialize()
+function mod.modules.phase2CollectHealth:Initialize()
 
     function self:Enable()
         self.frame:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
+        self.frame:RegisterEvent("PLAYER_REGEN_ENABLED")
     end
 
     function self:Disable()
@@ -13,16 +14,17 @@ function mod.modules.CollectHealthPhase2:Initialize()
         if frame then
             frame:SetScript("OnUpdate", nil)
         end
+        self.frame:UnregisterEvent("PLAYER_REGEN_ENABLED")
     end
 
     --
 
-    local _self = mod.modules.CollectHealthPhase2
+    local _self = self
 
     function self:SetHandler(frame)
 
         if UnitExists(frame.unit) --[[and frame.unit == "boss2"]] and UnitName(frame.unit) == mod.BOSS_NAME then
---            DEFAULT_CHAT_FRAME:AddMessage("CollectHealthPhase2 bound on " .. frame.unit)
+            --            DEFAULT_CHAT_FRAME:AddMessage("phase2CollectHealth bound on " .. frame.unit)
             frame:SetScript("OnUpdate", self.OnUpdate)
         end
     end
@@ -35,25 +37,23 @@ function mod.modules.CollectHealthPhase2:Initialize()
             local percent = frame.healthbar.currValue / hmax
 
             if percent > 0.75 then
-                --                SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P2_END, nil, "RAID")
                 return
             end
 
-            --        DEFAULT_CHAT_FRAME:AddMessage(frame.unit .. ": " .. percent)
-
             if percent < 0.5 then
+                -- stop script in P3
                 SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P2_END, nil, "RAID")
                 frame:SetScript("OnUpdate", nil)
             end
 
-
-            -- send addonmsg
             SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P2_DATA, percent, "RAID")
         end
     end
 
     -- init
     self.frame = CreateFrame("Frame")
+    self.frame:SetScript("OnEvent", function(self, event, ...) if self[event] then return self[event](self, ...) end end)
+
     function self.frame:INSTANCE_ENCOUNTER_ENGAGE_UNIT()
         local frame = _G["Boss2TargetFrame"]
         if frame then
@@ -69,7 +69,11 @@ function mod.modules.CollectHealthPhase2:Initialize()
         ]]
     end
 
-    self.frame:SetScript("OnEvent", function(self, event, ...) if self[event] then return self[event](self, ...) end end)
+    function self.frame:PLAYER_REGEN_ENABLED()
 
-    --todo: besoin d'un leave combat pour reset en cas de mort ?
+        local frame = _G["Boss2TargetFrame"]
+        if frame then
+            frame:SetScript("OnUpdate", nil)
+        end
+    end
 end

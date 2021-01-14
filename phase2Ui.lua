@@ -1,23 +1,27 @@
 local mod = _G.HalionHelper
 
-mod.modules.UIPhase2 = {}
+mod.modules.phase2Ui = {}
 
-function mod.modules.UIPhase2:Initialize()
+function mod.modules.phase2Ui:Initialize()
 
     function self:Enable()
         self.progressBar:RegisterEvent("CHAT_MSG_ADDON")
+        self.progressBar:RegisterEvent("PLAYER_REGEN_ENABLED")
     end
 
     function self:Disable()
         self.progressBar:UnregisterEvent("CHAT_MSG_ADDON")
+        self.progressBar:UnregisterEvent("PLAYER_REGEN_ENABLED")
         self.progressBar:SetValue(0)
     end
 
---
+    --
 
-    self.progressBar = mod.modules.Bar:NewBar("HalionHelper_UIPhase2", nil)
+    local _self = self
+
+    self.progressBar = mod.modules.bar:NewBar("HalionHelper_phase2Ui", nil)
     self.progressBar:SetPoint(mod.db.profile.P2.point, mod.db.profile.P2.x, mod.db.profile.P2.y)
-    self.progressBar.StatusBar:SetStatusBarColor(0, 1, 0)
+    self.progressBar.statusBar:SetStatusBarColor(0, 1, 0)
 
     function self.progressBar:SetValue(value)
 
@@ -26,8 +30,8 @@ function mod.modules.UIPhase2:Initialize()
                 self:Hide()
             end
         else
-            self.StatusBar:SetValue(value)
-            self.StatusBar.timeText:SetText(string.format("%.1f", value * 100) .. " %")
+            self.statusBar:SetValue(value)
+            self.statusBar.timeText:SetText(string.format("%.1f", value * 100) .. " %")
 
             if not self:IsShown() then
                 self:Show()
@@ -44,5 +48,9 @@ function mod.modules.UIPhase2:Initialize()
         end
     end
 
+    function self.progressBar:PLAYER_REGEN_ENABLED()
+
+        self:SetValue(0)
+    end
 end
 

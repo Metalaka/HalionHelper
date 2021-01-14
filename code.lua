@@ -4,12 +4,13 @@ HalionHelper.MINOR_VERSION = tonumber(("$Revision: 02 $"):match("%d+"))
 
 local mod = _G.HalionHelper
 
-mod.Initialized = false
-mod.Enabled = false
+mod.initialized = false
+mod.enabled = false
 mod.modules = {}
 
 
 -- constants
+mod.ADDON_NAME = "HalionHelper"
 mod.BOSS_NAME = "Halion"
 mod.SLEEP_DELAY = 0.2
 mod.ADDON_MESSAGE_PREFIX_P2_DATA = "HH_P2_DATA"
@@ -37,9 +38,9 @@ mod.defaults = {
 }
 
 -- Main Frame
-mod.frame = CreateFrame("Frame", "HalionHelper_AddonFrame")
+mod.frame = CreateFrame("Frame", "HalionHelper_AddonMainFrame")
 function mod.frame:ADDON_LOADED(addon)
-    if addon ~= "HalionHelper" then
+    if addon ~= mod.ADDON_NAME then
         return
     end
 
@@ -56,26 +57,25 @@ end
 
 function mod:ShouldEnableAddon()
 
-    -- GetCurrentMapAreaID() == = 609+1 PARAGON_OFFSET
     local name = GetRealZoneText()
-
-    return name == "The Ruby Sanctum" or name == "Le Sanctum Ruby"
+--todo: localize
+    return name == "The Ruby Sanctum" or name == "Le sanctum Rubis"
 end
 
 function mod:OnZoneChange()
 
     if self.ShouldEnableAddon() then
 
-        if not self.Initialized then
-            mod:InitializeAddon()
-        elseif not self.Enabled then
+        if not self.initialized then
+            self:InitializeAddon()
+        elseif not self.enabled then
             self:EnableModules()
         end
     else
 
-        if not self.Initialized then
+        if not self.initialized then
             return
-        elseif self.Enabled then
+        elseif self.enabled then
             self:DisableModules()
         end
     end
@@ -89,49 +89,49 @@ mod.frame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 -- Initialize
 function mod:InitializeAddon()
 
-    if self.Initialized then
+    if self.initialized then
         return
     end
 
-    self.Initialized = true
-    self.Enabled = true
+    self.initialized = true
+    self.enabled = true
     self.frame:UnregisterEvent("ADDON_LOADED")
 
     self.db = LibStub("AceDB-3.0"):New("HalionHelperDB", mod.defaults, true)
 
     -- go
-    self.modules.Bar:Initialize()
-    self.modules.CollectHealthPhase2:Initialize()
-    self.modules.UIPhase2:Initialize()
-    self.modules.CollectLogPhase3:Initialize()
+    self.modules.bar:Initialize()
+    self.modules.phase2CollectHealth:Initialize()
+    self.modules.phase2Ui:Initialize()
+    self.modules.phase3CollectLog:Initialize()
 
     self:EnableModules()
     self:Print("loaded - Have fun !")
 end
 
 function mod:EnableModules()
-    if not self.Initialized then
+    if not self.initialized then
         return
     end
 
-    self.Enabled = true
+    self.enabled = true
 
-    self.modules.Bar:Enable()
-    self.modules.CollectHealthPhase2:Enable()
-    self.modules.UIPhase2:Enable()
-    self.modules.CollectLogPhase3:Enable()
+    self.modules.bar:Enable()
+    self.modules.phase2CollectHealth:Enable()
+    self.modules.phase2Ui:Enable()
+    self.modules.phase3CollectLog:Enable()
 end
 
 function mod:DisableModules()
-    if not self.Initialized then
+    if not self.initialized then
         return
     end
-    self.Enabled = false
+    self.enabled = false
 
-    self.modules.Bar:Disable()
-    self.modules.CollectHealthPhase2:Disable()
-    self.modules.UIPhase2:Disable()
-    self.modules.CollectLogPhase3:Disable()
+    self.modules.bar:Disable()
+    self.modules.phase2CollectHealth:Disable()
+    self.modules.phase2Ui:Disable()
+    self.modules.phase3CollectLog:Disable()
 end
 
 function mod:IsInTwilightRealm()

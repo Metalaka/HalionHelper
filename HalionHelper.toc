@@ -1,7 +1,7 @@
 ## Interface: 30300
 ## Author: Metalaka
 ## Title: HalionHelper
-## Version: 1.0.1a
+## Version: 1.0.2
 ## Notes: Provide additional informations on P2 & P3. At least one raid member on each realm must have the addon.
 ## SavedVariables: HalionHelperDB
 
@@ -17,9 +17,9 @@ Libs\AceTimer-3.0\AceTimer-3.0.xml
 
 code.lua
 
-BarHelper.lua
-CollectHealthPhase2.lua
-UIPhase2.lua
-CollectLogPhase3.lua
+barHelper.lua
+phase2CollectHealth.lua
+phase2Ui.lua
+phase3CollectLog.lua
 
 slashCommands.lua
