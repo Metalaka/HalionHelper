@@ -174,7 +174,7 @@ function mod.modules.phase3CollectLog:Initialize()
 --        uiFrame:SetPoint("CENTER")
         uiFrame:SetSize(200, 80)
 
-        function self:CreateTimer()
+        function self:InitializeTimer()
 
             self.timer = mod.modules.bar:NewBar("HalionHelper_phase3CollectLog_Timer", self.uiFrame)
             self.timer:SetPoint("BOTTOM")
@@ -242,6 +242,7 @@ function mod.modules.phase3CollectLog:Initialize()
             self.corporealityBar.twilightIcon:SetPoint("LEFT")
             self:SetIcon(self.corporealityBar.twilightIcon, _self.iconsSets[_self.prefs.iconsSet].twilight)
             self.corporealityBar.twilightIcon:EnableMouse(false)
+            self.corporealityBar.twilightIcon:SetFrameLevel(self.corporealityBar.statusBar:GetFrameLevel() + 1)
 
 
             self.corporealityBar.physicalIcon = CreateFrame("Button", nil, self.corporealityBar)
@@ -250,6 +251,7 @@ function mod.modules.phase3CollectLog:Initialize()
             self.corporealityBar.physicalIcon:SetPoint("RIGHT")
             self:SetIcon(self.corporealityBar.physicalIcon, _self.iconsSets[_self.prefs.iconsSet].physical)
             self.corporealityBar.physicalIcon:EnableMouse(false)
+            self.corporealityBar.physicalIcon:SetFrameLevel(self.corporealityBar.statusBar:GetFrameLevel() + 1)
 
 
             self.corporealityBar.startDelay = 0
@@ -280,7 +282,7 @@ function mod.modules.phase3CollectLog:Initialize()
             end
         end
 
-        self:CreateTimer()
+        self:InitializeTimer()
         self:InitializeCorporealityBar()
     end
 
