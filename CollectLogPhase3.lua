@@ -258,12 +258,16 @@ function mod.modules.CollectLogPhase3:Initialize()
             self.CorporealityBar.TwilightIcon:SetWidth(30)
             self.CorporealityBar.TwilightIcon:SetPoint("LEFT")
             self:SetIcon(self.CorporealityBar.TwilightIcon, self.iconsSets[self.prefs.iconsSet].Twilight)
+            self.CorporealityBar.TwilightIcon:EnableMouse(false)
+
 
             self.CorporealityBar.PhysicalIcon = CreateFrame("Button", nil, self.CorporealityBar)
             self.CorporealityBar.PhysicalIcon:SetHeight(30)
             self.CorporealityBar.PhysicalIcon:SetWidth(30)
             self.CorporealityBar.PhysicalIcon:SetPoint("RIGHT")
             self:SetIcon(self.CorporealityBar.PhysicalIcon, self.iconsSets[self.prefs.iconsSet].Physical)
+            self.CorporealityBar.PhysicalIcon:EnableMouse(false)
+
 
             self.CorporealityBar.startDelay = 0
 
