@@ -1,6 +1,5 @@
 HalionHelper = LibStub("AceAddon-3.0"):NewAddon("HalionHelper", "AceEvent-3.0", "AceTimer-3.0", "AceConsole-3.0")
 HalionHelper.MINOR_VERSION = tonumber(("$Revision: 02 $"):match("%d+"))
---local LSM = LibStub("LibSharedMedia-3.0",true)
 
 local mod = _G.HalionHelper
 
@@ -34,6 +33,7 @@ mod.defaults = {
             x = 0,
             y = 300,
         },
+        texture = "Interface\\TargetingFrame\\UI-StatusBar",
     }
 }
 

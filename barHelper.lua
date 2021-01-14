@@ -7,7 +7,6 @@ mod.modules.bar = {
 function mod.modules.bar:Initialize()
 
     function self:Enable()
-        self:DefineDefaultTexture()
     end
 
     function self:Disable()
@@ -17,22 +16,7 @@ function mod.modules.bar:Initialize()
 
     local _self = self
 
-    function self:DefineDefaultTexture()
-        self.texture = "Interface\\Addons\\FlatStatusBar\\Textures\\statusbar\\Flat"
-
-        local textureFrame = CreateFrame("Frame")
-        textureFrame.texture = textureFrame:CreateTexture()
-
-        if not textureFrame.texture:SetTexture("Interface\\Addons\\FlatStatusBar\\Textures\\statusbar\\Flat") then
-            self.texture = "Interface\\TargetingFrame\\UI-StatusBar"
-        end
-    end
-
     function self:NewBar(name, parent)
-
-        if not self.texture then
-            self:DefineDefaultTexture()
-        end
 
         local frame = CreateFrame("Frame", name, parent or UIParent)
 
@@ -42,7 +26,7 @@ function mod.modules.bar:Initialize()
         frame.statusBar:SetHeight(20)
         frame.statusBar:SetWidth(200)
         frame.statusBar:SetPoint("LEFT")
-        frame.statusBar:SetStatusBarTexture(self.texture)
+        frame.statusBar:SetStatusBarTexture(mod.db.profile.texture)
         frame.statusBar:GetStatusBarTexture():SetHorizTile(false)
         frame.statusBar:GetStatusBarTexture():SetVertTile(false)
         frame.statusBar:SetMinMaxValues(0, 1)

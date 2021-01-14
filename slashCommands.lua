@@ -10,10 +10,12 @@ function mod.modules.slashCommands:Initialize()
 
     function mod:ChatCommand(args)
 
-        local arg1 = self:GetArgs(args, 1)
+        local arg1, arg2 = self:GetArgs(args, 2)
 
         if arg1 == "move" and mod.enabled then
             _self:MoveUI()
+        elseif arg1 == "texture" and mod.enabled then
+            _self:SetTexture(arg2)
         else
             if not mod.enabled then
                 mod:Print("Addon is currently disabled! Please go inside The Ruby Sanctum to enable it.")
@@ -22,6 +24,7 @@ function mod.modules.slashCommands:Initialize()
             mod:Print("Usage:")
             mod:Print("|cffffee00/halionhelper help|r - List available subcommands")
             mod:Print("|cffffee00/halionhelper move|r - Display addon interfaces to customize frames positions")
+            mod:Print("|cffffee00/halionhelper texture NAME|r - Set texture of statusbar")
         end
     end
 
@@ -66,6 +69,23 @@ function mod.modules.slashCommands:Initialize()
         end
     end
 
+    function self:SetTexture(name)
+
+        local LSM = LibStub("LibSharedMedia-3.0", true)
+
+        if not LSM then
+            mod:Print("LibSharedMedia not available.")
+
+            return
+        end
+
+        if LSM:IsValid(LSM.MediaType.STATUSBAR, name) then
+            mod.db.profile.texture = LSM:Fetch(LSM.MediaType.STATUSBAR, name)
+            mod:Print("Texture saved! Please reload to apply.")
+        else
+            mod:Print(name .. " is not available as '" .. LSM.MediaType.STATUSBAR .. "' texture!")
+        end
+    end
 end
 
 -- Initialize chat command
