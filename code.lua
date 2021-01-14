@@ -72,14 +72,14 @@ function mod:OnZoneChange()
         if not self.Initialized then
             mod:InitializeAddon()
         elseif not self.Enabled then
-            self:Enabled()
+            self:EnableModules()
         end
     else
 
         if not self.Initialized then
             return
         elseif self.Enabled then
-            self:Disable()
+            self:DisableModules()
         end
     end
 end
@@ -108,11 +108,11 @@ function mod:InitializeAddon()
     self.modules.UIPhase2:Initialize()
     self.modules.CollectLogPhase3:Initialize()
 
-    self:Enable()
+    self:EnableModules()
     self:Print("loaded - Have fun !")
 end
 
-function mod:Enable()
+function mod:EnableModules()
     if not self.Initialized then
         return
     end
@@ -125,7 +125,7 @@ function mod:Enable()
     self.modules.CollectLogPhase3:Enable()
 end
 
-function mod:Disable()
+function mod:DisableModules()
     if not self.Initialized then
         return
     end
