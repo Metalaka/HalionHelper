@@ -1,80 +1,80 @@
---Register Slash Commands---------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------------------
-
 local mod = _G.HalionHelper
 
 mod.modules.slashCommands = {}
-local m = mod.modules.slashCommands
 
-m.frame = CreateFrame("FRAME", "HalionHelperAddonFrame")
-m.frame:RegisterEvent("PLAYER_ENTERING_WORLD") -- Fired when the player enters the world, enters/leaves an instance, or respawns at a graveyard. Also fires any other time the player sees a loading screen.
---m.frame:RegisterEvent("PLAYER_REGEN_DISABLED") -- Fired whenever you enter combat, as normal regen rates are disabled during combat. This means that either you are in the hate list of a NPC or that you've been taking part in a pvp action (either as attacker or victim).
---m.frame:RegisterEvent("PLAYER_REGEN_ENABLED") -- Fired whenever you enter combat, as normal regen rates are disabled during combat. This means that either you are in the hate list of a NPC or that you've been taking part in a pvp action (either as attacker or victim).
---m.frame:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
---m.frame:RegisterEvent("UPDATE_WORLD_STATES")
---m.frame:RegisterEvent("CHAT_MSG_ADDON")
+function mod.modules.slashCommands:Initialize()
 
-m.frame:SetScript("OnEvent", function(self, event, ...)
+    local _self = mod.modules.slashCommands
 
-    print("> " .. event);
-    if ... then
-        print(...);
-    end
-end)
+    mod:RegisterChatCommand("halionhelper", "ChatCommand")
 
-function m:InitializeSlashCommands()
-    SLASH_HALION_HELPER_TEST1 = "/hh"
-    SlashCmdList["HALION_HELPER_TEST"] = function(msg)
-        DEFAULT_CHAT_FRAME:AddMessage("HALION_HELPER_TEST call")
+    function mod:ChatCommand(args)
 
-        if not mod.Initialized then
-            return
-        end
+        local arg1 = self:GetArgs(args, 1)
 
-        m:MoveUI()
-    end
-end
-
-function m:MoveUI()
-
-    function self:ToggleMovable(frame)
-
-        if not frame:IsMovable() then
-            frame:SetMovable(true)
-            frame:EnableMouse(true)
-            frame:RegisterForDrag("LeftButton")
-            frame:SetScript("OnDragStart", frame.StartMoving)
-            frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
+        if arg1 == "move" and mod.Enabled then
+            _self:MoveUI()
         else
-            frame:SetMovable(false)
-            frame:EnableMouse(false)
+            if not mod.Enabled then
+                mod:Print("Addon is currently disabled! Please go inside The Ruby Sanctum to enable it.")
+            end
+
+            mod:Print("Usage:")
+            mod:Print("|cffffee00/halionhelper help|r - List available subcommands")
+            mod:Print("|cffffee00/halionhelper move|r - Display addon interfaces to customize frames positions")
         end
     end
 
-    if not mod.modules.CollectLogPhase3.CorporealityBar:IsShown() then
+    function self:MoveUI()
 
-        self:ToggleMovable(mod.modules.UIPhase2.progressBar)
-        self:ToggleMovable(mod.modules.CollectLogPhase3.UIFrame)
+        function self:ToggleMovable(frame)
 
-        mod.modules.UIPhase2.progressBar:SetValue(0.666)
-        mod.modules.CollectLogPhase3.timer:StartTimer(15)
-        mod.modules.CollectLogPhase3.CorporealityBar:Show()
+            if not frame:IsMovable() then
+                frame:SetMovable(true)
+                frame:EnableMouse(true)
+                frame:RegisterForDrag("LeftButton")
+                frame:SetScript("OnDragStart", frame.StartMoving)
+                frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
+            else
+                frame:SetMovable(false)
+                frame:EnableMouse(false)
+            end
+        end
 
-        DEFAULT_CHAT_FRAME:AddMessage("HalionHelper: movable mode enabled. Disable it to save potitions.")
-    else
-        self:ToggleMovable(mod.modules.UIPhase2.progressBar)
-        self:ToggleMovable(mod.modules.CollectLogPhase3.UIFrame)
+        if not mod.modules.CollectLogPhase3.CorporealityBar:IsShown() then
 
-        mod.modules.UIPhase2.progressBar:SetValue(0)
-        mod.modules.CollectLogPhase3.timer:StartTimer(0)
-        mod.modules.CollectLogPhase3.CorporealityBar:Hide()
+            self:ToggleMovable(mod.modules.UIPhase2.progressBar)
+            self:ToggleMovable(mod.modules.CollectLogPhase3.UIFrame)
+
+            mod.modules.UIPhase2.progressBar:SetValue(0.666)
+            mod.modules.CollectLogPhase3.timer:StartTimer(15)
+            mod.modules.CollectLogPhase3.CorporealityBar:Show()
+
+            mod:Print("movable mode enabled. Disable it to save potitions.")
+        else
+            self:ToggleMovable(mod.modules.UIPhase2.progressBar)
+            self:ToggleMovable(mod.modules.CollectLogPhase3.UIFrame)
+
+            mod.modules.UIPhase2.progressBar:SetValue(0)
+            mod.modules.CollectLogPhase3.timer:StartTimer(0)
+            mod.modules.CollectLogPhase3.CorporealityBar:Hide()
+
+            local point, _, _, x, y = mod.modules.UIPhase2.progressBar:GetPoint(1)
+            mod.db.profile.P2.point = point
+            mod.db.profile.P2.x = x
+            mod.db.profile.P2.y = y
+            local point, _, _, x, y = mod.modules.CollectLogPhase3.UIFrame:GetPoint(1)
+            mod.db.profile.P3.point = point
+            mod.db.profile.P3.x = x
+            mod.db.profile.P3.y = y
+        end
     end
+
 end
 
-m:InitializeSlashCommands()
+-- Initialize chat command
+mod.modules.slashCommands:Initialize()
+
 
 -- TODO:
--- save des positions
--- /hh movable
--- election ?
--- si une seul addon ? hide P3
+-- hide P3 si solo

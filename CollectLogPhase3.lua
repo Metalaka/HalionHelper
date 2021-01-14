@@ -188,7 +188,7 @@ function mod.modules.CollectLogPhase3:Initialize()
 
         local UIFrame = CreateFrame("Frame", "HalionHelper_CollectLogPhase3_UIFrame", UIParent)
         self.UIFrame = UIFrame
-        UIFrame:SetPoint("CENTER")
+        UIFrame:SetPoint(mod.db.profile.P3.point, mod.db.profile.P3.x, mod.db.profile.P3.y)
         UIFrame:SetSize(200, 80)
 
         function self:CreateTimer()

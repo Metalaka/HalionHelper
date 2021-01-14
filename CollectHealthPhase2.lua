@@ -22,7 +22,7 @@ function mod.modules.CollectHealthPhase2:Initialize()
     function self:SetHandler(frame)
 
         if UnitExists(frame.unit) --[[and frame.unit == "boss2"]] and UnitName(frame.unit) == mod.BOSS_NAME then
-            DEFAULT_CHAT_FRAME:AddMessage("CollectHealthPhase2 bound on " .. frame.unit)
+--            DEFAULT_CHAT_FRAME:AddMessage("CollectHealthPhase2 bound on " .. frame.unit)
             frame:SetScript("OnUpdate", self.OnUpdate)
         end
     end

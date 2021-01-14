@@ -1,4 +1,4 @@
-HalionHelper = LibStub("AceAddon-3.0"):NewAddon("HalionHelper", "AceEvent-3.0", "AceTimer-3.0")
+HalionHelper = LibStub("AceAddon-3.0"):NewAddon("HalionHelper", "AceEvent-3.0", "AceTimer-3.0", "AceConsole-3.0")
 HalionHelper.MINOR_VERSION = tonumber(("$Revision: 01 $"):match("%d+"))
 --local LSM = LibStub("LibSharedMedia-3.0",true)
 
@@ -24,14 +24,29 @@ mod.NPC_ID_HALION_PHYSICAL = 39863
 mod.NPC_ID_HALION_TWILIGHT = 40142
 mod.CORPOREALITY_AURA = 74826
 
+mod.defaults = {
+    profile = {
+        P2 = {
+            point = "CENTER",
+            x = 0,
+            y = 200,
+        },
+        P3 = {
+            point = "CENTER",
+            x = 0,
+            y = 300,
+        },
+    }
+}
+
 -- Main Frame
 mod.frame = CreateFrame("Frame", "HalionHelper_AddonFrame")
 function mod.frame:ADDON_LOADED(addon)
-    if addon ~= "HalionHelper" or not mod.ShouldEnableAddon() then
+    if addon ~= "HalionHelper" then
         return
     end
 
-    mod:InitializeAddon()
+    mod:OnZoneChange()
 end
 
 function mod.frame:PLAYER_ENTERING_WORLD()
@@ -57,14 +72,14 @@ function mod:OnZoneChange()
         if not self.Initialized then
             mod:InitializeAddon()
         elseif not self.Enabled then
-            self.Enabled = true
+            self:Enabled()
         end
     else
 
         if not self.Initialized then
             return
         elseif self.Enabled then
-            self.Enabled = false
+            self:Disable()
         end
     end
 end
@@ -85,14 +100,7 @@ function mod:InitializeAddon()
     self.Enabled = true
     self.frame:UnregisterEvent("ADDON_LOADED")
 
-    --    self.modules.main = {}
-
-
-    function self:IsInTwilightRealm()
-        local name = GetSpellInfo(74807)
-
-        return UnitAura("player", name)
-    end
+    self.db = LibStub("AceDB-3.0"):New("HalionHelperDB", mod.defaults, true)
 
     -- go
     self.modules.Bar:Initialize()
@@ -101,7 +109,7 @@ function mod:InitializeAddon()
     self.modules.CollectLogPhase3:Initialize()
 
     self:Enable()
-    DEFAULT_CHAT_FRAME:AddMessage("HH loaded")
+    self:Print("loaded - Have fun !")
 end
 
 function mod:Enable()
@@ -129,6 +137,11 @@ function mod:Disable()
     self.modules.CollectLogPhase3:Disable()
 end
 
+function mod:IsInTwilightRealm()
+    local name = GetSpellInfo(74807)
+
+    return UnitAura("player", name)
+end
 
 function mod:cut(ftext, fcursor)
     local find = string.find(ftext, fcursor);
