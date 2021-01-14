@@ -74,7 +74,3 @@ end
 
 -- Initialize chat command
 mod.modules.slashCommands:Initialize()
-
-
--- TODO:
--- hide P3 si solo

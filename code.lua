@@ -1,12 +1,9 @@
 HalionHelper = LibStub("AceAddon-3.0"):NewAddon("HalionHelper", "AceEvent-3.0", "AceTimer-3.0", "AceConsole-3.0")
-HalionHelper.MINOR_VERSION = tonumber(("$Revision: 01 $"):match("%d+"))
+HalionHelper.MINOR_VERSION = tonumber(("$Revision: 02 $"):match("%d+"))
 --local LSM = LibStub("LibSharedMedia-3.0",true)
-
-if not HalionHelper then return end -- No Upgrade needed.
 
 local mod = _G.HalionHelper
 
-mod.Version = tonumber(("$Revision: 01 $"):match("%d+"))
 mod.Initialized = false
 mod.Enabled = false
 mod.modules = {}
@@ -15,10 +12,10 @@ mod.modules = {}
 -- constants
 mod.BOSS_NAME = "Halion"
 mod.SLEEP_DELAY = 0.2
-mod.ADDON_MESSAGE_PREFIX_DATA = "HH_boss2"
-mod.ADDON_MESSAGE_PREFIX_END = "HH_boss2_end"
+mod.ADDON_MESSAGE_PREFIX_P2_DATA = "HH_P2_DATA"
+mod.ADDON_MESSAGE_PREFIX_P2_END = "HH_P2_END"
 mod.ADDON_MESSAGE_PREFIX_P3_DATA = "HH_P3_DATA"
-mod.ADDON_MESSAGE_PREFIX_P3_TRANSI = "HH_P3_TRANSI"
+mod.ADDON_MESSAGE_PREFIX_P3_TRANSITION = "HH_P3_TRANSI"
 
 mod.NPC_ID_HALION_PHYSICAL = 39863
 mod.NPC_ID_HALION_TWILIGHT = 40142

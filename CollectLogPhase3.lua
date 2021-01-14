@@ -103,7 +103,7 @@ function mod.modules.CollectLogPhase3:Initialize()
                     mod:ScheduleTimer(function() _self:StartMonitor() end, 5)
 
                     -- send transition event to Physical Realm
-                    SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P3_TRANSI, nil, "RAID")
+                    SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P3_TRANSITION, nil, "RAID")
                 else
                     self:StartMonitor()
                 end
@@ -161,10 +161,6 @@ function mod.modules.CollectLogPhase3:Initialize()
             self.CorporealityBar.startDelay = 0.5
 
             self.shoudGoTwilight = self:ShoudGoTwilight()
-
-            if not self.CorporealityBar:IsShown() then
-                self.CorporealityBar:Show()
-            end
         end
 
         function self:CalculatePercent()
@@ -318,7 +314,8 @@ function mod.modules.CollectLogPhase3:Initialize()
 
     function self.frame:CHAT_MSG_ADDON(prefix, message)
 
-        if not _self.enable and prefix == mod.ADDON_MESSAGE_PREFIX_P3_TRANSI and not mod:IsInTwilightRealm() then
+        if not _self.enable and prefix == mod.ADDON_MESSAGE_PREFIX_P3_TRANSITION and not mod:IsInTwilightRealm() then
+            -- Boss in Physical Realm start P3 without a Corporeality aura. This hack start the P3 from the Twilight event
             _self.enable = true
             _self.isFirstCorporeality = false
             _self.side.npcId = mod.NPC_ID_HALION_PHYSICAL
@@ -326,6 +323,7 @@ function mod.modules.CollectLogPhase3:Initialize()
 
             _self.timer:StartTimer(5) -- display 5sec wait timer
             mod:ScheduleTimer(function() _self:StartMonitor() end, 5)
+
         elseif _self.enable and prefix == mod.ADDON_MESSAGE_PREFIX_P3_DATA then
             local npcId, amount = mod:cut(message, ":")
             npcId = tonumber(npcId)
@@ -336,6 +334,11 @@ function mod.modules.CollectLogPhase3:Initialize()
             end
 
             _self.amount[npcId] = tonumber(amount)
+
+            -- Display here, so the bar is only shown where there is one addon in each realm
+            if not _self.CorporealityBar:IsShown() then
+                _self.CorporealityBar:Show()
+            end
         end
     end
 

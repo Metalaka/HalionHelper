@@ -35,20 +35,20 @@ function mod.modules.CollectHealthPhase2:Initialize()
             local percent = frame.healthbar.currValue / hmax
 
             if percent > 0.75 then
-                --                SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_END, nil, "RAID")
+                --                SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P2_END, nil, "RAID")
                 return
             end
 
             --        DEFAULT_CHAT_FRAME:AddMessage(frame.unit .. ": " .. percent)
 
             if percent < 0.5 then
-                SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_END, nil, "RAID")
+                SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P2_END, nil, "RAID")
                 frame:SetScript("OnUpdate", nil)
             end
 
 
             -- send addonmsg
-            SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_DATA, percent, "RAID")
+            SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P2_DATA, percent, "RAID")
         end
     end
 

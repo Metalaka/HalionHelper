@@ -37,9 +37,9 @@ function mod.modules.UIPhase2:Initialize()
 
     -- init
     function self.progressBar:CHAT_MSG_ADDON(prefix, message)
-        if (prefix == mod.ADDON_MESSAGE_PREFIX_END) then
+        if (prefix == mod.ADDON_MESSAGE_PREFIX_P2_END) then
             self:SetValue(0)
-        elseif (prefix == mod.ADDON_MESSAGE_PREFIX_DATA) then
+        elseif (prefix == mod.ADDON_MESSAGE_PREFIX_P2_DATA) then
             self:SetValue(tonumber(message))
         end
     end
