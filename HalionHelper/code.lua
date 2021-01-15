@@ -3,7 +3,7 @@ HalionHelper.MINOR_VERSION = tonumber(("$Revision: 02 $"):match("%d+"))
 
 local mod = _G.HalionHelper
 
-mod.initialized = false
+mod.initialized = 0
 mod.enabled = false
 mod.modules = {}
 
@@ -44,7 +44,7 @@ function mod.frame:ADDON_LOADED(addon)
         return
     end
 
-    mod:OnZoneChange()
+    mod:InitializeAddon()
 end
 
 function mod.frame:PLAYER_ENTERING_WORLD()
@@ -64,20 +64,10 @@ end
 
 function mod:OnZoneChange()
 
-    if self.ShouldEnableAddon() then
-
-        if not self.initialized then
-            self:InitializeAddon()
-        elseif not self.enabled then
-            self:EnableModules()
-        end
-    else
-
-        if not self.initialized then
-            return
-        elseif self.enabled then
-            self:DisableModules()
-        end
+    if self.ShouldEnableAddon() and not self.enabled then
+        self:EnableModules()
+    elseif self.enabled then
+        self:DisableModules()
     end
 end
 
@@ -89,12 +79,12 @@ mod.frame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 -- Initialize
 function mod:InitializeAddon()
 
-    if self.initialized then
+    if self.initialized > 0 then
         return
     end
 
-    self.initialized = true
-    self.enabled = true
+    self.initialized = 1
+    self.enabled = false
     self.frame:UnregisterEvent("ADDON_LOADED")
 
     self.db = LibStub("AceDB-3.0"):New("HalionHelperDB", mod.defaults, true)
@@ -105,12 +95,13 @@ function mod:InitializeAddon()
     self.modules.phase2Ui:Initialize()
     self.modules.phase3CollectLog:Initialize()
 
-    self:EnableModules()
-    self:Print("loaded - Have fun !")
+    self.initialized = 2
+    self:OnZoneChange()
+
 end
 
 function mod:EnableModules()
-    if not self.initialized then
+    if self.initialized ~= 2 then
         return
     end
 
@@ -120,10 +111,12 @@ function mod:EnableModules()
     self.modules.phase2CollectHealth:Enable()
     self.modules.phase2Ui:Enable()
     self.modules.phase3CollectLog:Enable()
+
+    self:Print("loaded - Have fun !")
 end
 
 function mod:DisableModules()
-    if not self.initialized then
+    if self.initialized ~= 2 then
         return
     end
     self.enabled = false

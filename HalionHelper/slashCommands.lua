@@ -12,15 +12,11 @@ function mod.modules.slashCommands:Initialize()
 
         local arg1, arg2 = self:GetArgs(args, 2)
 
-        if arg1 == "move" and mod.enabled then
+        if arg1 == "move" then
             _self:MoveUI()
-        elseif arg1 == "texture" and mod.enabled then
+        elseif arg1 == "texture" then
             _self:SetTexture(arg2)
         else
-            if not mod.enabled then
-                mod:Print("Addon is currently disabled! Please go inside The Ruby Sanctum to enable it.")
-            end
-
             mod:Print("Usage:")
             mod:Print("|cffffee00/halionhelper help|r - List available subcommands")
             mod:Print("|cffffee00/halionhelper move|r - Display addon interfaces to customize frames positions")
