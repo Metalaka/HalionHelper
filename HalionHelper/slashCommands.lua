@@ -40,28 +40,20 @@ function mod.modules.slashCommands:Initialize()
             end
         end
 
-        self:ToggleMovable(mod.modules.phase2Ui.progressBar)
+        self:ToggleMovable(mod.modules.phase2Ui.healthBar)
         self:ToggleMovable(mod.modules.phase3CollectLog.ui.uiFrame)
 
-        if not mod.modules.phase3CollectLog.ui.corporealityBar:IsShown() then
-            mod.modules.phase2Ui.progressBar:SetValue(0.666)
+        if not mod.modules.phase3CollectLog.ui.uiFrame:IsShown() then
             mod.modules.phase3CollectLog.ui.timer:StartTimer(15)
-            mod.modules.phase3CollectLog.ui.corporealityBar:Show()
 
-            mod:Print("movable mode enabled. Disable it to save potitions.")
+            mod:Print("movable mode enabled. Disable it to save potition.")
         else
-            mod.modules.phase2Ui.progressBar:SetValue(0)
-            mod.modules.phase3CollectLog.ui.timer:StartTimer(0)
-            mod.modules.phase3CollectLog.ui.corporealityBar:Hide()
+            mod.modules.phase3CollectLog.ui.timer:StopTimer(0)
 
-            local point, _, _, x, y = mod.modules.phase2Ui.progressBar:GetPoint(1)
-            mod.db.profile.P2.point = point
-            mod.db.profile.P2.x = x
-            mod.db.profile.P2.y = y
             local point, _, _, x, y = mod.modules.phase3CollectLog.ui.uiFrame:GetPoint(1)
-            mod.db.profile.P3.point = point
-            mod.db.profile.P3.x = x
-            mod.db.profile.P3.y = y
+            mod.db.profile.ui.point = point
+            mod.db.profile.ui.x = x
+            mod.db.profile.ui.y = y
         end
     end
 

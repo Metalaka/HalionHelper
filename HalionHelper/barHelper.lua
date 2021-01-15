@@ -16,30 +16,24 @@ function mod.modules.bar:Initialize()
 
     function self:NewBar(name, parent)
 
-        local frame = CreateFrame("Frame", name, parent or UIParent)
+        local frame = CreateFrame("StatusBar", name, parent or UIParent)
+        frame:SetHeight(20)
+        frame:SetWidth(170)
+        frame:SetPoint("CENTER")
+        frame:SetStatusBarTexture(mod.db.profile.texture)
+        frame:GetStatusBarTexture():SetHorizTile(false)
+        frame:GetStatusBarTexture():SetVertTile(false)
+        frame:SetMinMaxValues(0, 1)
 
-        frame:SetSize(200, 50)
+        frame.background = frame:CreateTexture(nil, "BACKGROUND")
+        frame.background:SetTexture(mod.db.profile.texture)
+        frame.background:SetAllPoints()
+        frame.background:SetVertexColor(0, 0, 0, 0.33)
 
-        frame.statusBar = CreateFrame("StatusBar", nil, frame)
-        frame.statusBar:SetHeight(20)
-        frame.statusBar:SetWidth(200)
-        frame.statusBar:SetPoint("LEFT")
-        frame.statusBar:SetStatusBarTexture(mod.db.profile.texture)
-        frame.statusBar:GetStatusBarTexture():SetHorizTile(false)
-        frame.statusBar:GetStatusBarTexture():SetVertTile(false)
-        frame.statusBar:SetMinMaxValues(0, 1)
-
-        frame.statusBar.background = frame.statusBar:CreateTexture(nil, "BACKGROUND")
-        frame.statusBar.background:SetTexture(mod.db.profile.texture)
-        frame.statusBar.background:SetAllPoints()
-        frame.statusBar.background:SetVertexColor(0, 0, 0, 0.33)
-
-        frame.statusBar.timeText = frame.statusBar:CreateFontString(nil, "OVERLAY")
-        frame.statusBar.timeText:SetPoint("CENTER")
-        frame.statusBar.timeText:SetFont("Fonts\\FRIZQT__.TTF", 12, "OUTLINE")
-        frame.statusBar.timeText:SetTextColor(1, 1, 1)
-
-        frame:Hide()
+        frame.timeText = frame:CreateFontString(nil, "OVERLAY")
+        frame.timeText:SetPoint("CENTER")
+        frame.timeText:SetFont("Fonts\\FRIZQT__.TTF", 12, "OUTLINE")
+        frame.timeText:SetTextColor(1, 1, 1)
 
         frame:SetScript("OnEvent",
             function(self, event, ...) if self[event] then return self[event](self, ...) end end)

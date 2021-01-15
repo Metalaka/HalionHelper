@@ -12,9 +12,6 @@ mod.modules.phase3CollectLog = {
         npcId = nil,
         corporeality = nil,
     },
-    prefs = {
-        iconsSet = "REALM"
-    },
     --
     corporealityAuras = {
         [74836] = { dealt = -70, taken = -100, }, --  70% less dealt, 100% less taken
@@ -55,7 +52,7 @@ function mod.modules.phase3CollectLog:Initialize()
         self.frame:UnregisterEvent("PLAYER_REGEN_ENABLED")
         self.frame:UnregisterEvent("CHAT_MSG_ADDON")
 
-        self.frame:SetScript("OnUpdate", nil)
+        self.frame:PLAYER_REGEN_ENABLED()
     end
 
     --
@@ -168,94 +165,44 @@ function mod.modules.phase3CollectLog:Initialize()
             return _self.amount[mod.NPC_ID_HALION_PHYSICAL] / mod:max(total, 1)
         end
 
-        local uiFrame = CreateFrame("Frame", "HalionHelper_phase3CollectLog_uiFrame", UIParent)
-        self.uiFrame = uiFrame
-        uiFrame:SetPoint(mod.db.profile.P3.point, mod.db.profile.P3.x, mod.db.profile.P3.y)
-        --        uiFrame:SetPoint("CENTER")
-        uiFrame:SetSize(200, 30)
+        function self:SetIcon(frame, spellId)
+            if not frame then return end
 
-        function self:InitializeTimer()
+            local icon = select(3, GetSpellInfo(spellId))
 
-            self.timer = mod.modules.bar:NewBar("HalionHelper_phase3CollectLog_Timer", self.uiFrame)
-            self.timer:SetPoint("CENTER", 0, -20)
-            self.timer.statusBar:SetPoint("CENTER")
-            self.timer.statusBar:SetHeight(5)
-            self.timer.statusBar:SetWidth(140)
-            self.timer.expire = nil
-
-            self.timer:SetScript("OnUpdate", function(self)
-                local left = self.expire - GetTime()
-
-                if (left < 0) then
-                    self:StopTimer()
-                else
-                    self:SetValue(left)
-                end
-            end)
-
-            function self.timer:StartTimer(time)
-                self.expire = GetTime() + time
-                self.statusBar:SetMinMaxValues(0, time)
-                self.statusBar:SetValue(time)
-                self:Show()
-            end
-
-            function self.timer:StopTimer()
-                self.expire = nil
-                self:Hide()
-            end
-
-            function self.timer:SetValue(left)
-                self.statusBar:SetValue(left)
-                --                self.statusBar.timeText:SetText(self:FormatTime(left) .. " sec")
-            end
-
-            function self.timer:FormatTime(left)
-                if (not left or not type(left) == 'number' or left < 0) then left = 0 end
-                if (left < 10) then
-                    return (string.format("%01.1f", left))
-                elseif (left < 60) then
-                    return (string.format("%d", left))
-                else
-                    return (string.format("%d:%02d", left / 60, left % 60))
-                end
+            frame:SetNormalTexture(icon)
+            if (icon) then
+                frame:GetNormalTexture():SetTexCoord(.07, .93, .07, .93)
             end
         end
 
+        local uiFrame = CreateFrame("Frame", "HalionHelper_phase3CollectLog_uiFrame", UIParent)
+        self.uiFrame = uiFrame
+        uiFrame:SetPoint(mod.db.profile.ui.point, mod.db.profile.ui.x, mod.db.profile.ui.y)
+        --        uiFrame:SetPoint("CENTER")
+        uiFrame:SetSize(170 + 60, 30)
+
+        uiFrame.twilightIcon = CreateFrame("Button", nil, uiFrame)
+        uiFrame.twilightIcon:SetHeight(30)
+        uiFrame.twilightIcon:SetWidth(30)
+        uiFrame.twilightIcon:SetPoint("LEFT")
+        self:SetIcon(uiFrame.twilightIcon, _self.iconsSets[mod.db.profile.iconsSet].twilight)
+        uiFrame.twilightIcon:EnableMouse(false)
+
+        uiFrame.physicalIcon = CreateFrame("Button", nil, uiFrame)
+        uiFrame.physicalIcon:SetHeight(30)
+        uiFrame.physicalIcon:SetWidth(30)
+        uiFrame.physicalIcon:SetPoint("RIGHT")
+        self:SetIcon(uiFrame.physicalIcon, _self.iconsSets[mod.db.profile.iconsSet].physical)
+        uiFrame.physicalIcon:EnableMouse(false)
+
+        uiFrame:Hide()
+
         function self:InitializeCorporealityBar()
 
-            function self:SetIcon(frame, spellId)
-                if not frame then return end
-
-                local icon = select(3, GetSpellInfo(spellId))
-
-                frame:SetNormalTexture(icon)
-                if (icon) then
-                    frame:GetNormalTexture():SetTexCoord(.07, .93, .07, .93)
-                end
-            end
-
             self.corporealityBar = mod.modules.bar:NewBar("HalionHelper_phase3CollectLog_corporealityBar", self.uiFrame)
-            self.corporealityBar:SetPoint("CENTER")
-            self.corporealityBar.statusBar:SetValue(0.5)
-
-            self.corporealityBar.twilightIcon = CreateFrame("Button", nil, self.corporealityBar)
-            self.corporealityBar.twilightIcon:SetHeight(30)
-            self.corporealityBar.twilightIcon:SetWidth(30)
-            self.corporealityBar.twilightIcon:SetPoint("LEFT")
-            self:SetIcon(self.corporealityBar.twilightIcon, _self.iconsSets[_self.prefs.iconsSet].twilight)
-            self.corporealityBar.twilightIcon:EnableMouse(false)
-            self.corporealityBar.twilightIcon:SetFrameLevel(self.corporealityBar.statusBar:GetFrameLevel() + 1)
-
-
-            self.corporealityBar.physicalIcon = CreateFrame("Button", nil, self.corporealityBar)
-            self.corporealityBar.physicalIcon:SetHeight(30)
-            self.corporealityBar.physicalIcon:SetWidth(30)
-            self.corporealityBar.physicalIcon:SetPoint("RIGHT")
-            self:SetIcon(self.corporealityBar.physicalIcon, _self.iconsSets[_self.prefs.iconsSet].physical)
-            self.corporealityBar.physicalIcon:EnableMouse(false)
-            self.corporealityBar.physicalIcon:SetFrameLevel(self.corporealityBar.statusBar:GetFrameLevel() + 1)
-
+            self.corporealityBar:SetPoint("TOP")
+            self.corporealityBar:SetHeight(25)
 
             self.corporealityBar.startDelay = 0
 
@@ -266,21 +213,65 @@ function mod.modules.phase3CollectLog:Initialize()
                     frame.elapsed = 0
                     frame.startDelay = 0
 
-                    _self.ui.corporealityBar:SetValue(_self.ui:CalculatePercent())
+                    _self.ui:SetCorporealityValue(_self.ui:CalculatePercent())
                 end
             end)
 
-            function self.corporealityBar:SetValue(value)
-                self.statusBar:SetValue(value)
-                self.statusBar.timeText:SetText(string.format("%.1f", value * 100) .. " %")
+            function self:SetCorporealityValue(value)
+                self.corporealityBar:SetValue(value)
+                self.corporealityBar.timeText:SetText(string.format("%.1f", value * 100) .. " %")
 
-                --                if shoudGoTwilight and value > 0.5 and _self.side.corporeality.taken == 1 then
-                --                    self.StatusBar:SetStatusBarColor(1, 0.6, 0.05)
+                --                if _self.shoudGoTwilight and value > 0.5 and _self.side.corporeality.taken == 1 then
+                --                    self.corporealityBar:SetStatusBarColor(1, 0.6, 0.05)
                 --                else
                 if (_self.shoudGoTwilight and value > 0.5) or (not _self.shoudGoTwilight and value < 0.5) then
-                    self.statusBar:SetStatusBarColor(1, 0, 0)
+                    self.corporealityBar:SetStatusBarColor(1, 0, 0)
                 else
-                    self.statusBar:SetStatusBarColor(0, 1, 0)
+                    self.corporealityBar:SetStatusBarColor(0, 1, 0)
+                end
+            end
+        end
+
+        function self:InitializeTimer()
+
+            self.timer = mod.modules.bar:NewBar("HalionHelper_phase3CollectLog_Timer", self.uiFrame)
+            self.timer:SetPoint("BOTTOM")
+            self.timer:SetHeight(5)
+            self.timer.expire = nil
+
+            self.timer:SetScript("OnUpdate", function(self)
+                local left = self.expire - GetTime()
+
+                if (left < 0) then
+                    self.expire = 0
+                else
+                    self:SetValue(left)
+                end
+            end)
+
+            function self.timer:StartTimer(time)
+                self.expire = GetTime() + time
+                self:SetMinMaxValues(0, time)
+                self:SetValue(time)
+
+                if not _self.ui.uiFrame:IsShown() then
+                    _self.ui.uiFrame:Show()
+                end
+            end
+
+            function self.timer:StopTimer()
+                self.expire = nil
+                _self.ui.uiFrame:Hide()
+            end
+
+            function self.timer:FormatTime(left)
+                if (not left or not type(left) == 'number' or left < 0) then left = 0 end
+                if (left < 10) then
+                    return (string.format("%01.1f", left))
+                elseif (left < 60) then
+                    return (string.format("%d", left))
+                else
+                    return (string.format("%d:%02d", left / 60, left % 60))
                 end
             end
         end
@@ -351,10 +342,7 @@ function mod.modules.phase3CollectLog:Initialize()
         _self.enable = false
         _self.isFirstCorporeality = true
 
-        _self.ui.timer:StartTimer(0)
-        if _self.ui.corporealityBar:IsShown() then
-            _self.ui.corporealityBar:Hide()
-        end
+        _self.ui.timer:StopTimer()
     end
 
     self.dc:InitializeDataCollect()

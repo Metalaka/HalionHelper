@@ -23,22 +23,20 @@ mod.CORPOREALITY_AURA = 74826
 
 mod.defaults = {
     profile = {
-        P2 = {
+        ui = {
             point = "CENTER",
             x = 0,
             y = 200,
         },
-        P3 = {
-            point = "CENTER",
-            x = 0,
-            y = 300,
-        },
         texture = "Interface\\TargetingFrame\\UI-StatusBar",
+        iconsSet = "REALM",
     }
 }
 
 -- Main Frame
 mod.frame = CreateFrame("Frame", "HalionHelper_AddonMainFrame")
+mod.frame:SetScript("OnEvent", function(self, event, ...) if self[event] then return self[event](self, ...) end end)
+
 function mod.frame:ADDON_LOADED(addon)
     if addon ~= mod.ADDON_NAME then
         return
@@ -58,23 +56,18 @@ end
 function mod:ShouldEnableAddon()
 
     local name = GetRealZoneText()
---todo: localize
+    --todo: localize
     return name == "The Ruby Sanctum" or name == "Le sanctum Rubis"
 end
 
 function mod:OnZoneChange()
 
-    if self.ShouldEnableAddon() and not self.enabled then
+    if self:ShouldEnableAddon() and not self.enabled then
         self:EnableModules()
-    elseif self.enabled then
+    elseif not self:ShouldEnableAddon() and self.enabled then
         self:DisableModules()
     end
 end
-
-mod.frame:SetScript("OnEvent", function(self, event, ...) if self[event] then return self[event](self, ...) end end)
-mod.frame:RegisterEvent("ADDON_LOADED")
-mod.frame:RegisterEvent("PLAYER_ENTERING_WORLD")
-mod.frame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 
 -- Initialize
 function mod:InitializeAddon()
@@ -97,7 +90,6 @@ function mod:InitializeAddon()
 
     self.initialized = 2
     self:OnZoneChange()
-
 end
 
 function mod:EnableModules()
@@ -119,6 +111,7 @@ function mod:DisableModules()
     if self.initialized ~= 2 then
         return
     end
+
     self.enabled = false
 
     self.modules.bar:Disable()
@@ -142,3 +135,8 @@ function mod:max(a, b)
     if a > b then return a end
     return b
 end
+
+-- run
+mod.frame:RegisterEvent("ADDON_LOADED")
+mod.frame:RegisterEvent("PLAYER_ENTERING_WORLD")
+mod.frame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
