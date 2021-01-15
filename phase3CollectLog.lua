@@ -171,13 +171,16 @@ function mod.modules.phase3CollectLog:Initialize()
         local uiFrame = CreateFrame("Frame", "HalionHelper_phase3CollectLog_uiFrame", UIParent)
         self.uiFrame = uiFrame
         uiFrame:SetPoint(mod.db.profile.P3.point, mod.db.profile.P3.x, mod.db.profile.P3.y)
---        uiFrame:SetPoint("CENTER")
-        uiFrame:SetSize(200, 80)
+        --        uiFrame:SetPoint("CENTER")
+        uiFrame:SetSize(200, 30)
 
         function self:InitializeTimer()
 
             self.timer = mod.modules.bar:NewBar("HalionHelper_phase3CollectLog_Timer", self.uiFrame)
-            self.timer:SetPoint("BOTTOM")
+            self.timer:SetPoint("CENTER", 0, -20)
+            self.timer.statusBar:SetPoint("CENTER")
+            self.timer.statusBar:SetHeight(5)
+            self.timer.statusBar:SetWidth(140)
             self.timer.expire = nil
 
             self.timer:SetScript("OnUpdate", function(self)
@@ -204,7 +207,7 @@ function mod.modules.phase3CollectLog:Initialize()
 
             function self.timer:SetValue(left)
                 self.statusBar:SetValue(left)
-                self.statusBar.timeText:SetText(self:FormatTime(left) .. " sec")
+                --                self.statusBar.timeText:SetText(self:FormatTime(left) .. " sec")
             end
 
             function self.timer:FormatTime(left)
@@ -233,7 +236,7 @@ function mod.modules.phase3CollectLog:Initialize()
             end
 
             self.corporealityBar = mod.modules.bar:NewBar("HalionHelper_phase3CollectLog_corporealityBar", self.uiFrame)
-            self.corporealityBar:SetPoint("TOP")
+            self.corporealityBar:SetPoint("CENTER")
             self.corporealityBar.statusBar:SetValue(0.5)
 
             self.corporealityBar.twilightIcon = CreateFrame("Button", nil, self.corporealityBar)
