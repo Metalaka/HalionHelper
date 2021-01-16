@@ -105,9 +105,11 @@ function mod.modules.phase3CollectLog:Initialize()
 
                 if _self.isFirstCorporeality then
                     _self.isFirstCorporeality = false
-                    _self.enable = true
                     _self.ui.timer:StartTimer(5) -- display 5sec wait timer
-                    mod:ScheduleTimer(function() _self:StartMonitor() end, 5)
+                    mod:ScheduleTimer(function()
+                        _self.enable = true
+                        _self:StartMonitor()
+                    end, 5)
 
                     -- send transition event to Physical Realm
                     SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P3_TRANSITION, nil, "RAID")
@@ -203,6 +205,7 @@ function mod.modules.phase3CollectLog:Initialize()
             self.corporealityBar = mod.modules.bar:NewBar("HalionHelper_phase3CollectLog_corporealityBar", self.uiFrame)
             self.corporealityBar:SetPoint("TOP")
             self.corporealityBar:SetHeight(25)
+            self.corporealityBar:SetValue(1)
 
             self.corporealityBar.startDelay = 0
 
@@ -213,22 +216,45 @@ function mod.modules.phase3CollectLog:Initialize()
                     frame.elapsed = 0
                     frame.startDelay = 0
 
-                    _self.ui:SetCorporealityValue(_self.ui:CalculatePercent())
+                    _self.ui:UpdateCorporealityBar()
                 end
             end)
 
-            function self:SetCorporealityValue(value)
-                self.corporealityBar:SetValue(value)
-                self.corporealityBar.timeText:SetText(string.format("%.1f", value * 100) .. " %")
+            function self:UpdateCorporealityBar()
 
-                --                if _self.shoudGoTwilight and value > 0.5 and _self.side.corporeality.taken == 1 then
-                --                    self.corporealityBar:SetStatusBarColor(1, 0.6, 0.05)
-                --                else
-                if (_self.shoudGoTwilight and value > 0.5) or (not _self.shoudGoTwilight and value < 0.5) then
-                    self.corporealityBar:SetStatusBarColor(1, 0, 0)
-                else
+                local percent, text = self:CalculatePercent(), ""
+
+                -- orange (1, 0.6, 0.05)
+
+                if (_self.shoudGoTwilight and percent < 0.45) or (not _self.shoudGoTwilight and percent > 0.45) then
                     self.corporealityBar:SetStatusBarColor(0, 1, 0)
+                    -- go
+                elseif _self.shoudGoTwilight then
+                    if _self.side:IsPhysical() then
+                        self.corporealityBar:SetStatusBarColor(1, 0, 0)
+                        -- stop
+                    else
+                        self.corporealityBar:SetStatusBarColor(1, 0.95, 0)
+                        -- gogogo
+                    end
+                else
+                    if _self.side:IsTwilight() then
+                        self.corporealityBar:SetStatusBarColor(1, 0, 0)
+                        -- stop
+                    else
+                        self.corporealityBar:SetStatusBarColor(1, 0.95, 0)
+                        -- gogogo
+                    end
                 end
+
+                local p, t = _self.amount[mod.NPC_ID_HALION_PHYSICAL], _self.amount[mod.NPC_ID_HALION_TWILIGHT]
+                if _self.side:IsPhysical() then
+                    text = math.floor((p - t) / 1000)
+                else
+                    text = math.floor((t - p) / 1000)
+                end
+
+                self.corporealityBar.timeText:SetText(text .. " K")
             end
         end
 
@@ -276,12 +302,13 @@ function mod.modules.phase3CollectLog:Initialize()
             end
         end
 
-        self:InitializeTimer()
         self:InitializeCorporealityBar()
+        self:InitializeTimer()
     end
 
     function self:StartMonitor()
-        self.amount[self.side.npcId] = 0
+        self.amount[mod.NPC_ID_HALION_PHYSICAL] = 0
+        self.amount[mod.NPC_ID_HALION_TWILIGHT] = 0
         self.ui.timer:StartTimer(15)
         self.ui.corporealityBar.startDelay = 0.5
 
@@ -308,16 +335,18 @@ function mod.modules.phase3CollectLog:Initialize()
 
     function self.frame:CHAT_MSG_ADDON(prefix, message)
 
-        if not _self.enable and prefix == mod.ADDON_MESSAGE_PREFIX_P3_TRANSITION and not mod:IsInTwilightRealm() then
+        if _self.isFirstCorporeality and prefix == mod.ADDON_MESSAGE_PREFIX_P3_TRANSITION and not mod:IsInTwilightRealm() then
             -- Boss in Physical Realm start P3 without a Corporeality aura.
             -- This hack start the P3 from the Twilight event
-            _self.enable = true
             _self.isFirstCorporeality = false
             _self.side.npcId = mod.NPC_ID_HALION_PHYSICAL
             _self.side.corporeality = _self.corporealityAuras[mod.CORPOREALITY_AURA]
 
             _self.ui.timer:StartTimer(5) -- display 5sec wait timer
-            mod:ScheduleTimer(function() _self:StartMonitor() end, 5)
+            mod:ScheduleTimer(function()
+                _self.enable = true
+                _self:StartMonitor()
+            end, 5)
 
         elseif _self.enable and prefix == mod.ADDON_MESSAGE_PREFIX_P3_DATA then
             local npcId, amount = mod:cut(message, ":")
@@ -329,11 +358,6 @@ function mod.modules.phase3CollectLog:Initialize()
             end
 
             _self.amount[npcId] = tonumber(amount)
-
-            -- Display here, so the bar is only shown where there is one addon in each realm
-            if not _self.ui.corporealityBar:IsShown() then
-                _self.ui.corporealityBar:Show()
-            end
         end
     end
 

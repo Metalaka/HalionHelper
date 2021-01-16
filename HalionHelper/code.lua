@@ -1,5 +1,5 @@
 HalionHelper = LibStub("AceAddon-3.0"):NewAddon("HalionHelper", "AceEvent-3.0", "AceTimer-3.0", "AceConsole-3.0")
-HalionHelper.MINOR_VERSION = tonumber(("$Revision: 03 $"):match("%d+"))
+HalionHelper.MINOR_VERSION = tonumber(("$Revision: 04 $"):match("%d+"))
 
 local mod = _G.HalionHelper
 
