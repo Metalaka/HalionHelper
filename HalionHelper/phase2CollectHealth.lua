@@ -36,7 +36,7 @@ function mod.modules.phase2CollectHealth:Initialize()
 
     local _self = self
 
-    function self:CollectAndSendData(frame, elapsed)
+    function self.CollectAndSendData(frame, elapsed)
 
         frame.elapsed = (frame.elapsed or 0) + elapsed
         if frame.elapsed > mod.SLEEP_DELAY then
@@ -56,7 +56,7 @@ function mod.modules.phase2CollectHealth:Initialize()
                 -- stop script in P3
                 SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P2_END, nil, "RAID")
 
-                self.enable = false
+                _self.enable = false
                 frame:SetScript("OnUpdate", nil)
             end
 

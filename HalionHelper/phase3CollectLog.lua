@@ -328,7 +328,7 @@ function mod.modules.phase3CollectLog:Initialize()
         self.shoudGoTwilight = self:ShoudGoTwilight()
     end
 
-    function self:SendData(frame, elapsed)
+    function self.SendData(frame, elapsed)
 
         if not _self.dc.P3 or not _self.side.npcId or _self.amount[_self.side.npcId] == 0 then
             return

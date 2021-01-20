@@ -83,10 +83,12 @@ function mod.modules.slashCommands:Initialize()
             mod.db.profile.forceDataCollect = false
 
             mod.modules.phase2CollectHealth:ManageCollectActivation()
+            mod.modules.phase3CollectLog:ManageCollectActivation()
         else
             mod.db.profile.forceDataCollect = true
 
             mod.modules.phase2CollectHealth:ManageCollectActivation()
+            mod.modules.phase3CollectLog:ManageCollectActivation()
         end
 
         mod:Print("Collect of datas forced to: " .. tostring(mod.db.profile.forceDataCollect))
