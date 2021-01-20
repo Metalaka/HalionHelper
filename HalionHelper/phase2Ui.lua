@@ -15,7 +15,7 @@ function mod.modules.phase2Ui:Initialize()
         self:SetHealthValue(0)
     end
 
-    --
+    -- functions
 
     local _self = self
 
@@ -40,7 +40,8 @@ function mod.modules.phase2Ui:Initialize()
         end
     end
 
-    -- init
+    -- event
+
     function self.healthBar:CHAT_MSG_ADDON(prefix, message)
         if (prefix == mod.ADDON_MESSAGE_PREFIX_P2_END) then
             _self:SetHealthValue(0)

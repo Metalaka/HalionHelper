@@ -42,23 +42,40 @@ mod.modules.phase3CollectLog = {
 function mod.modules.phase3CollectLog:Initialize()
 
     function self:Enable()
-        self.frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
         self.frame:RegisterEvent("PLAYER_REGEN_ENABLED")
         self.frame:RegisterEvent("CHAT_MSG_ADDON")
+        self.frame:RegisterEvent("RAID_ROSTER_UPDATE")
+
+        self:ManageCollectActivation()
     end
 
     function self:Disable()
-        self.frame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
         self.frame:UnregisterEvent("PLAYER_REGEN_ENABLED")
         self.frame:UnregisterEvent("CHAT_MSG_ADDON")
+        self.frame:UnregisterEvent("RAID_ROSTER_UPDATE")
 
         self.frame:PLAYER_REGEN_ENABLED()
+        self:ManageCollectActivation()
     end
 
-    --
+    function self:ManageCollectActivation()
+        if not self.enable and mod:IsRemarkablePlayer() then
+            self.enable = true
+            self.frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 
-    local _self = mod.modules.phase3CollectLog
-    self.dc, self.ui = {}, {}
+            self.frame:SetScript("OnUpdate", self.SendData)
+        elseif self.enable and not mod:IsRemarkablePlayer() then
+            self.enable = false
+            self.frame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+
+            self.frame:SetScript("OnUpdate", nil)
+        end
+    end
+
+    -- functions
+
+    local _self = self
+    self.dc, self.ui = { P3 = false }, {}
 
     function self.side:IsPhysical()
         return self.npcId == mod.NPC_ID_HALION_PHYSICAL
@@ -107,7 +124,7 @@ function mod.modules.phase3CollectLog:Initialize()
                     _self.isFirstCorporeality = false
                     _self.ui.timer:StartTimer(5) -- display 5sec wait timer
                     mod:ScheduleTimer(function()
-                        _self.enable = true
+                        _self.dc.P3 = true
                         _self:StartMonitor()
                     end, 5)
 
@@ -143,7 +160,7 @@ function mod.modules.phase3CollectLog:Initialize()
             if dstName ~= mod.BOSS_NAME then
                 return
             end
-            if not _self.enable and not (eventtype == "SPELL_AURA_APPLIED" and srcGUID == dstGUID) then
+            if not _self.dc.P3 and not (eventtype == "SPELL_AURA_APPLIED" and srcGUID == dstGUID) then
                 return
             end
 
@@ -152,10 +169,6 @@ function mod.modules.phase3CollectLog:Initialize()
             if parsefunc then
                 parsefunc(self, timestamp, eventtype, srcGUID, srcName, srcFlags, dstGUID, dstName, ...)
             end
-        end
-
-        function _self.frame:COMBAT_LOG_EVENT_UNFILTERED(...)
-            _self.dc:CombatLogEvent(...)
         end
     end
 
@@ -315,12 +328,9 @@ function mod.modules.phase3CollectLog:Initialize()
         self.shoudGoTwilight = self:ShoudGoTwilight()
     end
 
-    self.frame = CreateFrame("Frame", "HalionHelper_phase3CollectLog")
-    self.frame:SetScript("OnEvent", function(self, event, ...) if self[event] then return self[event](self, ...) end end)
+    function self:SendData(frame, elapsed)
 
-    self.frame:SetScript("OnUpdate", function(frame, elapsed)
-
-        if not _self.enable or not _self.side.npcId or _self.amount[_self.side.npcId] == 0 then
+        if not _self.dc.P3 or not _self.side.npcId or _self.amount[_self.side.npcId] == 0 then
             return
         end
 
@@ -331,7 +341,18 @@ function mod.modules.phase3CollectLog:Initialize()
             local payload = _self.side.npcId .. ":" .. _self.amount[_self.side.npcId]
             SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P3_DATA, payload, "RAID")
         end
-    end)
+    end
+
+    -- frame
+
+    self.frame = CreateFrame("Frame", "HalionHelper_phase3CollectLog")
+    self.frame:SetScript("OnEvent", function(self, event, ...) if self[event] then return self[event](self, ...) end end)
+
+    -- event
+
+    function self.frame:COMBAT_LOG_EVENT_UNFILTERED(...)
+        self.dc:CombatLogEvent(...)
+    end
 
     function self.frame:CHAT_MSG_ADDON(prefix, message)
 
@@ -344,11 +365,11 @@ function mod.modules.phase3CollectLog:Initialize()
 
             _self.ui.timer:StartTimer(5) -- display 5sec wait timer
             mod:ScheduleTimer(function()
-                _self.enable = true
+                _self.dc.P3 = true
                 _self:StartMonitor()
             end, 5)
 
-        elseif _self.enable and prefix == mod.ADDON_MESSAGE_PREFIX_P3_DATA then
+        elseif prefix == mod.ADDON_MESSAGE_PREFIX_P3_DATA then
             local npcId, amount = mod:cut(message, ":")
             npcId = tonumber(npcId)
 
@@ -363,11 +384,17 @@ function mod.modules.phase3CollectLog:Initialize()
 
     function self.frame:PLAYER_REGEN_ENABLED()
 
-        _self.enable = false
+        _self.dc.P3 = false
         _self.isFirstCorporeality = true
 
         _self.ui.timer:StopTimer()
     end
+
+    function self.frame:RAID_ROSTER_UPDATE()
+        _self.ManageCollectActivation()
+    end
+
+    -- init
 
     self.dc:InitializeDataCollect()
     self.ui:InitializeUI()

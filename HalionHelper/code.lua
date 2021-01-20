@@ -1,5 +1,5 @@
 HalionHelper = LibStub("AceAddon-3.0"):NewAddon("HalionHelper", "AceEvent-3.0", "AceTimer-3.0", "AceConsole-3.0")
-HalionHelper.MINOR_VERSION = tonumber(("$Revision: 04 $"):match("%d+"))
+HalionHelper.MINOR_VERSION = tonumber(("$Revision: 05 $"):match("%d+"))
 
 local mod = _G.HalionHelper
 
@@ -9,6 +9,7 @@ mod.modules = {}
 
 
 -- constants
+
 mod.ADDON_NAME = "HalionHelper"
 mod.BOSS_NAME = "Halion"
 mod.SLEEP_DELAY = 0.2
@@ -30,46 +31,12 @@ mod.defaults = {
         },
         texture = "Interface\\TargetingFrame\\UI-StatusBar",
         iconsSet = "REALM",
+        forceDataCollect = false,
     }
 }
 
--- Main Frame
-mod.frame = CreateFrame("Frame", "HalionHelper_AddonMainFrame")
-mod.frame:SetScript("OnEvent", function(self, event, ...) if self[event] then return self[event](self, ...) end end)
+-- functions
 
-function mod.frame:ADDON_LOADED(addon)
-    if addon ~= mod.ADDON_NAME then
-        return
-    end
-
-    mod:InitializeAddon()
-end
-
-function mod.frame:PLAYER_ENTERING_WORLD()
-    mod:OnZoneChange()
-end
-
-function mod.frame:ZONE_CHANGED_NEW_AREA()
-    mod:OnZoneChange()
-end
-
-function mod:ShouldEnableAddon()
-
-    local name = GetRealZoneText()
-    --todo: localize
-    return name == "The Ruby Sanctum" or name == "Le sanctum Rubis"
-end
-
-function mod:OnZoneChange()
-
-    if self:ShouldEnableAddon() and not self.enabled then
-        self:EnableModules()
-    elseif not self:ShouldEnableAddon() and self.enabled then
-        self:DisableModules()
-    end
-end
-
--- Initialize
 function mod:InitializeAddon()
 
     if self.initialized > 0 then
@@ -120,11 +87,62 @@ function mod:DisableModules()
     self.modules.phase3CollectLog:Disable()
 end
 
+function mod:ShouldEnableAddon()
+
+    local name = GetRealZoneText()
+    --todo: localize
+    return name == "The Ruby Sanctum" or name == "Le sanctum Rubis"
+end
+
+function mod:OnZoneChange()
+
+    if self:ShouldEnableAddon() and not self.enabled then
+        self:EnableModules()
+    elseif not self:ShouldEnableAddon() and self.enabled then
+        self:DisableModules()
+    end
+end
+
+-- Main Frame
+
+mod.frame = CreateFrame("Frame", "HalionHelper_AddonMainFrame")
+mod.frame:SetScript("OnEvent", function(self, event, ...) if self[event] then return self[event](self, ...) end end)
+
+-- event
+
+function mod.frame:ADDON_LOADED(addon)
+    if addon ~= mod.ADDON_NAME then
+        return
+    end
+
+    mod:InitializeAddon()
+end
+
+function mod.frame:PLAYER_ENTERING_WORLD()
+    mod:OnZoneChange()
+end
+
+function mod.frame:ZONE_CHANGED_NEW_AREA()
+    mod:OnZoneChange()
+end
+
+-- Helpers functions
+
 function mod:IsInTwilightRealm()
     local name = GetSpellInfo(74807)
 
     return UnitAura("player", name)
 end
+
+function mod:IsRemarkablePlayer()
+    return self.db.profile.forceDataCollect
+            or IsRaidLeader()
+            or IsRaidOfficer()
+            or GetPartyAssignment("MAINTANK", "player")
+            or GetPartyAssignment("MAINASSIST", "player")
+end
+
+-- Utils
 
 function mod:cut(ftext, fcursor)
     local find = string.find(ftext, fcursor);
@@ -136,7 +154,7 @@ function mod:max(a, b)
     return b
 end
 
--- run
+-- Start addon
 mod.frame:RegisterEvent("ADDON_LOADED")
 mod.frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 mod.frame:RegisterEvent("ZONE_CHANGED_NEW_AREA")

@@ -16,11 +16,14 @@ function mod.modules.slashCommands:Initialize()
             _self:MoveUI()
         elseif arg1 == "texture" then
             _self:SetTexture(arg2)
+        elseif arg1 == "forceDataCollect" then
+            _self:ForceDataCollect()
         else
             mod:Print("Usage:")
             mod:Print("|cffffee00/halionhelper help|r - List available subcommands")
             mod:Print("|cffffee00/halionhelper move|r - Display addon interfaces to customize frames positions")
             mod:Print("|cffffee00/halionhelper texture NAME|r - Set texture of statusbar")
+            mod:Print("|cffffee00/halionhelper forceDataCollect|r - Force the collect of datas. By default, collect are activated for RL, offiers and MT")
         end
     end
 
@@ -73,6 +76,20 @@ function mod.modules.slashCommands:Initialize()
         else
             mod:Print(name .. " is not available as '" .. LSM.MediaType.STATUSBAR .. "' texture!")
         end
+    end
+
+    function self:ForceDataCollect()
+        if mod.db.profile.forceDataCollect then
+            mod.db.profile.forceDataCollect = false
+
+            mod.modules.phase2CollectHealth:ManageCollectActivation()
+        else
+            mod.db.profile.forceDataCollect = true
+
+            mod.modules.phase2CollectHealth:ManageCollectActivation()
+        end
+
+        mod:Print("Collect of datas forced to: " .. tostring(mod.db.profile.forceDataCollect))
     end
 end
 
