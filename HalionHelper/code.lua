@@ -158,3 +158,5 @@ end
 mod.frame:RegisterEvent("ADDON_LOADED")
 mod.frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 mod.frame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+
+-- todo: update check, disable if major diff
