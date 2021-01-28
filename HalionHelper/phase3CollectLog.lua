@@ -289,17 +289,6 @@ function mod.modules.phase3CollectLog:Initialize()
                 self.expire = nil
                 _self.ui.uiFrame:Hide()
             end
-
-            function self.timer:FormatTime(left)
-                if (not left or not type(left) == 'number' or left < 0) then left = 0 end
-                if (left < 10) then
-                    return (string.format("%01.1f", left))
-                elseif (left < 60) then
-                    return (string.format("%d", left))
-                else
-                    return (string.format("%d:%02d", left / 60, left % 60))
-                end
-            end
         end
 
         self:InitializeCorporealityBar()
