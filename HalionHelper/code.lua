@@ -87,6 +87,7 @@ function mod:InitializeAddon()
     self.modules.phase2CollectHealth:Initialize()
     self.modules.phase2Ui:Initialize()
     self.modules.phase3CollectLog:Initialize()
+    self.modules.phaseTwilightCutter:Initialize()
 
     self.initialized = 2
     self:OnZoneChange()
@@ -103,6 +104,7 @@ function mod:EnableModules()
     self.modules.phase2CollectHealth:Enable()
     self.modules.phase2Ui:Enable()
     self.modules.phase3CollectLog:Enable()
+    self.modules.phaseTwilightCutter:Enable()
 
     self:Print("loaded - Have fun !")
 end
@@ -118,6 +120,7 @@ function mod:DisableModules()
     self.modules.phase2CollectHealth:Disable()
     self.modules.phase2Ui:Disable()
     self.modules.phase3CollectLog:Disable()
+    self.modules.phaseTwilightCutter:Disable()
 end
 
 function mod:IsInTwilightRealm()
@@ -134,6 +137,41 @@ end
 function mod:max(a, b)
     if a > b then return a end
     return b
+end
+
+function mod:GetDifficulty()
+    local _, instanceType, difficulty, _, _, playerDifficulty, isDynamicInstance = GetInstanceInfo() -- todo: pb difficulty ?
+    if instanceType == "raid" and isDynamicInstance then -- "new" instance (ICC)
+        if difficulty == 1 or difficulty == 3 then -- 10 men
+            return playerDifficulty == 0 and "normal10" or playerDifficulty == 1 and "heroic10" or "unknown"
+        elseif difficulty == 2 or difficulty == 4 then -- 25 men
+            return playerDifficulty == 0 and "normal25" or playerDifficulty == 1 and "heroic25" or "unknown"
+        end
+    else -- support for "old" instances
+        --[[if GetInstanceDifficulty() == 1 then
+            return (self.modId == "DBM-Party-WotLK" or self.modId == "DBM-Party-BC") and "normal5" or
+                    self.hasHeroic and "normal10" or "heroic10"
+        elseif GetInstanceDifficulty() == 2 then
+            return (self.modId == "DBM-Party-WotLK" or self.modId == "DBM-Party-BC") and "heroic5" or
+                    self.hasHeroic and "normal25" or "heroic25"
+        elseif GetInstanceDifficulty() == 3 then
+            return "heroic10"
+        elseif GetInstanceDifficulty() == 4 then
+            return "heroic25"
+        end]]
+    end
+
+    return "unknown"
+end
+
+function mod:IsDifficulty(...)
+    local diff = self:GetDifficulty()
+    for i = 1, select("#", ...) do
+        if diff == select(i, ...) then
+            return true
+        end
+    end
+    return false
 end
 
 -- run

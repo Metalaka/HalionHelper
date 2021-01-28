@@ -22,5 +22,6 @@ barHelper.lua
 phase2CollectHealth.lua
 phase2Ui.lua
 phase3CollectLog.lua
+phaseTwilightCutter.lua
 
 slashCommands.lua
