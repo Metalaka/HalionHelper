@@ -83,7 +83,7 @@ function mod.modules.phaseTwilightCutter:Initialize()
             self.uiFrame.iconLeft:SetPoint("CENTER", positionOffset - frameWidth / 2, 0)
             self.uiFrame.iconRight:SetPoint("CENTER", positionOffset, 0)
 
-            if time > 20 then
+            if time > 21 then
                 self.timer:SetStatusBarColor(1, 0, 0)
                 -- cutter
             elseif time < 5 then
@@ -130,7 +130,7 @@ function mod.modules.phaseTwilightCutter:Initialize()
     self:InitializeUi()
 
     function self.uiFrame:CHAT_MSG_MONSTER_YELL(msg)
-        if msg == L["Phase2"] or msg:find(L["Phase2"]) then
+        if mod.db.profile.showCutterFrame and msg == L["Phase2"] or msg:find(L["Phase2"]) then
             if mod:IsDifficulty("heroic10") or mod:IsDifficulty("heroic25") then
 
                 mod:ScheduleTimer(function()
@@ -145,7 +145,7 @@ function mod.modules.phaseTwilightCutter:Initialize()
     end
 
     function self.uiFrame:CHAT_MSG_RAID_BOSS_EMOTE(msg)
-        if mod:IsInTwilightRealm() and (msg == L["twilightcutter"] or msg:find(L["twilightcutter"])) then
+        if mod.db.profile.showCutterFrame and mod:IsInTwilightRealm() and (msg == L["twilightcutter"] or msg:find(L["twilightcutter"])) then
             mod:ScheduleTimer(function()
                 _self.timer:StartTimer(CUTTER_TIMER)
             end, 5)

@@ -6,6 +6,8 @@ function mod.modules.slashCommands:Initialize()
 
     local _self = self
 
+    local L = LibStub("AceLocale-3.0"):GetLocale(mod.ADDON_NAME)
+
     mod:RegisterChatCommand("halionhelper", "ChatCommand")
 
     function mod:ChatCommand(args)
@@ -16,11 +18,14 @@ function mod.modules.slashCommands:Initialize()
             _self:MoveUI()
         elseif arg1 == "texture" then
             _self:SetTexture(arg2)
+        elseif arg1 == "cutter" then
+            _self:toggleCutter()
         else
-            mod:Print("Usage:")
-            mod:Print("|cffffee00/halionhelper help|r - List available subcommands")
-            mod:Print("|cffffee00/halionhelper move|r - Display addon interfaces to customize frames positions")
-            mod:Print("|cffffee00/halionhelper texture NAME|r - Set texture of statusbar")
+            mod:Print(L["ChatCommand_usage"])
+            mod:Printf("|cffffee00/halionhelper help|r - %s", L["ChatCommand_help"])
+            mod:Printf("|cffffee00/halionhelper move|r - %s", L["ChatCommand_move"])
+            mod:Printf("|cffffee00/halionhelper texture NAME|r - %s", L["ChatCommand_texture"])
+            mod:Printf("|cffffee00/halionhelper cutter|r - %s", L["ChatCommand_cutter"])
         end
     end
 
@@ -46,7 +51,7 @@ function mod.modules.slashCommands:Initialize()
         if not mod.modules.phase3CollectLog.ui.uiFrame:IsShown() then
             mod.modules.phase3CollectLog.ui.timer:StartTimer(15)
 
-            mod:Print("movable mode enabled. Disable it to save potition.")
+            mod:Print(L["ChatCommand_movableMod"])
         else
             mod.modules.phase3CollectLog.ui.timer:StopTimer(0)
 
@@ -62,17 +67,28 @@ function mod.modules.slashCommands:Initialize()
         local LSM = LibStub("LibSharedMedia-3.0", true)
 
         if not LSM then
-            mod:Print("LibSharedMedia not available.")
+            mod:Print(L["ChatCommand_texture_LSM"])
 
             return
         end
 
         if LSM:IsValid(LSM.MediaType.STATUSBAR, name) then
             mod.db.profile.texture = LSM:Fetch(LSM.MediaType.STATUSBAR, name)
-            mod:Print("Texture saved! Please reload to apply.")
+            mod:Print(L["ChatCommand_texture_OK"])
         else
-            mod:Print(name .. " is not available as '" .. LSM.MediaType.STATUSBAR .. "' texture!")
+            mod:Printf(L["ChatCommand_texture_ERROR"], name)
         end
+    end
+
+    function self:toggleCutter()
+
+        if mod.db.profile.showCutterFrame then
+            mod.db.profile.showCutterFrame = false
+        else
+            mod.db.profile.showCutterFrame = true
+        end
+
+        mod:Printf(L["ChatCommand_cutter"], tostring(mod.db.profile.showCutterFrame))
     end
 end
 

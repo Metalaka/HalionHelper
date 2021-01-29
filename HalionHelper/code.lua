@@ -30,6 +30,7 @@ mod.defaults = {
         },
         texture = "Interface\\TargetingFrame\\UI-StatusBar",
         iconsSet = "REALM",
+        showCutterFrame = false,
     }
 }
 
