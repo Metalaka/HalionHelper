@@ -33,6 +33,8 @@ mod.defaults = {
     }
 }
 
+local L = LibStub("AceLocale-3.0"):GetLocale(mod.ADDON_NAME)
+
 -- Main Frame
 mod.frame = CreateFrame("Frame", "HalionHelper_AddonMainFrame")
 mod.frame:SetScript("OnEvent", function(self, event, ...) if self[event] then return self[event](self, ...) end end)
@@ -55,9 +57,7 @@ end
 
 function mod:ShouldEnableAddon()
 
-    local name = GetRealZoneText()
-    --todo: localize
-    return name == "The Ruby Sanctum" or name == "Le sanctum Rubis"
+    return GetRealZoneText() == L["ZoneName"]
 end
 
 function mod:OnZoneChange()

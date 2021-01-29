@@ -20,11 +20,7 @@ function mod.modules.phaseTwilightCutter:Initialize()
 
     local _self = self
 
-    local L = {
-        Phase2 = "You will find only suffering within the realm of twilight! Enter if you dare!",
-        Phase3 = "I am the light and the darkness! Cower, mortals, before the herald of Deathwing!",
-        twilightcutter = "The orbiting spheres pulse with dark energy!",
-    }
+    local L = LibStub("AceLocale-3.0"):GetLocale(mod.ADDON_NAME)
 
     local CUTTER_TIMER = 30
 
@@ -134,7 +130,7 @@ function mod.modules.phaseTwilightCutter:Initialize()
     self:InitializeUi()
 
     function self.uiFrame:CHAT_MSG_MONSTER_YELL(msg)
-        if msg == L.Phase2 or msg:find(L.Phase2) then
+        if msg == L["Phase2"] or msg:find(L["Phase2"]) then
             if mod:IsDifficulty("heroic10") or mod:IsDifficulty("heroic25") then
 
                 mod:ScheduleTimer(function()
@@ -149,7 +145,7 @@ function mod.modules.phaseTwilightCutter:Initialize()
     end
 
     function self.uiFrame:CHAT_MSG_RAID_BOSS_EMOTE(msg)
-        if mod:IsInTwilightRealm() and (msg == L.twilightcutter or msg:find(L.twilightcutter)) then
+        if mod:IsInTwilightRealm() and (msg == L["twilightcutter"] or msg:find(L["twilightcutter"])) then
             mod:ScheduleTimer(function()
                 _self.timer:StartTimer(CUTTER_TIMER)
             end, 5)
