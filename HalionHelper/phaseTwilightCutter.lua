@@ -136,10 +136,10 @@ function mod.modules.phaseTwilightCutter:Initialize()
                 mod:ScheduleTimer(function()
                     _self.timer:StartTimer(CUTTER_TIMER)
                 end, 10)
-                --                timerTwilightCutterCD:Start(30)
             else
-                --                timerTwilightCutterCD:Start(35)
-                mod:Print("TODO: 10n-25n timer")
+                --[[mod:ScheduleTimer(function()
+                    _self.timer:StartTimer(CUTTER_TIMER)
+                end, 15)]]
             end
         end
     end
