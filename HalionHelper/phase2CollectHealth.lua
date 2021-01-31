@@ -22,7 +22,7 @@ function mod.modules.phase2CollectHealth:Initialize()
     self.frame = CreateFrame("Frame")
     self.frame:SetScript("OnEvent", function(self, event, ...) if self[event] then return self[event](self, ...) end end)
 
-    function self:CollectAndSendData(frame, elapsed)
+    local function CollectAndSendData(frame, elapsed)
 
         frame.elapsed = (frame.elapsed or 0) + elapsed
         if frame.elapsed > mod.SLEEP_DELAY then
@@ -49,10 +49,10 @@ function mod.modules.phase2CollectHealth:Initialize()
     end
 
     function self.frame:PLAYER_REGEN_DISABLED()
-        self.frame:SetScript("OnUpdate", self.CollectAndSendData)
+        self:SetScript("OnUpdate", CollectAndSendData)
     end
 
     function self.frame:PLAYER_REGEN_ENABLED()
-        self.frame:SetScript("OnUpdate", nil)
+        self:SetScript("OnUpdate", nil)
     end
 end
