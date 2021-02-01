@@ -88,7 +88,7 @@ function mod.modules.slashCommands:Initialize()
             mod.db.profile.showCutterFrame = true
         end
 
-        mod:Printf(L["ChatCommand_cutter"], tostring(mod.db.profile.showCutterFrame))
+        mod:Printf(L["ChatCommand_cutter_message"], tostring(mod.db.profile.showCutterFrame))
     end
 end
 
