@@ -80,8 +80,8 @@ function mod.modules.phaseTwilightCutter:Initialize()
 
             local positionOffset = frameWidth * t / delayOrb_180
 
-            self.uiFrame.iconLeft:SetPoint("CENTER", positionOffset - frameWidth / 2, 0)
-            self.uiFrame.iconRight:SetPoint("CENTER", positionOffset, 0)
+            self.uiFrame.iconLeft:SetPoint("CENTER", -positionOffset, 0)
+            self.uiFrame.iconRight:SetPoint("CENTER", frameWidth / 2 - positionOffset, 0)
 
             if time > 21 then
                 self.timer:SetStatusBarColor(1, 0, 0)
