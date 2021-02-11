@@ -12,10 +12,11 @@ function mod.modules.phase2Ui:Initialize()
     function self:Disable()
         self.healthBar:UnregisterEvent("CHAT_MSG_ADDON")
         self.healthBar:UnregisterEvent("PLAYER_REGEN_ENABLED")
-        self:SetHealthValue(0)
+
+        self.healthBar:Hide()
     end
 
-    --
+    -- functions
 
     local _self = self
 
@@ -24,34 +25,37 @@ function mod.modules.phase2Ui:Initialize()
     self.healthBar:SetStatusBarColor(0, 1, 0)
     self.healthBar:Hide()
 
-    function self:SetHealthValue(value)
+    local function SetHealthValue(value)
 
-        if value > 0.75 or value < 0.5 or mod:IsInTwilightRealm() then
-            if self.healthBar:IsShown() then
-                self.healthBar:Hide()
+        if value > mod.PHASE2_HEALTH_TRESHOLD or value < mod.PHASE3_HEALTH_TRESHOLD or mod:IsInTwilightRealm() then
+            if _self.healthBar:IsShown() then
+                _self.healthBar:Hide()
             end
-        else
-            self.healthBar:SetValue(value)
-            self.healthBar.timeText:SetText(string.format("%.1f", value * 100) .. " %")
 
-            if not self.healthBar:IsShown() then
-                self.healthBar:Show()
-            end
+            return
+        end
+
+        _self.healthBar:SetValue(value)
+        _self.healthBar.timeText:SetText(string.format("%.1f", value * 100) .. " %")
+
+        if not _self.healthBar:IsShown() then
+            _self.healthBar:Show()
         end
     end
 
-    -- init
+    -- event
+
     function self.healthBar:CHAT_MSG_ADDON(prefix, message)
         if (prefix == mod.ADDON_MESSAGE_PREFIX_P2_END) then
-            _self:SetHealthValue(0)
+            SetHealthValue(0)
         elseif (prefix == mod.ADDON_MESSAGE_PREFIX_P2_DATA) then
-            _self:SetHealthValue(tonumber(message))
+            SetHealthValue(tonumber(message))
         end
     end
 
     function self.healthBar:PLAYER_REGEN_ENABLED()
 
-        _self:SetHealthValue(0)
+        self:Hide()
     end
 end
 

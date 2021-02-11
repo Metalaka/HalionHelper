@@ -2,6 +2,7 @@ local mod = _G.HalionHelper
 
 mod.modules.phase3CollectLog = {
     enable = false,
+    enableCollect = false,
     amount = {
         [mod.NPC_ID_HALION_PHYSICAL] = 0,
         [mod.NPC_ID_HALION_TWILIGHT] = 0,
@@ -42,23 +43,55 @@ mod.modules.phase3CollectLog = {
 function mod.modules.phase3CollectLog:Initialize()
 
     function self:Enable()
-        self.frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
         self.frame:RegisterEvent("PLAYER_REGEN_ENABLED")
         self.frame:RegisterEvent("CHAT_MSG_ADDON")
+        self.frame:RegisterEvent("RAID_ROSTER_UPDATE")
+        self.frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+
+        self:ManageCollectActivation()
     end
 
     function self:Disable()
-        self.frame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
         self.frame:UnregisterEvent("PLAYER_REGEN_ENABLED")
         self.frame:UnregisterEvent("CHAT_MSG_ADDON")
+        self.frame:UnregisterEvent("RAID_ROSTER_UPDATE")
+        self.frame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 
-        self.frame:PLAYER_REGEN_ENABLED()
+        self:ManageCollectActivation()
+        self.frame:PLAYER_REGEN_ENABLED() -- Hide UI
     end
 
-    --
+    -- functions
 
-    local _self = mod.modules.phase3CollectLog
+    local _self = self
     self.dc, self.ui = {}, {}
+
+    local function SendData(frame, elapsed)
+
+        if not _self.enable or not _self.side.npcId or _self.amount[_self.side.npcId] == 0 then
+            return
+        end
+
+        frame.elapsed = (frame.elapsed or 0) + elapsed
+        if frame.elapsed > mod.SLEEP_DELAY then
+            frame.elapsed = 0
+
+            local payload = _self.side.npcId .. ":" .. _self.amount[_self.side.npcId]
+            SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P3_DATA, payload, "RAID")
+        end
+    end
+
+    function self:ManageCollectActivation()
+        if not self.enableCollect and mod:IsRemarkablePlayer() then
+            self.enableCollect = true
+
+            self.frame:SetScript("OnUpdate", SendData)
+        elseif self.enableCollect and not mod:IsRemarkablePlayer() then
+            self.enableCollect = false
+
+            self.frame:SetScript("OnUpdate", nil)
+        end
+    end
 
     function self.side:IsPhysical()
         return self.npcId == mod.NPC_ID_HALION_PHYSICAL
@@ -100,19 +133,22 @@ function mod.modules.phase3CollectLog:Initialize()
 
             if aura then
 
-                _self.side.npcId = tonumber(dstGUID:sub(-12, -7), 16)
+                _self.side.npcId = mod:GetNpcId(dstGUID)
                 _self.side.corporeality = aura
 
                 if _self.isFirstCorporeality then
                     _self.isFirstCorporeality = false
+
                     _self.ui.timer:StartTimer(5) -- display 5sec wait timer
                     mod:ScheduleTimer(function()
                         _self.enable = true
                         _self:StartMonitor()
                     end, 5)
 
-                    -- send transition event to Physical Realm
-                    SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P3_TRANSITION, nil, "RAID")
+                    if self.enableCollect then
+                        -- send transition event to Physical Realm
+                        SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P3_TRANSITION, nil, "RAID")
+                    end
                 else
                     _self:StartMonitor()
                 end
@@ -138,12 +174,17 @@ function mod.modules.phase3CollectLog:Initialize()
             ["SPELL_AURA_APPLIED"] = self.SpellAura,
         }
 
+        local function IsBossCastAura(eventtype, srcGUID, dstGUID)
+            return eventtype == "SPELL_AURA_APPLIED" and srcGUID == dstGUID
+        end
+
         function self:CombatLogEvent(timestamp, eventtype, srcGUID, srcName, srcFlags, dstGUID, dstName, ...)
 
             if dstName ~= mod.BOSS_NAME then
                 return
             end
-            if not _self.enable and not (eventtype == "SPELL_AURA_APPLIED" and srcGUID == dstGUID) then
+
+            if not _self.enable and not IsBossCastAura(eventtype, srcGUID, dstGUID) then
                 return
             end
 
@@ -167,17 +208,6 @@ function mod.modules.phase3CollectLog:Initialize()
             return _self.amount[mod.NPC_ID_HALION_PHYSICAL] / mod:max(total, 1)
         end
 
-        function self:SetIcon(frame, spellId)
-            if not frame then return end
-
-            local icon = select(3, GetSpellInfo(spellId))
-
-            frame:SetNormalTexture(icon)
-            if (icon) then
-                frame:GetNormalTexture():SetTexCoord(.07, .93, .07, .93)
-            end
-        end
-
         local uiFrame = CreateFrame("Frame", "HalionHelper_phase3CollectLog_uiFrame", UIParent)
         self.uiFrame = uiFrame
         uiFrame:SetPoint(mod.db.profile.ui.point, mod.db.profile.ui.x, mod.db.profile.ui.y)
@@ -188,14 +218,14 @@ function mod.modules.phase3CollectLog:Initialize()
         uiFrame.twilightIcon:SetHeight(30)
         uiFrame.twilightIcon:SetWidth(30)
         uiFrame.twilightIcon:SetPoint("LEFT")
-        self:SetIcon(uiFrame.twilightIcon, _self.iconsSets[mod.db.profile.iconsSet].twilight)
+        mod.modules.bar:SetIcon(uiFrame.twilightIcon, _self.iconsSets[mod.db.profile.iconsSet].twilight)
         uiFrame.twilightIcon:EnableMouse(false)
 
         uiFrame.physicalIcon = CreateFrame("Button", nil, uiFrame)
         uiFrame.physicalIcon:SetHeight(30)
         uiFrame.physicalIcon:SetWidth(30)
         uiFrame.physicalIcon:SetPoint("RIGHT")
-        self:SetIcon(uiFrame.physicalIcon, _self.iconsSets[mod.db.profile.iconsSet].physical)
+        mod.modules.bar:SetIcon(uiFrame.physicalIcon, _self.iconsSets[mod.db.profile.iconsSet].physical)
         uiFrame.physicalIcon:EnableMouse(false)
 
         uiFrame:Hide()
@@ -307,28 +337,19 @@ function mod.modules.phase3CollectLog:Initialize()
     self.frame = CreateFrame("Frame", "HalionHelper_phase3CollectLog")
     self.frame:SetScript("OnEvent", function(self, event, ...) if self[event] then return self[event](self, ...) end end)
 
-    self.frame:SetScript("OnUpdate", function(frame, elapsed)
-
-        if not _self.enable or not _self.side.npcId or _self.amount[_self.side.npcId] == 0 then
-            return
-        end
-
-        frame.elapsed = (frame.elapsed or 0) + elapsed
-        if frame.elapsed > mod.SLEEP_DELAY then
-            frame.elapsed = 0
-
-            local payload = _self.side.npcId .. ":" .. _self.amount[_self.side.npcId]
-            SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P3_DATA, payload, "RAID")
-        end
-    end)
-
     function self.frame:CHAT_MSG_ADDON(prefix, message)
 
         if _self.isFirstCorporeality and prefix == mod.ADDON_MESSAGE_PREFIX_P3_TRANSITION and not mod:IsInTwilightRealm() then
             -- Boss in Physical Realm start P3 without a Corporeality aura.
             -- This hack start the P3 from the Twilight event
+
             _self.isFirstCorporeality = false
-            _self.side.npcId = mod.NPC_ID_HALION_PHYSICAL
+            if mod:IsInTwilightRealm() then
+                -- should never happen
+                _self.side.npcId = mod.NPC_ID_HALION_TWILIGHT
+            else
+                _self.side.npcId = mod.NPC_ID_HALION_PHYSICAL
+            end
             _self.side.corporeality = _self.corporealityAuras[mod.CORPOREALITY_AURA]
 
             _self.ui.timer:StartTimer(5) -- display 5sec wait timer
@@ -357,6 +378,12 @@ function mod.modules.phase3CollectLog:Initialize()
 
         _self.ui.timer:StopTimer()
     end
+
+    function self.frame:RAID_ROSTER_UPDATE()
+        _self:ManageCollectActivation()
+    end
+
+    -- init
 
     self.dc:InitializeDataCollect()
     self.ui:InitializeUI()

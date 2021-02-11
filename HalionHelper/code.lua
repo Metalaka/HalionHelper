@@ -1,5 +1,5 @@
 HalionHelper = LibStub("AceAddon-3.0"):NewAddon("HalionHelper", "AceEvent-3.0", "AceTimer-3.0", "AceConsole-3.0")
-HalionHelper.MINOR_VERSION = tonumber(("$Revision: 06 $"):match("%d+"))
+HalionHelper.MINOR_VERSION = tonumber(("$Revision: 07 $"):match("%d+"))
 
 local mod = _G.HalionHelper
 
@@ -9,9 +9,12 @@ mod.modules = {}
 
 
 -- constants
+
 mod.ADDON_NAME = "HalionHelper"
 mod.BOSS_NAME = "Halion"
 mod.SLEEP_DELAY = 0.2
+mod.PHASE2_HEALTH_TRESHOLD = 0.75
+mod.PHASE3_HEALTH_TRESHOLD = 0.5
 mod.ADDON_MESSAGE_PREFIX_P2_DATA = "HH_P2_DATA"
 mod.ADDON_MESSAGE_PREFIX_P2_END = "HH_P2_END"
 mod.ADDON_MESSAGE_PREFIX_P3_DATA = "HH_P3_DATA"
@@ -31,46 +34,14 @@ mod.defaults = {
         texture = "Interface\\TargetingFrame\\UI-StatusBar",
         iconsSet = "REALM",
         showCutterFrame = false,
+        forceDataCollect = false,
     }
 }
 
 local L = LibStub("AceLocale-3.0"):GetLocale(mod.ADDON_NAME)
 
--- Main Frame
-mod.frame = CreateFrame("Frame", "HalionHelper_AddonMainFrame")
-mod.frame:SetScript("OnEvent", function(self, event, ...) if self[event] then return self[event](self, ...) end end)
+-- functions
 
-function mod.frame:ADDON_LOADED(addon)
-    if addon ~= mod.ADDON_NAME then
-        return
-    end
-
-    mod:InitializeAddon()
-end
-
-function mod.frame:PLAYER_ENTERING_WORLD()
-    mod:OnZoneChange()
-end
-
-function mod.frame:ZONE_CHANGED_NEW_AREA()
-    mod:OnZoneChange()
-end
-
-function mod:ShouldEnableAddon()
-
-    return GetRealZoneText() == L["ZoneName"]
-end
-
-function mod:OnZoneChange()
-
-    if self:ShouldEnableAddon() and not self.enabled then
-        self:EnableModules()
-    elseif not self:ShouldEnableAddon() and self.enabled then
-        self:DisableModules()
-    end
-end
-
--- Initialize
 function mod:InitializeAddon()
 
     if self.initialized > 0 then
@@ -107,7 +78,7 @@ function mod:EnableModules()
     self.modules.phase3CollectLog:Enable()
     self.modules.phaseTwilightCutter:Enable()
 
-    self:Print("loaded - Have fun !")
+    self:Print(L["Loaded"])
 end
 
 function mod:DisableModules()
@@ -124,20 +95,73 @@ function mod:DisableModules()
     self.modules.phaseTwilightCutter:Disable()
 end
 
+function mod:ShouldEnableAddon()
+
+    return GetRealZoneText() == L["ZoneName"]
+end
+
+function mod:OnZoneChange()
+
+    if self:ShouldEnableAddon() and not self.enabled then
+        self:EnableModules()
+    elseif not self:ShouldEnableAddon() and self.enabled then
+        self:DisableModules()
+    end
+end
+
+-- frame
+
+mod.frame = CreateFrame("Frame", "HalionHelper_AddonMainFrame")
+mod.frame:SetScript("OnEvent", function(self, event, ...) if self[event] then return self[event](self, ...) end end)
+
+-- event
+
+function mod.frame:ADDON_LOADED(addon)
+    if addon ~= mod.ADDON_NAME then
+        return
+    end
+
+    mod:InitializeAddon()
+end
+
+function mod.frame:PLAYER_ENTERING_WORLD()
+    mod:OnZoneChange()
+end
+
+function mod.frame:ZONE_CHANGED_NEW_AREA()
+    mod:OnZoneChange()
+end
+
+-- Helpers functions
+
 function mod:IsInTwilightRealm()
     local name = GetSpellInfo(74807)
 
     return UnitAura("player", name)
 end
 
+function mod:IsRemarkablePlayer()
+    return self.db.profile.forceDataCollect
+            or IsRaidLeader()
+            or IsRaidOfficer()
+            or GetPartyAssignment("MAINTANK", "player")
+            or GetPartyAssignment("MAINASSIST", "player")
+end
+
+-- Utils
+
 function mod:cut(ftext, fcursor)
-    local find = string.find(ftext, fcursor);
-    return string.sub(ftext, 0, find - 1), string.sub(ftext, find + 1);
+    local find = string.find(ftext, fcursor)
+    return string.sub(ftext, 0, find - 1), string.sub(ftext, find + 1)
 end
 
 function mod:max(a, b)
     if a > b then return a end
     return b
+end
+
+function mod:GetNpcId(guid)
+    return tonumber(guid:sub(-12, -7), 16)
 end
 
 function mod:GetDifficulty()
@@ -175,9 +199,11 @@ function mod:IsDifficulty(...)
     return false
 end
 
--- run
+-- Start addon
+
 mod.frame:RegisterEvent("ADDON_LOADED")
 mod.frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 mod.frame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 
 -- todo: update check, disable if major diff
+-- todo: UI P2 can be shown out of combat after a BR

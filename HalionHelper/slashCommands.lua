@@ -14,18 +14,21 @@ function mod.modules.slashCommands:Initialize()
 
         local arg1, arg2 = self:GetArgs(args, 2)
 
-        if arg1 == "move" then
+        if arg1 == "move" or arg1 == "m" then
             _self:MoveUI()
-        elseif arg1 == "texture" then
+        elseif arg1 == "texture" or arg1 == "t" then
             _self:SetTexture(arg2)
-        elseif arg1 == "cutter" then
+        elseif arg1 == "cutter" or arg1 == "c" then
             _self:toggleCutter()
+        elseif arg1 == "forceDataCollect" or arg1 == "f" then
+            _self:ForceDataCollect()
         else
             mod:Print(L["ChatCommand_usage"])
             mod:Printf("|cffffee00/halionhelper help|r - %s", L["ChatCommand_help"])
             mod:Printf("|cffffee00/halionhelper move|r - %s", L["ChatCommand_move"])
             mod:Printf("|cffffee00/halionhelper texture NAME|r - %s", L["ChatCommand_texture"])
             mod:Printf("|cffffee00/halionhelper cutter|r - %s", L["ChatCommand_cutter"])
+            mod:Printf("|cffffee00/halionhelper forceDataCollect|r - %s", L["ChatCommand_forceDataCollect"])
         end
     end
 
@@ -88,7 +91,23 @@ function mod.modules.slashCommands:Initialize()
             mod.db.profile.showCutterFrame = true
         end
 
+        mod.modules.phaseTwilightCutter:ManageActivation()
+
         mod:Printf(L["ChatCommand_cutter_message"], tostring(mod.db.profile.showCutterFrame))
+    end
+
+    function self:ForceDataCollect()
+        if mod.db.profile.forceDataCollect then
+            mod.db.profile.forceDataCollect = false
+
+            mod.modules.phase2CollectHealth:ManageCollectActivation()
+        else
+            mod.db.profile.forceDataCollect = true
+
+            mod.modules.phase2CollectHealth:ManageCollectActivation()
+        end
+
+        mod:Printf(L["ChatCommand_forceDataCollect_message"], tostring(mod.db.profile.forceDataCollect))
     end
 end
 

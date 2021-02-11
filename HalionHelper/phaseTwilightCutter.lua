@@ -5,9 +5,11 @@ mod.modules.phaseTwilightCutter = {}
 function mod.modules.phaseTwilightCutter:Initialize()
 
     function self:Enable()
-        self.uiFrame:RegisterEvent("CHAT_MSG_MONSTER_YELL")
-        self.uiFrame:RegisterEvent("CHAT_MSG_RAID_BOSS_EMOTE")
-        self.uiFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+        if mod.db.profile.showCutterFrame then
+            self.uiFrame:RegisterEvent("CHAT_MSG_MONSTER_YELL")
+            self.uiFrame:RegisterEvent("CHAT_MSG_RAID_BOSS_EMOTE")
+            self.uiFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+        end
     end
 
     function self:Disable()
@@ -19,23 +21,10 @@ function mod.modules.phaseTwilightCutter:Initialize()
     --
 
     local _self = self
-
+    local CUTTER_TIMER = 30
     local L = LibStub("AceLocale-3.0"):GetLocale(mod.ADDON_NAME)
 
-    local CUTTER_TIMER = 30
-
     function self:InitializeUi()
-
-        function self:SetIcon(frame, spellId)
-            if not frame then return end
-
-            local icon = select(3, GetSpellInfo(spellId))
-
-            frame:SetNormalTexture(icon)
-            if (icon) then
-                frame:GetNormalTexture():SetTexCoord(.07, .93, .07, .93)
-            end
-        end
 
         self.uiFrame = mod.modules.bar:NewBar("HalionHelper_phaseTwilightCutter", nil)
         self.uiFrame:SetPoint(mod.db.profile.ui.point, mod.db.profile.ui.x, mod.db.profile.ui.y - 40)
@@ -53,14 +42,14 @@ function mod.modules.phaseTwilightCutter:Initialize()
         self.uiFrame.iconLeft:SetHeight(20)
         self.uiFrame.iconLeft:SetWidth(20)
         self.uiFrame.iconLeft:SetPoint("CENTER", -20, 0)
-        self:SetIcon(self.uiFrame.iconLeft, 77846)
+        mod.modules.bar:SetIcon(self.uiFrame.iconLeft, 77846)
         self.uiFrame.iconLeft:EnableMouse(false)
 
         self.uiFrame.iconRight = CreateFrame("Button", nil, self.uiFrame)
         self.uiFrame.iconRight:SetHeight(20)
         self.uiFrame.iconRight:SetWidth(20)
         self.uiFrame.iconRight:SetPoint("CENTER", 50, 0)
-        self:SetIcon(self.uiFrame.iconRight, 77846)
+        mod.modules.bar:SetIcon(self.uiFrame.iconRight, 77846)
         self.uiFrame.iconRight:EnableMouse(false)
 
 
@@ -71,7 +60,7 @@ function mod.modules.phaseTwilightCutter:Initialize()
 
         local frameWidth = self.uiFrame:GetWidth() - 20
 
-        function self:UpdateUi(time)
+        local function UpdateUi(time)
             local t = time + displayOffset
 
             if t >= delayOrb_90 then
@@ -80,17 +69,17 @@ function mod.modules.phaseTwilightCutter:Initialize()
 
             local positionOffset = frameWidth * t / delayOrb_180
 
-            self.uiFrame.iconLeft:SetPoint("CENTER", -positionOffset, 0)
-            self.uiFrame.iconRight:SetPoint("CENTER", frameWidth / 2 - positionOffset, 0)
+            _self.uiFrame.iconLeft:SetPoint("CENTER", -positionOffset, 0)
+            _self.uiFrame.iconRight:SetPoint("CENTER", frameWidth / 2 - positionOffset, 0)
 
             if time > 21 then
-                self.timer:SetStatusBarColor(1, 0, 0)
+                _self.timer:SetStatusBarColor(1, 0, 0)
                 -- cutter
             elseif time < 5 then
-                self.timer:SetStatusBarColor(1, 0.95, 0)
+                _self.timer:SetStatusBarColor(1, 0.95, 0)
                 -- cutter soon
             else
-                self.timer:SetStatusBarColor(1, 1, 1)
+                _self.timer:SetStatusBarColor(1, 1, 1)
             end
         end
 
@@ -107,7 +96,7 @@ function mod.modules.phaseTwilightCutter:Initialize()
                 self.expire = 0
             else
                 self:SetValue(left)
-                _self:UpdateUi(left)
+                UpdateUi(left)
             end
         end)
 
@@ -129,8 +118,18 @@ function mod.modules.phaseTwilightCutter:Initialize()
 
     self:InitializeUi()
 
+    function self:ManageActivation()
+        if mod.db.profile.showCutterFrame then
+            self:Enable()
+        else
+            self:Disable()
+        end
+    end
+
+    -- event
+
     function self.uiFrame:CHAT_MSG_MONSTER_YELL(msg)
-        if mod.db.profile.showCutterFrame and msg == L["Phase2"] or msg:find(L["Phase2"]) then
+        if msg == L["Phase2"] or msg:find(L["Phase2"]) then
             if mod:IsDifficulty("heroic10") or mod:IsDifficulty("heroic25") then
 
                 mod:ScheduleTimer(function()
@@ -145,7 +144,7 @@ function mod.modules.phaseTwilightCutter:Initialize()
     end
 
     function self.uiFrame:CHAT_MSG_RAID_BOSS_EMOTE(msg)
-        if mod.db.profile.showCutterFrame and mod:IsInTwilightRealm() and (msg == L["twilightcutter"] or msg:find(L["twilightcutter"])) then
+        if mod:IsInTwilightRealm() and (msg == L["TwilightCutter"] or msg:find(L["TwilightCutter"])) then
             mod:ScheduleTimer(function()
                 _self.timer:StartTimer(CUTTER_TIMER)
             end, 5)

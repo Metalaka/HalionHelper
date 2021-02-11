@@ -40,4 +40,15 @@ function mod.modules.bar:Initialize()
 
         return frame
     end
+
+    function self:SetIcon(frame, spellId)
+        if not frame then return end
+
+        local icon = select(3, GetSpellInfo(spellId))
+
+        frame:SetNormalTexture(icon)
+        if (icon) then
+            frame:GetNormalTexture():SetTexCoord(.07, .93, .07, .93)
+        end
+    end
 end
