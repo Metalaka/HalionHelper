@@ -145,7 +145,7 @@ function mod.modules.phase3CollectLog:Initialize()
                         _self:StartMonitor()
                     end, 5)
 
-                    if self.enableCollect then
+                    if _self.enableCollect then
                         -- send transition event to Physical Realm
                         SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P3_TRANSITION, nil, "RAID")
                     end
@@ -157,7 +157,7 @@ function mod.modules.phase3CollectLog:Initialize()
 
         function self:AddDamageData(dstGUID, amount)
 
-            local npcId = tonumber(dstGUID:sub(-12, -7), 16)
+            local npcId = mod:GetNpcId(dstGUID)
 
             _self.amount[npcId] = _self.amount[npcId] + amount
         end

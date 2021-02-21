@@ -136,9 +136,9 @@ function mod.modules.phaseTwilightCutter:Initialize()
                     _self.timer:StartTimer(CUTTER_TIMER)
                 end, 10)
             else
-                --[[mod:ScheduleTimer(function()
+                mod:ScheduleTimer(function()
                     _self.timer:StartTimer(CUTTER_TIMER)
-                end, 15)]]
+                end, 15)
             end
         end
     end
