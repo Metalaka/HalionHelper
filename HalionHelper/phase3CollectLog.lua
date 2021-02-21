@@ -27,6 +27,7 @@ mod.modules.phase3CollectLog = {
         [74830] = { dealt = 100, taken = 200, }, -- 100% more dealt, 200% more taken
         [74831] = { dealt = 200, taken = 400, }, -- 200% more dealt, 400% more taken
     },
+    minDiff = 0.05,
     iconsSets = {
         ["REALM"] = {
             --            Twilight = 75486, -- Dusk Shroud
@@ -255,8 +256,7 @@ function mod.modules.phase3CollectLog:Initialize()
                 local percent, text = self:CalculatePercent(), ""
 
                 -- orange (1, 0.6, 0.05)
-
-                if (_self.shoudGoTwilight and percent < 0.45) or (not _self.shoudGoTwilight and percent > 0.45) then
+                if (_self.shoudGoTwilight and percent < (0.5 - _self.minDiff)) or (not _self.shoudGoTwilight and percent > (0.5 + _self.minDiff)) then
                     self.corporealityBar:SetStatusBarColor(0, 1, 0)
                     -- go
                 elseif _self.shoudGoTwilight then
