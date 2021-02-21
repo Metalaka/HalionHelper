@@ -28,17 +28,6 @@ mod.modules.phase3CollectLog = {
         [74831] = { dealt = 200, taken = 400, }, -- 200% more dealt, 400% more taken
     },
     minDiff = 0.05,
-    iconsSets = {
-        ["REALM"] = {
-            --            Twilight = 75486, -- Dusk Shroud
-            twilight = 74807, -- Twilight Realm
-            physical = 75949, -- Meteor Strike
-        },
-        ["SPELL"] = {
-            twilight = 77846, -- Twilight Cutter
-            physical = 75887, -- Blazing Aura
-        },
-    },
 }
 
 function mod.modules.phase3CollectLog:Initialize()
@@ -213,21 +202,7 @@ function mod.modules.phase3CollectLog:Initialize()
         self.uiFrame = uiFrame
         uiFrame:SetPoint(mod.db.profile.ui.point, mod.db.profile.ui.x, mod.db.profile.ui.y)
         --        uiFrame:SetPoint("CENTER")
-        uiFrame:SetSize(170 + 60, 30)
-
-        uiFrame.twilightIcon = CreateFrame("Button", nil, uiFrame)
-        uiFrame.twilightIcon:SetHeight(30)
-        uiFrame.twilightIcon:SetWidth(30)
-        uiFrame.twilightIcon:SetPoint("LEFT")
-        mod.modules.bar:SetIcon(uiFrame.twilightIcon, _self.iconsSets[mod.db.profile.iconsSet].twilight)
-        uiFrame.twilightIcon:EnableMouse(false)
-
-        uiFrame.physicalIcon = CreateFrame("Button", nil, uiFrame)
-        uiFrame.physicalIcon:SetHeight(30)
-        uiFrame.physicalIcon:SetWidth(30)
-        uiFrame.physicalIcon:SetPoint("RIGHT")
-        mod.modules.bar:SetIcon(uiFrame.physicalIcon, _self.iconsSets[mod.db.profile.iconsSet].physical)
-        uiFrame.physicalIcon:EnableMouse(false)
+        uiFrame:SetSize(170, 30)
 
         uiFrame:Hide()
 
