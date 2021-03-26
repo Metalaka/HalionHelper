@@ -19,3 +19,5 @@ L["ChatCommand_texture_OK"] = "Texture saved! It will be visible after a reload.
 L["ChatCommand_texture_ERROR"] = "%s is not a valid texture!"
 L["ChatCommand_cutter_message"] = "Cutter frame will be shown: %s"
 L["ChatCommand_forceDataCollect_message"] = "Data collect forced: %s"
+L["ChatCommand_enable"] = "Enable/disable addon"
+L["ChatCommand_enable_message"] = "Addon state: %s"

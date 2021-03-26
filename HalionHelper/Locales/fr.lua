@@ -7,4 +7,4 @@ L["Phase2"] = "Vous ne trouverez que souffrance au royaume du Crépuscule ! Ent
 L["Phase3"] = "Je suis la lumière et l'ombre ! Tremblez, mortels, devant le héraut d'Aile-de-mort !"
 L["TwilightCutter"] = "Les sphères volantes rayonnent d'énergie noire !"
 
-L["Loaded"] = "chargé - Bon jeu!"
+L["Loaded"] = "Chargé - Bon jeu!"

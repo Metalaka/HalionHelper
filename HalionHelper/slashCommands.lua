@@ -14,7 +14,9 @@ function mod.modules.slashCommands:Initialize()
 
         local arg1, arg2 = self:GetArgs(args, 2)
 
-        if arg1 == "move" or arg1 == "m" then
+        if arg1 == "enable" or arg1 == "e" then
+            _self:toggleAddon()
+        elseif arg1 == "move" or arg1 == "m" then
             _self:MoveUI()
         elseif arg1 == "texture" or arg1 == "t" then
             _self:SetTexture(arg2)
@@ -25,11 +27,25 @@ function mod.modules.slashCommands:Initialize()
         else
             mod:Print(L["ChatCommand_usage"])
             mod:Printf("|cffffee00/halionhelper help|r - %s", L["ChatCommand_help"])
+            mod:Printf("|cffffee00/halionhelper enable|r - %s", L["ChatCommand_enable"])
             mod:Printf("|cffffee00/halionhelper move|r - %s", L["ChatCommand_move"])
             mod:Printf("|cffffee00/halionhelper texture NAME|r - %s", L["ChatCommand_texture"])
             mod:Printf("|cffffee00/halionhelper cutter|r - %s", L["ChatCommand_cutter"])
             mod:Printf("|cffffee00/halionhelper forceDataCollect|r - %s", L["ChatCommand_forceDataCollect"])
         end
+    end
+
+    function self:toggleAddon()
+
+        if mod.db.profile.enable then
+            mod.db.profile.enable = false
+        else
+            mod.db.profile.enable = true
+        end
+
+        mod:OnZoneChange()
+
+        mod:Printf(L["ChatCommand_enable_message"], tostring(mod.db.profile.enable))
     end
 
     function self:MoveUI()

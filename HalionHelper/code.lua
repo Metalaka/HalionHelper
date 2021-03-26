@@ -1,5 +1,5 @@
 HalionHelper = LibStub("AceAddon-3.0"):NewAddon("HalionHelper", "AceEvent-3.0", "AceTimer-3.0", "AceConsole-3.0")
-HalionHelper.MINOR_VERSION = tonumber(("$Revision: 10 $"):match("%d+"))
+HalionHelper.MINOR_VERSION = tonumber(("$Revision: 11 $"):match("%d+"))
 
 local mod = _G.HalionHelper
 
@@ -35,6 +35,7 @@ mod.defaults = {
         iconsSet = "REALM",
         showCutterFrame = false,
         forceDataCollect = false,
+        enable = true,
     }
 }
 
@@ -62,6 +63,15 @@ function mod:InitializeAddon()
     self.modules.phaseTwilightCutter:Initialize()
 
     self.initialized = 2
+
+    function mod.frame:PLAYER_ENTERING_WORLD()
+        mod:OnZoneChange()
+    end
+
+    function mod.frame:ZONE_CHANGED_NEW_AREA()
+        mod:OnZoneChange()
+    end
+
     self:OnZoneChange()
 end
 
@@ -97,7 +107,7 @@ end
 
 function mod:ShouldEnableAddon()
 
-    return GetRealZoneText() == L["ZoneName"]
+    return self.db.profile.enable and GetRealZoneText() == L["ZoneName"]
 end
 
 function mod:OnZoneChange()
@@ -122,14 +132,6 @@ function mod.frame:ADDON_LOADED(addon)
     end
 
     mod:InitializeAddon()
-end
-
-function mod.frame:PLAYER_ENTERING_WORLD()
-    mod:OnZoneChange()
-end
-
-function mod.frame:ZONE_CHANGED_NEW_AREA()
-    mod:OnZoneChange()
 end
 
 -- Helpers functions
