@@ -268,10 +268,11 @@ function mod.modules.phase3CollectLog:Initialize()
 
             function self:UpdateCorporealityBar()
 
-                local percent, text = self:CalculatePercent(), ""
+                local text = ""
+                local physicalPartPercent = self:CalculatePercent()
 
                 -- orange (1, 0.6, 0.05)
-                if (_self.shoudGoTwilight and percent < (0.5 - _self.minDiff)) or (not _self.shoudGoTwilight and percent > (0.5 + _self.minDiff)) then
+                if (_self.shoudGoTwilight and physicalPartPercent < (0.5 - _self.minDiff)) or (not _self.shoudGoTwilight and physicalPartPercent > (0.5 + _self.minDiff)) then
                     self.corporealityBar:SetStatusBarColor(0, 1, 0)
                     -- go
                 elseif _self.shoudGoTwilight then
