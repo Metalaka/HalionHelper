@@ -35,14 +35,19 @@ function mod.modules.bar:Initialize()
         frame.timeText:SetFont("Fonts\\FRIZQT__.TTF", 12, "OUTLINE")
         frame.timeText:SetTextColor(1, 1, 1)
 
-        frame:SetScript("OnEvent",
-            function(self, event, ...) if self[event] then return self[event](self, ...) end end)
+        frame:SetScript("OnEvent", function(self, event, ...)
+            if self[event] then
+                return self[event](self, ...)
+            end
+        end)
 
         return frame
     end
 
     function self:SetIcon(frame, spellId)
-        if not frame then return end
+        if not frame then
+            return
+        end
 
         local icon = select(3, GetSpellInfo(spellId))
 

@@ -13,10 +13,9 @@ mod.modules = {}
 mod.ADDON_NAME = "HalionHelper"
 mod.BOSS_NAME = "Halion"
 mod.SLEEP_DELAY = 0.2
-mod.PHASE2_HEALTH_TRESHOLD = 0.75
-mod.PHASE3_HEALTH_TRESHOLD = 0.5
+mod.PHASE2_HEALTH_THRESHOLD = 0.75
+mod.PHASE3_HEALTH_THRESHOLD = 0.5
 mod.ADDON_MESSAGE_PREFIX_P2_DATA = "HH_P2_DATA"
-mod.ADDON_MESSAGE_PREFIX_P2_END = "HH_P2_END"
 mod.ADDON_MESSAGE_PREFIX_P3_DATA = "HH_P3_DATA"
 mod.ADDON_MESSAGE_PREFIX_P3_TRANSITION = "HH_P3_TRANSI"
 
@@ -122,7 +121,11 @@ end
 -- frame
 
 mod.frame = CreateFrame("Frame", "HalionHelper_AddonMainFrame")
-mod.frame:SetScript("OnEvent", function(self, event, ...) if self[event] then return self[event](self, ...) end end)
+mod.frame:SetScript("OnEvent", function(self, event, ...)
+    if self[event] then
+        return self[event](self, ...)
+    end
+end)
 
 -- event
 
@@ -158,7 +161,9 @@ function mod:cut(ftext, fcursor)
 end
 
 function mod:max(a, b)
-    if a > b then return a end
+    if a > b then
+        return a
+    end
     return b
 end
 
@@ -168,13 +173,17 @@ end
 
 function mod:GetDifficulty()
     local _, instanceType, difficulty, _, _, playerDifficulty, isDynamicInstance = GetInstanceInfo() -- todo: pb difficulty ?
-    if instanceType == "raid" and isDynamicInstance then -- "new" instance (ICC)
-        if difficulty == 1 or difficulty == 3 then -- 10 men
+    if instanceType == "raid" and isDynamicInstance then
+        -- "new" instance (ICC)
+        if difficulty == 1 or difficulty == 3 then
+            -- 10 men
             return playerDifficulty == 0 and "normal10" or playerDifficulty == 1 and "heroic10" or "unknown"
-        elseif difficulty == 2 or difficulty == 4 then -- 25 men
+        elseif difficulty == 2 or difficulty == 4 then
+            -- 25 men
             return playerDifficulty == 0 and "normal25" or playerDifficulty == 1 and "heroic25" or "unknown"
         end
-    else -- support for "old" instances
+    else
+        -- support for "old" instances
         --[[if GetInstanceDifficulty() == 1 then
             return (self.modId == "DBM-Party-WotLK" or self.modId == "DBM-Party-BC") and "normal5" or
                     self.hasHeroic and "normal10" or "heroic10"
@@ -192,9 +201,9 @@ function mod:GetDifficulty()
 end
 
 function mod:IsDifficulty(...)
-    local diff = self:GetDifficulty()
+    local difficulty = self:GetDifficulty()
     for i = 1, select("#", ...) do
-        if diff == select(i, ...) then
+        if difficulty == select(i, ...) then
             return true
         end
     end
@@ -208,4 +217,3 @@ mod.frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 mod.frame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 
 -- todo: update check, disable if major diff
--- todo: UI P2 can be shown out of combat after a BR

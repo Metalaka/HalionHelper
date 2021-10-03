@@ -38,18 +38,14 @@ function mod.modules.phase2CollectHealth:Initialize()
 
             local percent = UnitHealth("boss2") / UnitHealthMax("boss2")
 
-            if percent > mod.PHASE2_HEALTH_TRESHOLD then
+            if percent > mod.PHASE2_HEALTH_THRESHOLD then
                 return
             end
 
-            if percent < mod.PHASE3_HEALTH_TRESHOLD then
+            if percent < mod.PHASE3_HEALTH_THRESHOLD then
                 -- stop collect in P3
-                SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P2_END, nil, "RAID")
-
                 _self.enableCollect = false
                 frame:SetScript("OnUpdate", nil)
-
-                return
             end
 
             SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P2_DATA, percent, "RAID")
@@ -69,7 +65,11 @@ function mod.modules.phase2CollectHealth:Initialize()
     -- frame
 
     self.frame = CreateFrame("Frame")
-    self.frame:SetScript("OnEvent", function(self, event, ...) if self[event] then return self[event](self, ...) end end)
+    self.frame:SetScript("OnEvent", function(self, event, ...)
+        if self[event] then
+            return self[event](self, ...)
+        end
+    end)
 
     -- event
 

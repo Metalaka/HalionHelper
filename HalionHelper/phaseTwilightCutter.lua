@@ -130,7 +130,7 @@ function mod.modules.phaseTwilightCutter:Initialize()
 
     function self.uiFrame:CHAT_MSG_MONSTER_YELL(msg)
         if msg == L["Phase2"] or msg:find(L["Phase2"]) then
-            if mod:IsDifficulty("heroic10") or mod:IsDifficulty("heroic25") then
+            if mod:IsDifficulty("heroic10", "heroic25") then
 
                 mod:ScheduleTimer(function()
                     _self.timer:StartTimer(CUTTER_TIMER)
