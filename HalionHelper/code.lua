@@ -151,12 +151,8 @@ function mod:IsInTwilightRealm()
     return UnitAura("player", name) or false
 end
 
-function mod:IsRemarkablePlayer()
-    return self.db.profile.forceDataCollect
-            or IsRaidLeader()
-            or IsRaidOfficer()
-            or GetPartyAssignment("MAINTANK", "player")
-            or GetPartyAssignment("MAINASSIST", "player")
+function mod:IsElected()
+    return self.modules.election.elected
 end
 
 -- Utils

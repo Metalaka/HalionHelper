@@ -1,29 +1,27 @@
 local mod = _G.HalionHelper
 
 mod.modules.phase3CollectLog = {
-    enable = false,
-    enableCollect = false,
     amount = {
         [mod.NPC_ID_HALION_PHYSICAL] = 0,
         [mod.NPC_ID_HALION_TWILIGHT] = 0,
     },
     isFirstCorporeality = true,
-    shoudGoTwilight = nil,
+    shouldGoTwilight = nil,
     side = {
         npcId = nil,
         corporeality = nil,
     },
     --
     corporealityAuras = {
-        [74836] = { dealt = -70, taken = -100, }, --  70% less dealt, 100% less taken
+        [74836] = { dealt = -70, taken = -100, }, -- 70% less dealt, 100% less taken
         [74835] = { dealt = -50, taken = -80, }, --  50% less dealt,  80% less taken
         [74834] = { dealt = -30, taken = -50, }, --  30% less dealt,  50% less taken
         [74833] = { dealt = -20, taken = -30, }, --  20% less dealt,  30% less taken
         [74832] = { dealt = -10, taken = -15, }, --  10% less dealt,  15% less taken
         [mod.CORPOREALITY_AURA] = { dealt = 1, taken = 1, }, --  normal
-        [74827] = { dealt = 15, taken = 20, }, --  15% more dealt,  20% more taken
-        [74828] = { dealt = 30, taken = 50, }, --  30% more dealt,  50% more taken
-        [74829] = { dealt = 60, taken = 100, }, --  60% more dealt, 100% more taken
+        [74827] = { dealt = 15, taken = 20, }, --   15%  more dealt,  20% more taken
+        [74828] = { dealt = 30, taken = 50, }, --   30%  more dealt,  50% more taken
+        [74829] = { dealt = 60, taken = 100, }, --  60%  more dealt, 100% more taken
         [74830] = { dealt = 100, taken = 200, }, -- 100% more dealt, 200% more taken
         [74831] = { dealt = 200, taken = 400, }, -- 200% more dealt, 400% more taken
     },
@@ -46,19 +44,14 @@ function mod.modules.phase3CollectLog:Initialize()
     function self:Enable()
         self.frame:RegisterEvent("PLAYER_REGEN_ENABLED")
         self.frame:RegisterEvent("CHAT_MSG_ADDON")
-        self.frame:RegisterEvent("RAID_ROSTER_UPDATE")
         self.frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-
-        self:ManageCollectActivation()
     end
 
     function self:Disable()
         self.frame:UnregisterEvent("PLAYER_REGEN_ENABLED")
         self.frame:UnregisterEvent("CHAT_MSG_ADDON")
-        self.frame:UnregisterEvent("RAID_ROSTER_UPDATE")
         self.frame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 
-        self:ManageCollectActivation()
         self.frame:PLAYER_REGEN_ENABLED() -- Hide UI
     end
 
@@ -69,7 +62,7 @@ function mod.modules.phase3CollectLog:Initialize()
 
     local function SendData(frame, elapsed)
 
-        if not _self.enable or not _self.side.npcId or _self.amount[_self.side.npcId] == 0 then
+        if not mod:IsElected() or not _self.side.npcId or _self.amount[_self.side.npcId] == 0 then
             return
         end
 
@@ -82,18 +75,6 @@ function mod.modules.phase3CollectLog:Initialize()
         end
     end
 
-    function self:ManageCollectActivation()
-        if not self.enableCollect and mod:IsRemarkablePlayer() then
-            self.enableCollect = true
-
-            self.frame:SetScript("OnUpdate", SendData)
-        elseif self.enableCollect and not mod:IsRemarkablePlayer() then
-            self.enableCollect = false
-
-            self.frame:SetScript("OnUpdate", nil)
-        end
-    end
-
     function self.side:IsPhysical()
         return self.npcId == mod.NPC_ID_HALION_PHYSICAL
     end
@@ -102,7 +83,7 @@ function mod.modules.phase3CollectLog:Initialize()
         return self.npcId == mod.NPC_ID_HALION_TWILIGHT
     end
 
-    function self:ShoudGoTwilight()
+    function self:ShouldGoTwilight()
         local c = self.side.corporeality
 
         -- by default go Twilight
@@ -139,14 +120,14 @@ function mod.modules.phase3CollectLog:Initialize()
 
                 if _self.isFirstCorporeality then
                     _self.isFirstCorporeality = false
+                    _self.frame:SetScript("OnUpdate", SendData)
 
                     _self.ui.timer:StartTimer(5) -- display 5sec wait timer
                     mod:ScheduleTimer(function()
-                        _self.enable = true
                         _self:StartMonitor()
                     end, 5)
 
-                    if _self.enableCollect then
+                    if mod.IsElected() then
                         -- send transition event to Physical Realm
                         SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P3_TRANSITION, nil, "RAID")
                     end
@@ -176,6 +157,7 @@ function mod.modules.phase3CollectLog:Initialize()
         }
 
         local function IsBossCastAura(eventtype, srcGUID, dstGUID)
+            -- todo: refactor with _self.corporealityAuras[spellId]
             return eventtype == "SPELL_AURA_APPLIED" and srcGUID == dstGUID
         end
 
@@ -185,7 +167,7 @@ function mod.modules.phase3CollectLog:Initialize()
                 return
             end
 
-            if not _self.enable and not IsBossCastAura(eventtype, srcGUID, dstGUID) then
+            if _self.isFirstCorporeality and not IsBossCastAura(eventtype, srcGUID, dstGUID) then
                 return
             end
 
@@ -237,7 +219,7 @@ function mod.modules.phase3CollectLog:Initialize()
             if _self.side.corporeality and _self.side.corporeality.dealt == 1 then
                 mod.modules.bar:SetIcon(uiFrame.twilightIcon, _self.iconsSets[mod.db.profile.iconsSet].twilight)
                 mod.modules.bar:SetIcon(uiFrame.physicalIcon, _self.iconsSets[mod.db.profile.iconsSet].physical)
-            elseif _self.shoudGoTwilight then
+            elseif _self.shouldGoTwilight then
                 mod.modules.bar:SetIcon(uiFrame.twilightIcon, _self.iconsSets[mod.db.profile.iconsSet].twilight)
                 mod.modules.bar:SetIcon(uiFrame.physicalIcon, _self.iconsSets[mod.db.profile.iconsSet].twilight)
             else
@@ -272,10 +254,10 @@ function mod.modules.phase3CollectLog:Initialize()
                 local physicalPartPercent = self:CalculatePercent()
 
                 -- orange (1, 0.6, 0.05)
-                if (_self.shoudGoTwilight and physicalPartPercent < (0.5 - _self.minDiff)) or (not _self.shoudGoTwilight and physicalPartPercent > (0.5 + _self.minDiff)) then
+                if (_self.shouldGoTwilight and physicalPartPercent < (0.5 - _self.minDiff)) or (not _self.shouldGoTwilight and physicalPartPercent > (0.5 + _self.minDiff)) then
                     self.corporealityBar:SetStatusBarColor(0, 1, 0)
                     -- go
-                elseif _self.shoudGoTwilight then
+                elseif _self.shouldGoTwilight then
                     if _self.side:IsPhysical() then
                         self.corporealityBar:SetStatusBarColor(1, 0, 0)
                         -- stop
@@ -347,7 +329,7 @@ function mod.modules.phase3CollectLog:Initialize()
         self.ui.timer:StartTimer(15)
         self.ui.corporealityBar.startDelay = 0.5
 
-        self.shoudGoTwilight = self:ShoudGoTwilight()
+        self.shouldGoTwilight = self:ShouldGoTwilight()
         self.ui:UpdateIcons()
     end
 
@@ -361,6 +343,7 @@ function mod.modules.phase3CollectLog:Initialize()
             -- This hack start the P3 from the Twilight event
 
             _self.isFirstCorporeality = false
+            _self.frame:SetScript("OnUpdate", SendData)
             if mod:IsInTwilightRealm() then
                 -- should never happen
                 _self.side.npcId = mod.NPC_ID_HALION_TWILIGHT
@@ -371,11 +354,10 @@ function mod.modules.phase3CollectLog:Initialize()
 
             _self.ui.timer:StartTimer(5) -- display 5sec wait timer
             mod:ScheduleTimer(function()
-                _self.enable = true
                 _self:StartMonitor()
             end, 5)
 
-        elseif _self.enable and prefix == mod.ADDON_MESSAGE_PREFIX_P3_DATA then
+        elseif prefix == mod.ADDON_MESSAGE_PREFIX_P3_DATA then
             local npcId, amount = mod:cut(message, ":")
             npcId = tonumber(npcId)
 
@@ -390,14 +372,10 @@ function mod.modules.phase3CollectLog:Initialize()
 
     function self.frame:PLAYER_REGEN_ENABLED()
 
-        _self.enable = false
+        self:SetScript("OnUpdate", nil)
         _self.isFirstCorporeality = true
 
         _self.ui.timer:StopTimer()
-    end
-
-    function self.frame:RAID_ROSTER_UPDATE()
-        _self:ManageCollectActivation()
     end
 
     -- init
