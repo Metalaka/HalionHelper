@@ -18,6 +18,9 @@ mod.PHASE3_HEALTH_THRESHOLD = 0.5
 mod.ADDON_MESSAGE_PREFIX_P2_DATA = "HH_P2_DATA"
 mod.ADDON_MESSAGE_PREFIX_P3_DATA = "HH_P3_DATA"
 mod.ADDON_MESSAGE_PREFIX_P3_TRANSITION = "HH_P3_TRANSI"
+mod.ADDON_MESSAGE_PREFIX_ELECTION = "HH_ELECTION_INSCRIPTION"
+mod.ADDON_MESSAGE_PREFIX_HELLO = "HH_CLIENT_HELLO"
+mod.ADDON_UPDATE_URL = "…"
 
 mod.NPC_ID_HALION_PHYSICAL = 39863
 mod.NPC_ID_HALION_TWILIGHT = 40142
@@ -56,6 +59,7 @@ function mod:InitializeAddon()
 
     -- go
     self.modules.bar:Initialize()
+    self.modules.election:Initialize()
     self.modules.phase2CollectHealth:Initialize()
     self.modules.phase2Ui:Initialize()
     self.modules.phase3CollectLog:Initialize()
@@ -82,6 +86,7 @@ function mod:EnableModules()
     self.enabled = true
 
     self.modules.bar:Enable()
+    self.modules.election:Enable()
     self.modules.phase2CollectHealth:Enable()
     self.modules.phase2Ui:Enable()
     self.modules.phase3CollectLog:Enable()
@@ -98,6 +103,7 @@ function mod:DisableModules()
     self.enabled = false
 
     self.modules.bar:Disable()
+    self.modules.election:Disable()
     self.modules.phase2CollectHealth:Disable()
     self.modules.phase2Ui:Disable()
     self.modules.phase3CollectLog:Disable()
@@ -142,7 +148,7 @@ end
 function mod:IsInTwilightRealm()
     local name = GetSpellInfo(74807)
 
-    return UnitAura("player", name)
+    return UnitAura("player", name) or false
 end
 
 function mod:IsRemarkablePlayer()

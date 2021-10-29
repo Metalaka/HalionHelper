@@ -23,6 +23,7 @@ Locales\fr.lua
 code.lua
 
 barHelper.lua
+election.lua
 phase2CollectHealth.lua
 phase2Ui.lua
 phase3CollectLog.lua
