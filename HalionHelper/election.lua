@@ -1,7 +1,6 @@
 local mod = _G.HalionHelper
 
 mod.modules.election = {
-    period = 5,
     phase = false,
     versionMax = 0,
     inscriptions = {},
@@ -75,7 +74,7 @@ function mod.modules.election:Initialize()
     local function OnUpdate(frame, elapsed)
 
         frame.elapsed = (frame.elapsed or 0) + elapsed
-        if frame.elapsed < _self.period then
+        if frame.elapsed < mod.ELECTION_DELAY then
             return
         end
 
