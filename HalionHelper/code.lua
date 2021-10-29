@@ -148,11 +148,11 @@ end
 function mod:IsInTwilightRealm()
     local name = GetSpellInfo(74807)
 
-    return UnitAura("player", name) or false
+    return UnitAura("player", name) ~= nil
 end
 
 function mod:IsElected()
-    return self.modules.election.elected
+    return mod.modules.election.elected
 end
 
 -- Utils
