@@ -2,7 +2,6 @@ local mod = _G.HalionHelper
 
 mod.modules.election = {
     phase = false,
-    versionMax = 0,
     inscriptions = {},
     elected = false,
 }
@@ -90,29 +89,17 @@ function mod.modules.election:Initialize()
         _self.phase = not _self.phase
     end
 
-    local function OnClientHello(version)
-
-        if _self.versionMax < version then
-            _self.versionMax = version
-
-            if _self.versionMax > tonumber(mod.MINOR_VERSION) then
-                local L = LibStub("AceLocale-3.0"):GetLocale(mod.ADDON_NAME)
-                mod:Printf(L["Update"], mod.ADDON_UPDATE_URL)
-            end
-        end
-    end
-
     local function OnInscription(message)
 
         local version, tmp = mod:cut(message, separator)
 
         version = tonumber(version)
-        if _self.versionMax < version then
-            _self.versionMax = version
+        if mod.versionMax < version then
+            mod:OnClientHello(version)
             _self.inscriptions = {}
         end
 
-        if _self.versionMax > version then
+        if mod.versionMax > version then
             return
         end
 
@@ -150,10 +137,7 @@ function mod.modules.election:Initialize()
     end
 
     function self.frame:CHAT_MSG_ADDON(prefix, message)
-
-        if prefix == mod.ADDON_MESSAGE_PREFIX_HELLO then
-            OnClientHello(tonumber(message))
-        elseif prefix == mod.ADDON_MESSAGE_PREFIX_ELECTION then
+        if prefix == mod.ADDON_MESSAGE_PREFIX_ELECTION then
             OnInscription(message)
         end
     end

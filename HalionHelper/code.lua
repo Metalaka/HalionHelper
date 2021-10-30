@@ -1,26 +1,26 @@
 HalionHelper = LibStub("AceAddon-3.0"):NewAddon("HalionHelper", "AceEvent-3.0", "AceTimer-3.0", "AceConsole-3.0")
-HalionHelper.MINOR_VERSION = tonumber(("$Revision: 11 $"):match("%d+"))
+HalionHelper.MINOR_VERSION = 20001
 
 local mod = _G.HalionHelper
 
 mod.initialized = 0
 mod.enabled = false
 mod.modules = {}
-
+mod.versionMax = tonumber(mod.MINOR_VERSION)
 
 -- constants
 
 mod.ADDON_NAME = "HalionHelper"
 mod.BOSS_NAME = "Halion"
 mod.SLEEP_DELAY = 0.2
-mod.ELECTION_DELAY = 2
+mod.ELECTION_DELAY = 5
 mod.PHASE2_HEALTH_THRESHOLD = 0.75
 mod.PHASE3_HEALTH_THRESHOLD = 0.5
-mod.ADDON_MESSAGE_PREFIX_P2_DATA = "HH_P2_DATA"
-mod.ADDON_MESSAGE_PREFIX_P3_DATA = "HH_P3_DATA"
-mod.ADDON_MESSAGE_PREFIX_P3_TRANSITION = "HH_P3_TRANSI"
-mod.ADDON_MESSAGE_PREFIX_ELECTION = "HH_ELECTION_INSCRIPTION"
-mod.ADDON_MESSAGE_PREFIX_HELLO = "HH_CLIENT_HELLO"
+mod.ADDON_MESSAGE_PREFIX_P2_DATA = mod.ADDON_NAME .. "_P2_DATA"
+mod.ADDON_MESSAGE_PREFIX_P3_DATA = mod.ADDON_NAME .. "_P3_DATA"
+mod.ADDON_MESSAGE_PREFIX_P3_START = mod.ADDON_NAME .. "_P3_START"
+mod.ADDON_MESSAGE_PREFIX_ELECTION = mod.ADDON_NAME .. "_ELECTION_INSCRIPTION"
+mod.ADDON_MESSAGE_PREFIX_HELLO = mod.ADDON_NAME .. "_CLIENT_HELLO"
 mod.ADDON_UPDATE_URL = "…"
 
 mod.NPC_ID_HALION_PHYSICAL = 39863
@@ -42,6 +42,16 @@ mod.defaults = {
 }
 
 local L = LibStub("AceLocale-3.0"):GetLocale(mod.ADDON_NAME)
+
+-- frame
+
+mod.frame = CreateFrame("Frame", "HalionHelper_AddonMainFrame")
+mod.frame:SetScript("OnEvent", function(self, event, ...)
+    if self[event] then
+        return self[event](self, ...)
+    end
+end)
+
 
 -- functions
 
@@ -67,13 +77,21 @@ function mod:InitializeAddon()
 
     self.initialized = 2
 
-    function mod.frame:PLAYER_ENTERING_WORLD()
+    function self.frame:PLAYER_ENTERING_WORLD()
         mod:OnZoneChange()
     end
 
-    function mod.frame:ZONE_CHANGED_NEW_AREA()
+    function self.frame:ZONE_CHANGED_NEW_AREA()
         mod:OnZoneChange()
     end
+
+    function self.frame:CHAT_MSG_ADDON(prefix, message)
+        if prefix == mod.ADDON_MESSAGE_PREFIX_HELLO then
+            mod:OnClientHello(tonumber(message))
+        end
+    end
+
+    SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_HELLO, mod.MINOR_VERSION, "RAID")
 
     self:OnZoneChange()
 end
@@ -124,14 +142,20 @@ function mod:OnZoneChange()
     end
 end
 
--- frame
+function mod:OnClientHello(version)
 
-mod.frame = CreateFrame("Frame", "HalionHelper_AddonMainFrame")
-mod.frame:SetScript("OnEvent", function(self, event, ...)
-    if self[event] then
-        return self[event](self, ...)
+    if self.versionMax < version then
+        self.versionMax = version
+        self:Printf(L["Update"], mod.ADDON_UPDATE_URL)
+
+        -- disable addon
+        self:DisableModules()
+        self.initialized = 3
+        self.frame:UnregisterEvent("CHAT_MSG_ADDON")
+        self.frame:UnregisterEvent("PLAYER_ENTERING_WORLD")
+        self.frame:UnregisterEvent("ZONE_CHANGED_NEW_AREA")
     end
-end)
+end
 
 -- event
 
@@ -152,7 +176,7 @@ function mod:IsInTwilightRealm()
 end
 
 function mod:IsElected()
-    return mod.modules.election.elected
+    return self.modules.election.elected
 end
 
 -- Utils
@@ -215,7 +239,6 @@ end
 -- Start addon
 
 mod.frame:RegisterEvent("ADDON_LOADED")
+mod.frame:RegisterEvent("CHAT_MSG_ADDON")
 mod.frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 mod.frame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-
--- todo: update check, disable if major diff

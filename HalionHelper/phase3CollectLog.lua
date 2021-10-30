@@ -129,7 +129,7 @@ function mod.modules.phase3CollectLog:Initialize()
 
                     if mod.IsElected() then
                         -- send transition event to Physical Realm
-                        SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P3_TRANSITION, nil, "RAID")
+                        SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P3_START, nil, "RAID")
                     end
                 else
                     _self:StartMonitor()
@@ -338,7 +338,7 @@ function mod.modules.phase3CollectLog:Initialize()
 
     function self.frame:CHAT_MSG_ADDON(prefix, message)
 
-        if _self.isFirstCorporeality and prefix == mod.ADDON_MESSAGE_PREFIX_P3_TRANSITION and not mod:IsInTwilightRealm() then
+        if _self.isFirstCorporeality and prefix == mod.ADDON_MESSAGE_PREFIX_P3_START and not mod:IsInTwilightRealm() then
             -- Boss in Physical Realm start P3 without a Corporeality aura.
             -- This hack start the P3 from the Twilight event
 
