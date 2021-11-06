@@ -71,8 +71,8 @@ function mod.modules.slashCommands:Initialize()
         else
             mod.modules.phase3CollectLog.ui.timer:StopTimer(0)
 
-            local point, _, _, x, y = mod.modules.phase3CollectLog.ui.uiFrame:GetPoint(1)
-            mod.db.profile.ui.point = point
+            local origin, _, _, x, y = mod.modules.phase3CollectLog.ui.uiFrame:GetPoint(1)
+            mod.db.profile.ui.origin = origin
             mod.db.profile.ui.x = x
             mod.db.profile.ui.y = y
         end
@@ -98,13 +98,10 @@ function mod.modules.slashCommands:Initialize()
 
     function self:toggleCutter()
 
-        if mod.db.profile.showCutterFrame then
-            mod.db.profile.showCutterFrame = false
-        else
-            mod.db.profile.showCutterFrame = true
-        end
+        mod.db.profile.showCutterFrame = not (mod.db.profile.showCutterFrame or false)
 
-        mod.modules.phaseTwilightCutter:ManageActivation()
+        mod.modules.twilightCutter:Disable()
+        mod.modules.twilightCutter:Enable()
 
         mod:Printf(L["ChatCommand_cutter_message"], tostring(mod.db.profile.showCutterFrame))
     end

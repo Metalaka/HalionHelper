@@ -1,7 +1,6 @@
 local mod = _G.HalionHelper
 
 mod.modules.election = {
-    phase = false,
     inscriptions = {},
     elected = false,
 }
@@ -9,12 +8,14 @@ mod.modules.election = {
 function mod.modules.election:Initialize()
 
     function self:Enable()
+
         self.frame:RegisterEvent("PLAYER_REGEN_DISABLED")
         self.frame:RegisterEvent("PLAYER_REGEN_ENABLED")
         self.frame:RegisterEvent("CHAT_MSG_ADDON")
     end
 
     function self:Disable()
+
         self.frame:UnregisterEvent("PLAYER_REGEN_DISABLED")
         self.frame:UnregisterEvent("PLAYER_REGEN_ENABLED")
         self.frame:UnregisterEvent("CHAT_MSG_ADDON")
@@ -65,7 +66,7 @@ function mod.modules.election:Initialize()
             end
         end
 
-        _self.elected = winner and winner.Guid == UnitGUID("player")
+        _self.elected = (winner or false) and winner.Guid == UnitGUID("player")
 
         --mod:Print('elected: ' .. tostring(_self.elected))
     end
@@ -79,14 +80,14 @@ function mod.modules.election:Initialize()
 
         frame.elapsed = 0
 
-        if _self.phase == false then
+        if frame.electionPhase then
             DoElection()
             _self.inscriptions = {}
         else
             SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_ELECTION, GetProfile(), "RAID")
         end
 
-        _self.phase = not _self.phase
+        frame.electionPhase = not (frame.electionPhase or false)
     end
 
     local function OnInscription(message)
@@ -96,7 +97,8 @@ function mod.modules.election:Initialize()
         version = tonumber(version)
         if mod.versionMax < version then
             mod:OnClientHello(version)
-            _self.inscriptions = {}
+            -- Disable addon
+            return
         end
 
         if mod.versionMax > version then

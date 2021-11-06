@@ -5,11 +5,13 @@ mod.modules.phase2CollectHealth = {}
 function mod.modules.phase2CollectHealth:Initialize()
 
     function self:Enable()
+
         self.frame:RegisterEvent("PLAYER_REGEN_DISABLED")
         self.frame:RegisterEvent("PLAYER_REGEN_ENABLED")
     end
 
     function self:Disable()
+
         self.frame:UnregisterEvent("PLAYER_REGEN_DISABLED")
         self.frame:UnregisterEvent("PLAYER_REGEN_ENABLED")
     end
@@ -35,7 +37,7 @@ function mod.modules.phase2CollectHealth:Initialize()
             end
 
             if percent < mod.PHASE3_HEALTH_THRESHOLD then
-                -- stop collect in P3
+                -- Stop collect in P3
                 frame:SetScript("OnUpdate", nil)
             end
 

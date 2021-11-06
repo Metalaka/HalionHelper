@@ -127,7 +127,7 @@ function mod.modules.phase3CollectLog:Initialize()
                         _self:StartMonitor()
                     end, 5)
 
-                    if mod.IsElected() then
+                    if mod:IsElected() then
                         -- send transition event to Physical Realm
                         SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P3_START, nil, "RAID")
                     end
@@ -191,9 +191,9 @@ function mod.modules.phase3CollectLog:Initialize()
             return _self.amount[mod.NPC_ID_HALION_PHYSICAL] / mod:max(total, 1)
         end
 
-        local uiFrame = CreateFrame("Frame", "HalionHelper_phase3CollectLog_uiFrame", UIParent)
+        local uiFrame = CreateFrame("Frame", mod.ADDON_NAME .. "_phase3CollectLog_uiFrame", UIParent)
         self.uiFrame = uiFrame
-        uiFrame:SetPoint(mod.db.profile.ui.point, mod.db.profile.ui.x, mod.db.profile.ui.y)
+        uiFrame:SetPoint(mod.db.profile.ui.origin, mod.db.profile.ui.x, mod.db.profile.ui.y)
         --        uiFrame:SetPoint("CENTER")
         uiFrame:SetSize(170 + 60, 30)
 
@@ -230,7 +230,7 @@ function mod.modules.phase3CollectLog:Initialize()
 
         function self:InitializeCorporealityBar()
 
-            self.corporealityBar = mod.modules.bar:NewBar("HalionHelper_phase3CollectLog_corporealityBar", self.uiFrame)
+            self.corporealityBar = mod.modules.bar:NewBar(mod.ADDON_NAME .. "_phase3CollectLog_corporealityBar", self.uiFrame)
             self.corporealityBar:SetPoint("TOP")
             self.corporealityBar:SetHeight(25)
             self.corporealityBar:SetValue(1)
@@ -288,7 +288,7 @@ function mod.modules.phase3CollectLog:Initialize()
 
         function self:InitializeTimer()
 
-            self.timer = mod.modules.bar:NewBar("HalionHelper_phase3CollectLog_Timer", self.uiFrame)
+            self.timer = mod.modules.bar:NewBar(mod.ADDON_NAME .. "_phase3CollectLog_Timer", self.uiFrame)
             self.timer:SetPoint("BOTTOM")
             self.timer:SetHeight(5)
             self.timer.expire = nil
@@ -333,7 +333,7 @@ function mod.modules.phase3CollectLog:Initialize()
         self.ui:UpdateIcons()
     end
 
-    self.frame = CreateFrame("Frame", "HalionHelper_phase3CollectLog")
+    self.frame = CreateFrame("Frame", mod.ADDON_NAME .. "_phase3CollectLog")
     self.frame:SetScript("OnEvent", function(self, event, ...) if self[event] then return self[event](self, ...) end end)
 
     function self.frame:CHAT_MSG_ADDON(prefix, message)

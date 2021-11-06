@@ -45,6 +45,7 @@ function mod.modules.bar:Initialize()
     end
 
     function self:SetIcon(frame, spellId)
+
         if not frame then
             return
         end

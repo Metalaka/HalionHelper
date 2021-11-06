@@ -6,7 +6,7 @@ local mod = _G.HalionHelper
 mod.initialized = 0
 mod.enabled = false
 mod.modules = {}
-mod.versionMax = tonumber(mod.MINOR_VERSION)
+mod.versionMax = mod.MINOR_VERSION
 
 -- constants
 
@@ -30,7 +30,7 @@ mod.CORPOREALITY_AURA = 74826
 mod.defaults = {
     profile = {
         ui = {
-            point = "CENTER",
+            origin = "CENTER",
             x = 0,
             y = 200,
         },
@@ -45,8 +45,9 @@ local L = LibStub("AceLocale-3.0"):GetLocale(mod.ADDON_NAME)
 
 -- frame
 
-mod.frame = CreateFrame("Frame", "HalionHelper_AddonMainFrame")
+mod.frame = CreateFrame("Frame", mod.ADDON_NAME .. "_MainFrame")
 mod.frame:SetScript("OnEvent", function(self, event, ...)
+
     if self[event] then
         return self[event](self, ...)
     end
@@ -65,7 +66,7 @@ function mod:InitializeAddon()
     self.enabled = false
     self.frame:UnregisterEvent("ADDON_LOADED")
 
-    self.db = LibStub("AceDB-3.0"):New("HalionHelperDB", mod.defaults, true)
+    self.db = LibStub("AceDB-3.0"):New(mod.ADDON_NAME .. "DB", mod.defaults, true)
 
     -- go
     self.modules.bar:Initialize()
@@ -73,7 +74,7 @@ function mod:InitializeAddon()
     self.modules.phase2CollectHealth:Initialize()
     self.modules.phase2Ui:Initialize()
     self.modules.phase3CollectLog:Initialize()
-    self.modules.phaseTwilightCutter:Initialize()
+    self.modules.twilightCutter:Initialize()
 
     self.initialized = 2
 
@@ -97,6 +98,7 @@ function mod:InitializeAddon()
 end
 
 function mod:EnableModules()
+
     if self.initialized ~= 2 then
         return
     end
@@ -108,12 +110,13 @@ function mod:EnableModules()
     self.modules.phase2CollectHealth:Enable()
     self.modules.phase2Ui:Enable()
     self.modules.phase3CollectLog:Enable()
-    self.modules.phaseTwilightCutter:Enable()
+    self.modules.twilightCutter:Enable()
 
     self:Print(L["Loaded"])
 end
 
 function mod:DisableModules()
+
     if self.initialized ~= 2 then
         return
     end
@@ -125,11 +128,10 @@ function mod:DisableModules()
     self.modules.phase2CollectHealth:Disable()
     self.modules.phase2Ui:Disable()
     self.modules.phase3CollectLog:Disable()
-    self.modules.phaseTwilightCutter:Disable()
+    self.modules.twilightCutter:Disable()
 end
 
 function mod:ShouldEnableAddon()
-
     return self.db.profile.enable and GetRealZoneText() == L["ZoneName"]
 end
 
@@ -148,9 +150,10 @@ function mod:OnClientHello(version)
         self.versionMax = version
         self:Printf(L["Update"], mod.ADDON_UPDATE_URL)
 
-        -- disable addon
+        -- Disable addon
         self:DisableModules()
         self.initialized = 3
+
         self.frame:UnregisterEvent("CHAT_MSG_ADDON")
         self.frame:UnregisterEvent("PLAYER_ENTERING_WORLD")
         self.frame:UnregisterEvent("ZONE_CHANGED_NEW_AREA")
@@ -160,6 +163,7 @@ end
 -- event
 
 function mod.frame:ADDON_LOADED(addon)
+
     if addon ~= mod.ADDON_NAME then
         return
     end
@@ -170,6 +174,7 @@ end
 -- Helpers functions
 
 function mod:IsInTwilightRealm()
+
     local name = GetSpellInfo(74807)
 
     return UnitAura("player", name) ~= nil
@@ -182,14 +187,18 @@ end
 -- Utils
 
 function mod:cut(ftext, fcursor)
+
     local find = string.find(ftext, fcursor)
+
     return string.sub(ftext, 0, find - 1), string.sub(ftext, find + 1)
 end
 
 function mod:max(a, b)
+
     if a > b then
         return a
     end
+
     return b
 end
 
@@ -198,6 +207,7 @@ function mod:GetNpcId(guid)
 end
 
 function mod:GetDifficulty()
+
     local _, instanceType, difficulty, _, _, playerDifficulty, isDynamicInstance = GetInstanceInfo() -- todo: pb difficulty ?
     if instanceType == "raid" and isDynamicInstance then
         -- "new" instance (ICC)
@@ -227,12 +237,15 @@ function mod:GetDifficulty()
 end
 
 function mod:IsDifficulty(...)
+
     local difficulty = self:GetDifficulty()
+
     for i = 1, select("#", ...) do
         if difficulty == select(i, ...) then
             return true
         end
     end
+
     return false
 end
 
