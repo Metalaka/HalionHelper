@@ -1,6 +1,8 @@
 local mod = _G.HalionHelper
 
-mod.modules.twilightCutter = {}
+mod.modules.twilightCutter = {
+    isHeroicFight = false
+}
 
 function mod.modules.twilightCutter:Initialize()
 
@@ -24,8 +26,7 @@ function mod.modules.twilightCutter:Initialize()
 
     local CUTTER_TIMER = 30
     local ANNOUNCE_CUTTER_DELAY = 5
-    local FIRST_CUTTER_DELAY_NM = 15
-    local FIRST_CUTTER_DELAY_HM = 10
+    local FIRST_CUTTER_DELAY = 10
     local SPELL_CUTTER = 77846
 
     --- 44 seconds for 360°
@@ -54,23 +55,14 @@ function mod.modules.twilightCutter:Initialize()
         end
     end
 
-    --- return from 0.5 to 0
-    local function GetPositionOffset(time)
+    local function GetPosition(time, width, s)
 
-        local t = time + safeZoneOffset
-
-        if t >= delayOrb_90 then
-            t = math.fmod(t, delayOrb_90)
-        end
-
-        return t / delayOrb_180
+        return -math.fmod((time + s + safeZoneOffset) / delayOrb_180 * width, width)
     end
 
     local function ComputePositions(time, width)
 
-        local positionOffset = width * GetPositionOffset(time)
-
-        return -positionOffset, width / 2 - positionOffset
+        return GetPosition(time, width, delayOrb_90), GetPosition(time, width, 0)
     end
 
     local function SetColor(frame)
@@ -133,8 +125,8 @@ function mod.modules.twilightCutter:Initialize()
 
         local left, right = ComputePositions(frame.remaining, frameWidth)
 
-        _self.uiFrame.iconLeft:SetPoint("CENTER", left, 0)
-        _self.uiFrame.iconRight:SetPoint("CENTER", right, 0)
+        _self.uiFrame.iconLeft:SetPoint("RIGHT", left, 0)
+        _self.uiFrame.iconRight:SetPoint("RIGHT", right, 0)
 
         SetColor(frame)
     end
@@ -143,17 +135,19 @@ function mod.modules.twilightCutter:Initialize()
 
     function self.uiFrame:CHAT_MSG_MONSTER_YELL(message)
 
+        -- This event should occur only one time per fight
+        -- We use it to start script and set isHeroicFight
         if message == L["Yell_Phase2"] or message:find(L["Yell_Phase2"]) then
 
-            local delay = FIRST_CUTTER_DELAY_NM
+            _self.isHeroicFight = mod:IsDifficulty("heroic10", "heroic25")
 
-            if mod:IsDifficulty("heroic10", "heroic25") then
-                delay = FIRST_CUTTER_DELAY_HM
+            if not _self.isHeroicFight then
+                _self.uiFrame.iconRight:Hide()
             end
 
             mod:ScheduleTimer(function()
                 TrackCutter()
-            end, delay)
+            end, FIRST_CUTTER_DELAY)
 
             _self.timer:SetScript("OnUpdate", UpdateUi)
         end
@@ -170,6 +164,7 @@ function mod.modules.twilightCutter:Initialize()
 
     function self.uiFrame:PLAYER_REGEN_ENABLED()
         HideUI()
+        _self.uiFrame.iconRight:Show()
     end
 end
 
