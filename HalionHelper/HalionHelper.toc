@@ -24,6 +24,7 @@ code.lua
 
 barHelper.lua
 election.lua
+announceOpenPhase2.lua
 phase2CollectHealth.lua
 phase2Ui.lua
 phase3CollectLog.lua

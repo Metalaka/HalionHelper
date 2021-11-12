@@ -7,6 +7,7 @@ L["Announce_TwilightCutter"] = "The orbiting spheres pulse with dark energy!"
 
 L["Loaded"] = "loaded - Have fun!"
 L["Update"] = "New version available. Download update at: %s"
+L["AnnounceTwilightBossEngaged"] = "Twilight Halion engaged, pass through the portal!"
 
 L["ChatCommand_usage"] = "Usage:"
 L["ChatCommand_help"] = "List available subcommands"
