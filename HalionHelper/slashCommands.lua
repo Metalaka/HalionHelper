@@ -12,15 +12,15 @@ function mod.modules.slashCommands:Initialize()
 
     function mod:ChatCommand(args)
 
-        local arg1, arg2 = self:GetArgs(args, 2)
+        local command, argument = self:GetArgs(args, 2)
 
-        if arg1 == "enable" or arg1 == "e" then
+        if command == "enable" or command == "e" then
             _self:toggleAddon()
-        elseif arg1 == "move" or arg1 == "m" then
+        elseif command == "move" or command == "m" then
             _self:MoveUI()
-        elseif arg1 == "texture" or arg1 == "t" then
-            _self:SetTexture(arg2)
-        elseif arg1 == "cutter" or arg1 == "c" then
+        elseif command == "texture" or command == "t" then
+            _self:SetTexture(argument)
+        elseif command == "cutter" or command == "c" then
             _self:toggleCutter()
         else
             mod:Print(L["ChatCommand_usage"])
@@ -47,22 +47,22 @@ function mod.modules.slashCommands:Initialize()
 
     function self:MoveUI()
 
-        function self:ToggleMovable(frame)
+        local function ToggleMovable(frame)
 
-            if not frame:IsMovable() then
+            if frame:IsMovable() then
+                frame:SetMovable(false)
+                frame:EnableMouse(false)
+            else
                 frame:SetMovable(true)
                 frame:EnableMouse(true)
                 frame:RegisterForDrag("LeftButton")
                 frame:SetScript("OnDragStart", frame.StartMoving)
                 frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
-            else
-                frame:SetMovable(false)
-                frame:EnableMouse(false)
             end
         end
 
-        self:ToggleMovable(mod.modules.phase2Ui.healthBar)
-        self:ToggleMovable(mod.modules.phase3CollectLog.ui.uiFrame)
+        ToggleMovable(mod.modules.phase2Ui.healthBar)
+        ToggleMovable(mod.modules.phase3CollectLog.ui.uiFrame)
 
         if not mod.modules.phase3CollectLog.ui.uiFrame:IsShown() then
             mod.modules.phase3CollectLog.ui.timer:StartTimer(15)
@@ -71,6 +71,7 @@ function mod.modules.slashCommands:Initialize()
         else
             mod.modules.phase3CollectLog.ui.timer:StopTimer(0)
 
+            -- UI phase 2 / 3 can't be shown at the same time, so we use the same position
             local origin, _, _, x, y = mod.modules.phase3CollectLog.ui.uiFrame:GetPoint(1)
             mod.db.profile.ui.origin = origin
             mod.db.profile.ui.x = x
@@ -107,6 +108,3 @@ function mod.modules.slashCommands:Initialize()
     end
 
 end
-
--- Initialize chat command
-mod.modules.slashCommands:Initialize()

@@ -76,6 +76,7 @@ function mod:InitializeAddon()
     self.modules.phase2Ui:Initialize()
     self.modules.phase3CollectLog:Initialize()
     self.modules.twilightCutter:Initialize()
+    self.modules.slashCommands:Initialize()
 
     self.initialized = 2
 
