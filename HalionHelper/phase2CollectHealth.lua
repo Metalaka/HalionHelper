@@ -45,7 +45,7 @@ function mod.modules.phase2CollectHealth:Initialize()
                 return
             end
 
-            SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P2_DATA, percent, "RAID")
+            SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_TWILIGHT_HEALTH_DATA, percent, "RAID")
         end
     end
 

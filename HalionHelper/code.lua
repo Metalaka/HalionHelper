@@ -16,12 +16,12 @@ mod.SLEEP_DELAY = 0.2
 mod.ELECTION_DELAY = 5
 mod.PHASE2_HEALTH_THRESHOLD = 0.75
 mod.PHASE3_HEALTH_THRESHOLD = 0.5
-mod.ADDON_MESSAGE_PREFIX_P2_DATA = mod.ADDON_NAME .. "_P2_DATA"
-mod.ADDON_MESSAGE_PREFIX_P3_DATA = mod.ADDON_NAME .. "_P3_DATA"
+mod.ADDON_MESSAGE_PREFIX_TWILIGHT_HEALTH_DATA = mod.ADDON_NAME .. "_TWILIGHT_HEALTH_DATA"
+mod.ADDON_MESSAGE_PREFIX_CORPOREALITY_DATA = mod.ADDON_NAME .. "_CORPOREALITY_DATA"
 mod.ADDON_MESSAGE_PREFIX_P3_START = mod.ADDON_NAME .. "_P3_START"
 mod.ADDON_MESSAGE_PREFIX_ELECTION = mod.ADDON_NAME .. "_ELECTION_INSCRIPTION"
 mod.ADDON_MESSAGE_PREFIX_HELLO = mod.ADDON_NAME .. "_CLIENT_HELLO"
-mod.ADDON_UPDATE_URL = "…"
+mod.ADDON_UPDATE_URL = "…" -- todo: github url
 
 mod.NPC_ID_HALION_PHYSICAL = 39863
 mod.NPC_ID_HALION_TWILIGHT = 40142
@@ -154,9 +154,10 @@ function mod:OnClientHello(version)
         self.versionMax = version
         self:Printf(L["Update"], mod.ADDON_UPDATE_URL)
 
+        -- todo: only if self.versionMax < (version + 1)
         -- Disable addon
         self:DisableModules()
-        self.initialized = 3
+        self.initialized = 3 -- todo: constants
 
         self.frame:UnregisterEvent("CHAT_MSG_ADDON")
         self.frame:UnregisterEvent("PLAYER_ENTERING_WORLD")

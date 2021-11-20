@@ -69,7 +69,7 @@ function mod.modules.phase2Ui:Initialize()
 
     function self.healthBar:CHAT_MSG_ADDON(prefix, message)
 
-        if (prefix == mod.ADDON_MESSAGE_PREFIX_P2_DATA) then
+        if (prefix == mod.ADDON_MESSAGE_PREFIX_TWILIGHT_HEALTH_DATA) then
             SetHealthValue(tonumber(message))
         end
     end

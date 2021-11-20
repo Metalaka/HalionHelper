@@ -65,7 +65,7 @@ function mod.modules.corporeality.core:Initialize()
             frame.elapsed = 0
 
             local payload = _self.side.npcId .. SEPARATOR .. _self.amount[_self.side.npcId]
-            SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P3_DATA, payload, "RAID")
+            SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_CORPOREALITY_DATA, payload, "RAID")
         end
     end
 
@@ -118,7 +118,7 @@ function mod.modules.corporeality.core:Initialize()
                     mod.NPC_ID_HALION_PHYSICAL,
                     _self.corporealityAuras[mod.CORPOREALITY_AURA]
             )
-        elseif prefix == mod.ADDON_MESSAGE_PREFIX_P3_DATA then
+        elseif prefix == mod.ADDON_MESSAGE_PREFIX_CORPOREALITY_DATA then
 
             local npcId, amount = mod:cut(message, SEPARATOR)
             npcId = tonumber(npcId)
