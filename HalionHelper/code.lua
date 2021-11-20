@@ -32,7 +32,7 @@ mod.defaults = {
         ui = {
             origin = "CENTER",
             x = 0,
-            y = 200,
+            y = 0,
         },
         texture = "Interface\\TargetingFrame\\UI-StatusBar",
         iconsSet = "REALM",
@@ -74,7 +74,7 @@ function mod:InitializeAddon()
     self.modules.announceOpenPhase2:Initialize()
     self.modules.phase2CollectHealth:Initialize()
     self.modules.phase2Ui:Initialize()
-    self.modules.phase3CollectLog:Initialize()
+    self.modules.corporeality.core:Initialize()
     self.modules.twilightCutter:Initialize()
     self.modules.slashCommands:Initialize()
 
@@ -112,7 +112,7 @@ function mod:EnableModules()
     self.modules.announceOpenPhase2:Enable()
     self.modules.phase2CollectHealth:Enable()
     self.modules.phase2Ui:Enable()
-    self.modules.phase3CollectLog:Enable()
+    self.modules.corporeality.core:Enable()
     self.modules.twilightCutter:Enable()
 
     self:Print(L["Loaded"])
@@ -131,7 +131,7 @@ function mod:DisableModules()
     self.modules.announceOpenPhase2:Disable()
     self.modules.phase2CollectHealth:Disable()
     self.modules.phase2Ui:Disable()
-    self.modules.phase3CollectLog:Disable()
+    self.modules.corporeality.core:Disable()
     self.modules.twilightCutter:Disable()
 end
 
@@ -252,6 +252,12 @@ function mod:IsDifficulty(...)
 
     return false
 end
+
+function mod:HasRaidWarningRight()
+    return IsRaidLeader() ~= nil
+            or IsRaidOfficer() ~= nil
+end
+
 
 -- Start addon
 

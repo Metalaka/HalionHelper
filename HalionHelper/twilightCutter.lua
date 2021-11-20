@@ -116,8 +116,7 @@ function mod.modules.twilightCutter:Initialize()
     local function UpdateUi(frame, elapsed)
 
         frame.remaining = (frame.remaining or 0) - elapsed
-
-        if (frame.remaining < 0) then
+        if frame.remaining < 0 then
             return
         end
 

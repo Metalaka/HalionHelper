@@ -27,7 +27,9 @@ election.lua
 announceOpenPhase2.lua
 phase2CollectHealth.lua
 phase2Ui.lua
-phase3CollectLog.lua
 twilightCutter.lua
+Corporeality\core.lua
+Corporeality\collect.lua
+Corporeality\ui.lua
 
 slashCommands.lua

@@ -23,10 +23,12 @@ function mod.modules.election:Initialize()
         self.frame:SetScript("OnUpdate", nil)
     end
 
-    -- functions
+    --
 
+    local SEPARATOR = ":"
     local _self = self
-    local separator = ":"
+
+    -- functions
 
     local function IsInInscriptions(guid)
 
@@ -44,9 +46,9 @@ function mod.modules.election:Initialize()
         local weight = UnitHealthMax("player")
 
         return mod.MINOR_VERSION
-                .. separator .. tostring(mod:IsInTwilightRealm())
-                .. separator .. weight
-                .. separator .. UnitGUID("player")
+                .. SEPARATOR .. tostring(mod:IsInTwilightRealm())
+                .. SEPARATOR .. weight
+                .. SEPARATOR .. UnitGUID("player")
     end
 
     local function DoElection()
@@ -92,7 +94,7 @@ function mod.modules.election:Initialize()
 
     local function OnInscription(message)
 
-        local version, tmp = mod:cut(message, separator)
+        local version, tmp = mod:cut(message, SEPARATOR)
 
         version = tonumber(version)
         if mod.versionMax < version then
@@ -105,8 +107,8 @@ function mod.modules.election:Initialize()
             return
         end
 
-        local isInTwilightRealm, tmp2 = mod:cut(tmp, separator)
-        local weight, guid = mod:cut(tmp2, separator)
+        local isInTwilightRealm, tmp2 = mod:cut(tmp, SEPARATOR)
+        local weight, guid = mod:cut(tmp2, SEPARATOR)
 
         if IsInInscriptions(guid) == true then
             return

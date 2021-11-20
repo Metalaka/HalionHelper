@@ -61,18 +61,17 @@ function mod.modules.slashCommands:Initialize()
             end
         end
 
-        ToggleMovable(mod.modules.phase2Ui.healthBar)
-        ToggleMovable(mod.modules.phase3CollectLog.ui.uiFrame)
+        ToggleMovable(mod.modules.corporeality.ui.uiFrame)
 
-        if not mod.modules.phase3CollectLog.ui.uiFrame:IsShown() then
-            mod.modules.phase3CollectLog.ui.timer:StartTimer(15)
+        if not mod.modules.corporeality.ui.uiFrame:IsShown() then
+            mod.modules.corporeality.ui:StartTimer(15)
 
             mod:Print(L["ChatCommand_movableMod"])
         else
-            mod.modules.phase3CollectLog.ui.timer:StopTimer(0)
+            mod.modules.corporeality.ui:StopTimer()
 
             -- UI phase 2 / 3 can't be shown at the same time, so we use the same position
-            local origin, _, _, x, y = mod.modules.phase3CollectLog.ui.uiFrame:GetPoint(1)
+            local origin, _, _, x, y = mod.modules.corporeality.ui.uiFrame:GetPoint(1)
             mod.db.profile.ui.origin = origin
             mod.db.profile.ui.x = x
             mod.db.profile.ui.y = y

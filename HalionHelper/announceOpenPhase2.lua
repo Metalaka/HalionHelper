@@ -27,11 +27,6 @@ function mod.modules.announceOpenPhase2:Initialize()
                 or GetPartyAssignment("MAINASSIST", "player") ~= nil
     end
 
-    local function HasRaidWarningRight()
-        return IsRaidLeader() ~= nil
-                or IsRaidOfficer() ~= nil
-    end
-
     local function IsPlayerDamageAgainstHalion(eventType, dstGUID, srcGUID)
         return eventType == "SPELL_DAMAGE"
                 and mod:GetNpcId(dstGUID) == mod.NPC_ID_HALION_TWILIGHT
@@ -55,8 +50,8 @@ function mod.modules.announceOpenPhase2:Initialize()
             -- event triggered, stop watch logs
             self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 
-            local channel = HasRaidWarningRight() and "RAID_WARNING" or "RAID"
-            SendChatMessage(L["AnnounceTwilightBossEngaged"], channel, nil, nil)
+            local channel = mod:HasRaidWarningRight() and "RAID_WARNING" or "RAID"
+            SendChatMessage(L["AnnounceTwilightBossEngaged"], channel)
         end
     end
 

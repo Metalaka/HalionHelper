@@ -9,3 +9,6 @@ L["Announce_TwilightCutter"] = "Les sphères volantes rayonnent d'énergie noire
 
 L["Loaded"] = "Chargé - Bon jeu !"
 L["AnnounceTwilightBossEngaged"] = "Halion ombre engagé, passer le portail !"
+L["Twilight"] = "OMBRE"
+L["Physical"] = "LUMIÈRE"
+L["AnnounceStop"] = "%s - STOP DPS"
