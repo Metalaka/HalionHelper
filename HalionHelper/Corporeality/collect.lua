@@ -21,6 +21,15 @@ function mod.modules.corporeality.collect:Initialize()
 
         local npcId = mod:GetNpcId(dstGUID)
         core.amount[npcId] = core.amount[npcId] + amount
+
+        if core.side.npcId ~= npcId then
+            core.side.npcId = npcId
+
+            local spellName, _ = GetSpellInfo(mod.CORPOREALITY_AURA)
+            local _, _, _, _, _, _, _, _, _, _, spellId = UnitAura("boss1", spellName) or UnitAura("boss2", spellName)
+            core.side.corporeality = core.corporealityAuras[spellId] or core.corporealityAuras[mod.CORPOREALITY_AURA]
+        end
+
     end
 
     local function SwingDamage(_, _, _, _, _, dstGUID, _, _, amount, _, _, _, _, _, _, _, _)
