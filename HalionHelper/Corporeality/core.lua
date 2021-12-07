@@ -93,21 +93,26 @@ function mod.modules.corporeality.core:Initialize()
         _self.amount[mod.NPC_ID_HALION_PHYSICAL] = 0
         _self.amount[mod.NPC_ID_HALION_TWILIGHT] = 0
 
-        if _self.isInPhase3 then
-            mod.modules.corporeality.ui:StartMonitor()
-        else
-            _self.isInPhase3 = true
-            self.frame:SetScript("OnUpdate", SendData)
+        if not _self.isInPhase3 then
+            return _self:StartP3(npcId, aura)
+        end
 
-            mod.modules.corporeality.ui:StartTimer(5) -- display 5sec wait timer
-            mod:ScheduleTimer(function()
-                mod.modules.corporeality.ui:StartMonitor()
-            end, 5)
+        mod.modules.corporeality.ui:StartMonitor()
+    end
 
-            if mod:IsElected() and mod:IsInTwilightRealm() then
-                -- Send transition event to Physical Realm
-                SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P3_START, nil, "RAID")
-            end
+    function self:StartP3(npcId, aura)
+
+        _self.isInPhase3 = true
+        _self.frame:SetScript("OnUpdate", SendData)
+
+        mod.modules.corporeality.ui:StartTimer(5) -- display 5sec wait timer
+        mod:ScheduleTimer(function()
+            _self:NewCorporeality(npcId, aura)
+        end, 5)
+
+        if mod:IsElected() and mod:IsInTwilightRealm() then
+            -- Send transition event to Physical Realm
+            SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P3_START, nil, "RAID")
         end
     end
 
