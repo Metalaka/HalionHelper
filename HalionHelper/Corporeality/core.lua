@@ -135,7 +135,9 @@ function mod.modules.corporeality.core:Initialize()
     function self.frame:PLAYER_REGEN_ENABLED()
 
         _self.isInPhase3 = false
+        _self.side.corporeality = mod.CORPOREALITY_AURA
         self:SetScript("OnUpdate", nil)
+
         mod.modules.corporeality.ui:StopTimer()
     end
 

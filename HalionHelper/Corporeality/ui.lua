@@ -274,6 +274,8 @@ function mod.modules.corporeality.ui:Initialize()
 
     function self:StopTimer()
         uiFrame:Hide()
+
+        UpdateIcons(uiFrame)
     end
 
     function self:StartMonitor()
