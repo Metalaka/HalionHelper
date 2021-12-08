@@ -181,6 +181,7 @@ function mod.modules.corporeality.ui:Initialize()
     end
 
     local function SendStopMessage()
+        --todo quite mode
         local channel = mod:HasRaidWarningRight() and "RAID_WARNING" or "RAID"
         local sideName = IsInPhysical() and L["Physical"] or L["Twilight"]
 
@@ -214,6 +215,9 @@ function mod.modules.corporeality.ui:Initialize()
 
         frame.remaining = (frame.remaining or 0) - elapsed
         if frame.remaining < 0 then
+            -- Sometimes the corporeality doesn't update, tracking is restart by this hack
+            core:NewCorporeality(core.side.npcId, core.side.corporeality)
+
             return
         end
 
