@@ -1,38 +1,21 @@
-local mod = _G.HalionHelper
+local _, ns = ...
 
-mod.modules.election = {
-    inscriptions = {},
+local AddOn = ns.AddOn
+local module = {
     elected = false,
 }
+AddOn.modules.election = module
 
-function mod.modules.election:Initialize()
-
-    function self:Enable()
-
-        self.frame:RegisterEvent("PLAYER_REGEN_DISABLED")
-        self.frame:RegisterEvent("PLAYER_REGEN_ENABLED")
-        self.frame:RegisterEvent("CHAT_MSG_ADDON")
-    end
-
-    function self:Disable()
-
-        self.frame:UnregisterEvent("PLAYER_REGEN_DISABLED")
-        self.frame:UnregisterEvent("PLAYER_REGEN_ENABLED")
-        self.frame:UnregisterEvent("CHAT_MSG_ADDON")
-
-        self.frame:SetScript("OnUpdate", nil)
-    end
-
-    --
+function module:Initialize()
 
     local SEPARATOR = ":"
-    local _self = self
+    local inscriptions = {}
 
     -- functions
 
     local function IsInInscriptions(guid)
 
-        for _, inscription in ipairs(_self.inscriptions) do
+        for _, inscription in ipairs(inscriptions) do
             if guid == inscription.Guid then
                 return true
             end
@@ -45,18 +28,18 @@ function mod.modules.election:Initialize()
 
         local weight = UnitHealthMax("player")
 
-        return mod.MINOR_VERSION
-                .. SEPARATOR .. tostring(mod:IsInTwilightRealm())
+        return AddOn.VERSION
+                .. SEPARATOR .. tostring(ns.IsInTwilightRealm())
                 .. SEPARATOR .. weight
                 .. SEPARATOR .. UnitGUID("player")
     end
 
     local function DoElection()
 
-        local isInTwilightRealm = mod:IsInTwilightRealm()
-        local winner = nil
+        local isInTwilightRealm = ns.IsInTwilightRealm()
+        local winner
 
-        for _, inscription in ipairs(_self.inscriptions) do
+        for _, inscription in ipairs(inscriptions) do
             if isInTwilightRealm == inscription.IsInTwilightRealm then
                 if winner == nil then
                     winner = inscription
@@ -68,15 +51,15 @@ function mod.modules.election:Initialize()
             end
         end
 
-        _self.elected = (winner or false) and winner.Guid == UnitGUID("player")
+        module.elected = (winner or false) and winner.Guid == UnitGUID("player")
 
-        --mod:Print('elected: ' .. tostring(_self.elected))
+        --AddOn:Print('elected: ' .. tostring(module.elected))
     end
 
     local function OnUpdate(frame, elapsed)
 
         frame.elapsed = (frame.elapsed or 0) + elapsed
-        if frame.elapsed < mod.ELECTION_DELAY then
+        if frame.elapsed < AddOn.ELECTION_DELAY then
             return
         end
 
@@ -84,9 +67,9 @@ function mod.modules.election:Initialize()
 
         if frame.electionPhase then
             DoElection()
-            _self.inscriptions = {}
+            inscriptions = {}
         else
-            SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_ELECTION, GetProfile(), "RAID")
+            SendAddonMessage(AddOn.ADDON_MESSAGE_PREFIX_ELECTION, GetProfile(), "RAID")
         end
 
         frame.electionPhase = not (frame.electionPhase or false)
@@ -94,27 +77,27 @@ function mod.modules.election:Initialize()
 
     local function OnInscription(message)
 
-        local version, tmp = mod:cut(message, SEPARATOR)
+        local version, tmp = ns.cut(message, SEPARATOR)
 
         version = tonumber(version)
-        if mod.versionMax < version then
-            mod:OnClientHello(version)
+        if AddOn.versionMax < version then
+            AddOn:OnClientHello(version)
             -- Disable addon
             return
         end
 
-        if mod.versionMax > version then
+        if AddOn.versionMax > version then
             return
         end
 
-        local isInTwilightRealm, tmp2 = mod:cut(tmp, SEPARATOR)
-        local weight, guid = mod:cut(tmp2, SEPARATOR)
+        local isInTwilightRealm, tmp2 = ns.cut(tmp, SEPARATOR)
+        local weight, guid = ns.cut(tmp2, SEPARATOR)
 
         if IsInInscriptions(guid) == true then
             return
         end
 
-        table.insert(_self.inscriptions, {
+        table.insert(inscriptions, {
             IsInTwilightRealm = isInTwilightRealm == "true",
             Weight = tonumber(weight),
             Guid = guid,
@@ -123,8 +106,8 @@ function mod.modules.election:Initialize()
 
     -- frame
 
-    self.frame = CreateFrame("Frame")
-    self.frame:SetScript("OnEvent", function(self, event, ...)
+    local frame = CreateFrame("Frame")
+    frame:SetScript("OnEvent", function(self, event, ...)
         if self[event] then
             return self[event](self, ...)
         end
@@ -132,17 +115,35 @@ function mod.modules.election:Initialize()
 
     -- event
 
-    function self.frame:PLAYER_REGEN_DISABLED()
+    function frame:PLAYER_REGEN_DISABLED()
         self:SetScript("OnUpdate", OnUpdate)
     end
 
-    function self.frame:PLAYER_REGEN_ENABLED()
+    function frame:PLAYER_REGEN_ENABLED()
         self:SetScript("OnUpdate", nil)
     end
 
-    function self.frame:CHAT_MSG_ADDON(prefix, message)
-        if prefix == mod.ADDON_MESSAGE_PREFIX_ELECTION then
+    function frame:CHAT_MSG_ADDON(prefix, message)
+        if prefix == AddOn.ADDON_MESSAGE_PREFIX_ELECTION then
             OnInscription(message)
         end
+    end
+
+    --
+
+    function self:Enable()
+
+        frame:RegisterEvent("PLAYER_REGEN_DISABLED")
+        frame:RegisterEvent("PLAYER_REGEN_ENABLED")
+        frame:RegisterEvent("CHAT_MSG_ADDON")
+    end
+
+    function self:Disable()
+
+        frame:UnregisterEvent("PLAYER_REGEN_DISABLED")
+        frame:UnregisterEvent("PLAYER_REGEN_ENABLED")
+        frame:UnregisterEvent("CHAT_MSG_ADDON")
+
+        frame:SetScript("OnUpdate", nil)
     end
 end

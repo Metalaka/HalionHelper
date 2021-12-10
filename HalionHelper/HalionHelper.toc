@@ -20,6 +20,7 @@ Libs\AceLocale-3.0\AceLocale-3.0.xml
 Locales\en.lua
 Locales\fr.lua
 
+utilities.lua
 code.lua
 
 barHelper.lua

@@ -1,18 +1,10 @@
-local mod = _G.HalionHelper
+local _, ns = ...
 
-mod.modules.bar = {}
+local AddOn = ns.AddOn
+local module = {}
+AddOn.modules.bar = module
 
-function mod.modules.bar:Initialize()
-
-    function self:Enable()
-    end
-
-    function self:Disable()
-    end
-
-    --
-
-    local _self = self
+function module:Initialize()
 
     function self:NewBar(name, parent)
 
@@ -20,13 +12,13 @@ function mod.modules.bar:Initialize()
         frame:SetHeight(20)
         frame:SetWidth(170)
         frame:SetPoint("CENTER")
-        frame:SetStatusBarTexture(mod.db.profile.texture)
+        frame:SetStatusBarTexture(AddOn.db.profile.texture)
         frame:GetStatusBarTexture():SetHorizTile(false)
         frame:GetStatusBarTexture():SetVertTile(false)
         frame:SetMinMaxValues(0, 1)
 
         frame.background = frame:CreateTexture(nil, "BACKGROUND")
-        frame.background:SetTexture(mod.db.profile.texture)
+        frame.background:SetTexture(AddOn.db.profile.texture)
         frame.background:SetAllPoints()
         frame.background:SetVertexColor(0, 0, 0, 0.33)
 
@@ -56,5 +48,13 @@ function mod.modules.bar:Initialize()
         if (icon) then
             frame:GetNormalTexture():SetTexCoord(.07, .93, .07, .93)
         end
+    end
+
+    --
+
+    function self:Enable()
+    end
+
+    function self:Disable()
     end
 end

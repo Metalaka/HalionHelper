@@ -1,42 +1,22 @@
-local mod = _G.HalionHelper
+local _, ns = ...
 
-mod.modules.announceOpenPhase2 = {}
+local AddOn = ns.AddOn
+local module = {}
+AddOn.modules.announceOpenPhase2 = module
+local L = ns.L
 
-function mod.modules.announceOpenPhase2:Initialize()
-
-    function self:Enable()
-
-        self.frame:RegisterEvent("CHAT_MSG_MONSTER_YELL")
-        self.frame:RegisterEvent("PLAYER_REGEN_ENABLED")
-    end
-
-    function self:Disable()
-
-        self.frame:UnregisterEvent("CHAT_MSG_MONSTER_YELL")
-        self.frame:UnregisterEvent("PLAYER_REGEN_ENABLED")
-        self.frame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-    end
-
-    --
-
-    local _self = self
-    local L = LibStub("AceLocale-3.0"):GetLocale(mod.ADDON_NAME)
-
-    local function IsTank()
-        return GetPartyAssignment("MAINTANK", "player") ~= nil
-                or GetPartyAssignment("MAINASSIST", "player") ~= nil
-    end
+function module:Initialize()
 
     local function IsPlayerDamageAgainstHalion(eventType, dstGUID, srcGUID)
         return eventType == "SPELL_DAMAGE"
-                and mod:GetNpcId(dstGUID) == mod.NPC_ID_HALION_TWILIGHT
+                and ns.GetNpcId(dstGUID) == AddOn.NPC_ID_HALION_TWILIGHT
                 and srcGUID == UnitGUID("player")
     end
 
     -- frame
 
-    self.frame = CreateFrame("Frame")
-    self.frame:SetScript("OnEvent", function(self, event, ...)
+    local frame = CreateFrame("Frame")
+    frame:SetScript("OnEvent", function(self, event, ...)
         if self[event] then
             return self[event](self, ...)
         end
@@ -44,21 +24,21 @@ function mod.modules.announceOpenPhase2:Initialize()
 
     -- event
 
-    function self.frame:COMBAT_LOG_EVENT_UNFILTERED(timestamp, eventType, srcGUID, srcName, srcFlags, dstGUID)
+    function frame:COMBAT_LOG_EVENT_UNFILTERED(_, eventType, srcGUID, _, _, dstGUID)
 
         if IsPlayerDamageAgainstHalion(eventType, dstGUID, srcGUID) then
             -- event triggered, stop watch logs
             self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 
-            local channel = mod:HasRaidWarningRight() and "RAID_WARNING" or "RAID"
+            local channel = ns.HasRaidWarningRight() and "RAID_WARNING" or "RAID"
             SendChatMessage(L["AnnounceTwilightBossEngaged"], channel)
         end
     end
 
-    function self.frame:CHAT_MSG_MONSTER_YELL(message)
+    function frame:CHAT_MSG_MONSTER_YELL(message)
 
         if message == L["Yell_Phase2"] or message:find(L["Yell_Phase2"]) then
-            if not IsTank() then
+            if not ns.IsTank() then
                 return
             end
 
@@ -66,7 +46,22 @@ function mod.modules.announceOpenPhase2:Initialize()
         end
     end
 
-    function self.frame:PLAYER_REGEN_ENABLED()
+    function frame:PLAYER_REGEN_ENABLED()
         self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+    end
+
+    --
+
+    function self:Enable()
+
+        frame:RegisterEvent("CHAT_MSG_MONSTER_YELL")
+        frame:RegisterEvent("PLAYER_REGEN_ENABLED")
+    end
+
+    function self:Disable()
+
+        frame:UnregisterEvent("CHAT_MSG_MONSTER_YELL")
+        frame:UnregisterEvent("PLAYER_REGEN_ENABLED")
+        frame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
     end
 end

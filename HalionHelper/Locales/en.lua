@@ -1,4 +1,8 @@
-local L = LibStub("AceLocale-3.0"):NewLocale("HalionHelper", "enUS", true)
+-- default locale
+
+local name = ...
+
+local L = LibStub("AceLocale-3.0"):NewLocale(name, "enUS", true)
 
 L["ZoneName"] = "The Ruby Sanctum"
 L["Yell_Phase2"] = "You will find only suffering within the realm of twilight! Enter if you dare!"

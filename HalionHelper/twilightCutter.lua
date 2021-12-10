@@ -1,28 +1,11 @@
-local mod = _G.HalionHelper
+local _, ns = ...
 
-mod.modules.twilightCutter = {
-    isHeroicFight = false
-}
+local AddOn = ns.AddOn
+local module = {}
+AddOn.modules.twilightCutter = module
+local L = ns.L
 
-function mod.modules.twilightCutter:Initialize()
-
-    function self:Enable()
-
-        if mod.db.profile.showCutterFrame then
-            self.uiFrame:RegisterEvent("CHAT_MSG_MONSTER_YELL")
-            self.uiFrame:RegisterEvent("CHAT_MSG_RAID_BOSS_EMOTE")
-            self.uiFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-        end
-    end
-
-    function self:Disable()
-
-        self.uiFrame:UnregisterEvent("CHAT_MSG_MONSTER_YELL")
-        self.uiFrame:UnregisterEvent("CHAT_MSG_RAID_BOSS_EMOTE")
-        self.uiFrame:UnregisterEvent("PLAYER_REGEN_ENABLED")
-    end
-
-    --
+function module:Initialize()
 
     local CUTTER_TIMER = 30
     local ANNOUNCE_CUTTER_DELAY = 5
@@ -35,11 +18,45 @@ function mod.modules.twilightCutter:Initialize()
     local delayOrb_90 = orbRotationSpeed / 4
     local safeZoneOffset = orbRotationSpeed / 8
 
-    local _self = self
-    local L = LibStub("AceLocale-3.0"):GetLocale(mod.ADDON_NAME)
+    -- Orbs UI
+    local uiFrame = AddOn.modules.bar:NewBar(AddOn.NAME .. "_twilightCutter", nil)
+    uiFrame:SetPoint(AddOn.db.profile.ui.origin, AddOn.db.profile.ui.x, AddOn.db.profile.ui.y - 40)
+    uiFrame:SetValue(0)
+    uiFrame:Hide()
+
+    uiFrame.centerMark = uiFrame:CreateTexture(nil, "OVERLAY")
+    uiFrame.centerMark:SetTexture(AddOn.db.profile.texture)
+    uiFrame.centerMark:SetPoint("BOTTOM")
+    uiFrame.centerMark:SetVertexColor(1, 0, 0, 1)
+    uiFrame.centerMark:SetWidth(4)
+    uiFrame.centerMark:SetHeight(25)
+
+    uiFrame.iconLeft = CreateFrame("Button", nil, uiFrame)
+    uiFrame.iconLeft:SetHeight(20)
+    uiFrame.iconLeft:SetWidth(20)
+    uiFrame.iconLeft:SetPoint("CENTER", -20, 0)
+    AddOn.modules.bar:SetIcon(uiFrame.iconLeft, SPELL_CUTTER)
+    uiFrame.iconLeft:EnableMouse(false)
+
+    uiFrame.iconRight = CreateFrame("Button", nil, uiFrame)
+    uiFrame.iconRight:SetHeight(20)
+    uiFrame.iconRight:SetWidth(20)
+    uiFrame.iconRight:SetPoint("CENTER", 50, 0)
+    AddOn.modules.bar:SetIcon(uiFrame.iconRight, SPELL_CUTTER)
+    uiFrame.iconRight:EnableMouse(false)
+
+    -- Timer
+    local timer = AddOn.modules.bar:NewBar(AddOn.NAME .. "_twilightCutter_Timer", uiFrame)
+    timer:SetPoint("BOTTOM", 0, -3)
+    timer:SetHeight(3)
+    timer:SetMinMaxValues(0, CUTTER_TIMER)
+
+    local isHeroicFight = false
+    local frameWidth = uiFrame:GetWidth() - 20
+
 
     local function HideUI()
-        _self.uiFrame:Hide()
+        uiFrame:Hide()
     end
 
     local function TrackCutter()
@@ -48,10 +65,10 @@ function mod.modules.twilightCutter:Initialize()
             return HideUI()
         end
 
-        _self.timer.remaining = CUTTER_TIMER
+        timer.remaining = CUTTER_TIMER
 
-        if not _self.uiFrame:IsShown() then
-            _self.uiFrame:Show()
+        if not uiFrame:IsShown() then
+            uiFrame:Show()
         end
     end
 
@@ -78,41 +95,6 @@ function mod.modules.twilightCutter:Initialize()
         end
     end
 
-    -- Orbs UI
-    self.uiFrame = mod.modules.bar:NewBar(mod.ADDON_NAME .. "_twilightCutter", nil)
-    self.uiFrame:SetPoint(mod.db.profile.ui.origin, mod.db.profile.ui.x, mod.db.profile.ui.y - 40)
-    self.uiFrame:SetValue(0)
-    self.uiFrame:Hide()
-
-    self.uiFrame.centerMark = self.uiFrame:CreateTexture(nil, "OVERLAY")
-    self.uiFrame.centerMark:SetTexture(mod.db.profile.texture)
-    self.uiFrame.centerMark:SetPoint("BOTTOM")
-    self.uiFrame.centerMark:SetVertexColor(1, 0, 0, 1)
-    self.uiFrame.centerMark:SetWidth(4)
-    self.uiFrame.centerMark:SetHeight(25)
-
-    self.uiFrame.iconLeft = CreateFrame("Button", nil, self.uiFrame)
-    self.uiFrame.iconLeft:SetHeight(20)
-    self.uiFrame.iconLeft:SetWidth(20)
-    self.uiFrame.iconLeft:SetPoint("CENTER", -20, 0)
-    mod.modules.bar:SetIcon(self.uiFrame.iconLeft, SPELL_CUTTER)
-    self.uiFrame.iconLeft:EnableMouse(false)
-
-    self.uiFrame.iconRight = CreateFrame("Button", nil, self.uiFrame)
-    self.uiFrame.iconRight:SetHeight(20)
-    self.uiFrame.iconRight:SetWidth(20)
-    self.uiFrame.iconRight:SetPoint("CENTER", 50, 0)
-    mod.modules.bar:SetIcon(self.uiFrame.iconRight, SPELL_CUTTER)
-    self.uiFrame.iconRight:EnableMouse(false)
-
-    -- Timer
-    self.timer = mod.modules.bar:NewBar(mod.ADDON_NAME .. "_twilightCutter_Timer", self.uiFrame)
-    self.timer:SetPoint("BOTTOM", 0, -3)
-    self.timer:SetHeight(3)
-    self.timer:SetMinMaxValues(0, CUTTER_TIMER)
-
-    local frameWidth = self.uiFrame:GetWidth() - 20
-
     local function UpdateUi(frame, elapsed)
 
         frame.remaining = (frame.remaining or 0) - elapsed
@@ -124,46 +106,64 @@ function mod.modules.twilightCutter:Initialize()
 
         local left, right = ComputePositions(frame.remaining, frameWidth)
 
-        _self.uiFrame.iconLeft:SetPoint("RIGHT", left, 0)
-        _self.uiFrame.iconRight:SetPoint("RIGHT", right, 0)
+        uiFrame.iconLeft:SetPoint("RIGHT", left, 0)
+        uiFrame.iconRight:SetPoint("RIGHT", right, 0)
 
         SetColor(frame)
     end
 
     -- event
 
-    function self.uiFrame:CHAT_MSG_MONSTER_YELL(message)
+    function uiFrame:CHAT_MSG_MONSTER_YELL(message)
 
         -- This event should occur only one time per fight
         -- We use it to start script and set isHeroicFight
         if message == L["Yell_Phase2"] or message:find(L["Yell_Phase2"]) then
 
-            _self.isHeroicFight = mod:IsDifficulty("heroic10", "heroic25")
+            isHeroicFight = ns.IsDifficulty("heroic10", "heroic25")
 
-            if not _self.isHeroicFight then
-                _self.uiFrame.iconRight:Hide()
+            if not isHeroicFight then
+                uiFrame.iconRight:Hide()
             end
 
-            mod:ScheduleTimer(function()
+            AddOn:ScheduleTimer(function()
                 TrackCutter()
             end, FIRST_CUTTER_DELAY)
 
-            _self.timer:SetScript("OnUpdate", UpdateUi)
+            timer:SetScript("OnUpdate", UpdateUi)
         end
     end
 
-    function self.uiFrame:CHAT_MSG_RAID_BOSS_EMOTE(message)
+    function uiFrame:CHAT_MSG_RAID_BOSS_EMOTE(message)
 
-        if mod:IsInTwilightRealm() and (message == L["Announce_TwilightCutter"] or message:find(L["Announce_TwilightCutter"])) then
-            mod:ScheduleTimer(function()
+        if ns.IsInTwilightRealm() and (message == L["Announce_TwilightCutter"] or message:find(L["Announce_TwilightCutter"])) then
+            AddOn:ScheduleTimer(function()
                 TrackCutter()
             end, ANNOUNCE_CUTTER_DELAY)
         end
     end
 
-    function self.uiFrame:PLAYER_REGEN_ENABLED()
+    function uiFrame:PLAYER_REGEN_ENABLED()
         HideUI()
-        _self.uiFrame.iconRight:Show()
+        uiFrame.iconRight:Show()
+    end
+
+    --
+
+    function self:Enable()
+
+        if AddOn.db.profile.showCutterFrame then
+            uiFrame:RegisterEvent("CHAT_MSG_MONSTER_YELL")
+            uiFrame:RegisterEvent("CHAT_MSG_RAID_BOSS_EMOTE")
+            uiFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+        end
+    end
+
+    function self:Disable()
+
+        uiFrame:UnregisterEvent("CHAT_MSG_MONSTER_YELL")
+        uiFrame:UnregisterEvent("CHAT_MSG_RAID_BOSS_EMOTE")
+        uiFrame:UnregisterEvent("PLAYER_REGEN_ENABLED")
     end
 end
 

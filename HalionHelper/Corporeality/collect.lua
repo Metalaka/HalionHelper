@@ -1,33 +1,33 @@
-local mod = _G.HalionHelper
+local _, ns = ...
 
-mod.modules.corporeality.collect = {}
+local AddOn = ns.AddOn
+local module = {}
+AddOn.modules.corporeality.collect = module
 
-function mod.modules.corporeality.collect:Initialize()
+function module:Initialize()
 
-    local _self = self
-    local core = mod.modules.corporeality.core
+    local core = AddOn.modules.corporeality.core
 
-    function self:Enable()
-        core.frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-    end
-
-    function self:Disable()
-        core.frame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-    end
+    local frame = CreateFrame("Frame", AddOn.NAME .. "_corporeality")
+    frame:SetScript("OnEvent", function(self, event, ...)
+        if self[event] then
+            return self[event](self, ...)
+        end
+    end)
 
     -- functions
 
     local function AddDamageData(dstGUID, amount)
 
-        local npcId = mod:GetNpcId(dstGUID)
+        local npcId = ns.GetNpcId(dstGUID)
         core.amount[npcId] = core.amount[npcId] + amount
 
         if core.side.npcId ~= npcId then
             core.side.npcId = npcId
 
-            local spellName, _ = GetSpellInfo(mod.CORPOREALITY_AURA)
+            local spellName, _ = GetSpellInfo(AddOn.CORPOREALITY_AURA)
             local _, _, _, _, _, _, _, _, _, _, spellId = UnitAura("boss1", spellName) or UnitAura("boss2", spellName)
-            core.side.corporeality = core.corporealityAuras[spellId] or core.corporealityAuras[mod.CORPOREALITY_AURA]
+            core.side.corporeality = core.corporealityAuras[spellId] or core.corporealityAuras[AddOn.CORPOREALITY_AURA]
         end
 
     end
@@ -52,7 +52,7 @@ function mod.modules.corporeality.collect:Initialize()
             return
         end
 
-        core:NewCorporeality(mod:GetNpcId(dstGUID), aura)
+        core:NewCorporeality(ns.GetNpcId(dstGUID), aura)
     end
 
     local EventParse = {
@@ -73,7 +73,7 @@ function mod.modules.corporeality.collect:Initialize()
 
     local function CombatLogEvent(timestamp, eventType, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, spellId, ...)
 
-        if dstName ~= mod.BOSS_NAME then
+        if dstName ~= AddOn.BOSS_NAME then
             return
         end
 
@@ -88,7 +88,17 @@ function mod.modules.corporeality.collect:Initialize()
         end
     end
 
-    function core.frame:COMBAT_LOG_EVENT_UNFILTERED(...)
+    function frame:COMBAT_LOG_EVENT_UNFILTERED(...)
         CombatLogEvent(...)
+    end
+
+    --
+
+    function self:Enable()
+        frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+    end
+
+    function self:Disable()
+        frame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
     end
 end

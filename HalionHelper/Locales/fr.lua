@@ -1,6 +1,8 @@
 if GetLocale() ~= "frFR" then return end
 
-local L = LibStub("AceLocale-3.0"):NewLocale("HalionHelper", "frFR")
+local name = ...
+
+local L = LibStub("AceLocale-3.0"):NewLocale(name, "frFR")
 
 L["ZoneName"] = "Le sanctum Rubis"
 L["Yell_Phase2"] = "Vous ne trouverez que souffrance au royaume du Crépuscule ! Entrez si vous l'osez !"
