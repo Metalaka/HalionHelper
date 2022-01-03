@@ -26,9 +26,7 @@ local module = {
         [74831] = { dealt = 200, taken = 400, }, -- 200% more dealt, 400% more taken
     },
 }
-AddOn.modules.corporeality = {
-
-}
+AddOn.modules.corporeality = {}
 AddOn.modules.corporeality.core = module
 
 function module:Initialize()

@@ -124,12 +124,14 @@ function module:Initialize()
 
     local function IsDifferenceGreaterThanExpected()
 
-        local master = core.amount[AddOn.NPC_ID_HALION_PHYSICAL] > core.amount[AddOn.NPC_ID_HALION_TWILIGHT]
+        local realmWithMoreDamage = core.amount[AddOn.NPC_ID_HALION_PHYSICAL] > core.amount[AddOn.NPC_ID_HALION_TWILIGHT]
                 and AddOn.NPC_ID_HALION_PHYSICAL
                 or AddOn.NPC_ID_HALION_TWILIGHT
-        local other = master == AddOn.NPC_ID_HALION_TWILIGHT and AddOn.NPC_ID_HALION_PHYSICAL or AddOn.NPC_ID_HALION_TWILIGHT
+        local otherRealm = realmWithMoreDamage == AddOn.NPC_ID_HALION_TWILIGHT
+                and AddOn.NPC_ID_HALION_PHYSICAL
+                or AddOn.NPC_ID_HALION_TWILIGHT
 
-        return (core.amount[master] / (core.amount[other] or 1)) >= (1 + minDiff)
+        return (core.amount[realmWithMoreDamage] / (core.amount[otherRealm] or 1)) >= (1 + minDiff)
     end
 
     local function GetColorWithDetail()
