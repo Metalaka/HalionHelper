@@ -24,12 +24,17 @@ function module:Initialize()
     uiFrame:SetValue(0)
     uiFrame:Hide()
 
+    AddOn.modules.bar:RegisterCallback(function()
+        uiFrame:SetPoint(AddOn.db.profile.ui.origin, AddOn.db.profile.ui.x, AddOn.db.profile.ui.y - 40)
+    end)
+
     uiFrame.centerMark = uiFrame:CreateTexture(nil, "OVERLAY")
     uiFrame.centerMark:SetTexture(AddOn.db.profile.texture)
     uiFrame.centerMark:SetPoint("BOTTOM")
     uiFrame.centerMark:SetVertexColor(1, 0, 0, 1)
     uiFrame.centerMark:SetWidth(4)
     uiFrame.centerMark:SetHeight(25)
+    AddOn.modules.bar:RegisterBar(uiFrame.centerMark)
 
     uiFrame.iconLeft = CreateFrame("Button", nil, uiFrame)
     uiFrame.iconLeft:SetHeight(20)

@@ -11,6 +11,10 @@ function module:Initialize()
     healthBar:SetStatusBarColor(0, 1, 0)
     healthBar:Hide()
 
+    AddOn.modules.bar:RegisterCallback(function()
+        healthBar:SetPoint(AddOn.db.profile.ui.origin, AddOn.db.profile.ui.x, AddOn.db.profile.ui.y)
+    end)
+
     local function HideUI()
 
         if healthBar:IsShown() then
