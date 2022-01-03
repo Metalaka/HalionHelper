@@ -37,4 +37,4 @@ Corporeality\core.lua
 Corporeality\collect.lua
 Corporeality\ui.lua
 
-slashCommands.lua
+options.lua

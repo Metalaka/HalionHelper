@@ -85,7 +85,7 @@ function AddOn:InitializeAddon()
     self.modules.phase2Ui:Initialize()
     self.modules.corporeality.core:Initialize()
     self.modules.twilightCutter:Initialize()
-    self.modules.slashCommands:Initialize()
+    self.modules.options:Initialize()
 
     local function EnableModules()
 
