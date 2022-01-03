@@ -45,13 +45,13 @@ AddOn.defaultDb = {
 
 
 AddOn.modules = {}
-AddOn.versionMax = AddOn.VERSION
 
 local NOT_INITIALIZED = 0
 local INITIALIZING = 1
 local INITIALIZED = 2
 local DISABLED = 3
 local initialized = NOT_INITIALIZED
+local updateMessageTriggered = false
 
 -- frame
 
@@ -124,7 +124,7 @@ function AddOn:InitializeAddon()
     end
 
     local function ShouldEnableAddon()
-        return AddOn.db.profile.enable and GetRealZoneText() == L["ZoneName"] -- todo id ?
+        return AddOn.db.profile.enable and GetRealZoneText() == L["ZoneName"] -- todo: GetCurrentMapAreaID()
     end
 
     -- events
@@ -154,21 +154,29 @@ function AddOn:InitializeAddon()
 
     function self:OnClientHello(version)
 
-        if self.versionMax < version then
-            self.versionMax = version
-            self:Printf(L["Update"], AddOn.ADDON_UPDATE_URL)
+        if AddOn.VERSION < version then
 
-            if (self.versionMax + 1) == version then
+            if math.floor(AddOn.VERSION / 100) < math.floor(version / 100) then
+
+                self:Printf(L["UpdateRequired"], AddOn.ADDON_UPDATE_URL)
+                initialized = DISABLED
+
+                DisableModules()
+                frame:UnregisterEvent("CHAT_MSG_ADDON")
+                frame:UnregisterEvent("PLAYER_ENTERING_WORLD")
+                frame:UnregisterEvent("ZONE_CHANGED_NEW_AREA")
                 return
             end
 
-            initialized = DISABLED
+            if updateMessageTriggered then
+                return
+            end
 
-            DisableModules()
-            frame:UnregisterEvent("CHAT_MSG_ADDON")
-            frame:UnregisterEvent("PLAYER_ENTERING_WORLD")
-            frame:UnregisterEvent("ZONE_CHANGED_NEW_AREA")
+            updateMessageTriggered = true
+
+            self:Printf(L["NewVersion"], AddOn.ADDON_UPDATE_URL)
         end
+
     end
 
     function self:IsElected()

@@ -80,13 +80,9 @@ function module:Initialize()
         local version, tmp = ns.cut(message, SEPARATOR)
 
         version = tonumber(version)
-        if AddOn.versionMax < version then
-            AddOn:OnClientHello(version)
-            -- Disable addon
-            return
-        end
+        AddOn:OnClientHello(version)
 
-        if AddOn.versionMax > version then
+        if math.floor(AddOn.VERSION / 100) > math.floor(version / 100) then
             return
         end
 
