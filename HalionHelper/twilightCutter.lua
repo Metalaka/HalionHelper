@@ -57,19 +57,7 @@ function module:Initialize()
 
     local function HideUI()
         uiFrame:Hide()
-    end
-
-    local function TrackCutter()
-
-        if not UnitAffectingCombat('player') then
-            return HideUI()
-        end
-
-        timer.remaining = CUTTER_TIMER
-
-        if not uiFrame:IsShown() then
-            uiFrame:Show()
-        end
+        timer:SetScript("OnUpdate", nil)
     end
 
     local function GetPosition(time, width, s)
@@ -112,6 +100,20 @@ function module:Initialize()
         SetColor(frame)
     end
 
+    local function TrackCutter()
+
+        if not UnitAffectingCombat('player') then
+            return HideUI()
+        end
+
+        timer.remaining = CUTTER_TIMER
+
+        if not uiFrame:IsShown() then
+            uiFrame:Show()
+            timer:SetScript("OnUpdate", UpdateUi)
+        end
+    end
+
     -- event
 
     function uiFrame:CHAT_MSG_MONSTER_YELL(message)
@@ -129,8 +131,6 @@ function module:Initialize()
             AddOn:ScheduleTimer(function()
                 TrackCutter()
             end, FIRST_CUTTER_DELAY)
-
-            timer:SetScript("OnUpdate", UpdateUi)
         end
     end
 
