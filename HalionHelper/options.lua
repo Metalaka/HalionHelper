@@ -68,7 +68,7 @@ function module:Initialize()
 
     local function GetTexture()
 
-        local LSM = LibStub("LibSharedMedia-3.0", true) or assert(nil, "LibSharedMedia missing")
+        local LSM = assert(LibStub("LibSharedMedia-3.0", true), "LibSharedMedia missing.")
 
         for key, texture in pairs(LSM:HashTable(LSM.MediaType.STATUSBAR, AddOn.db.profile.texture)) do
             if texture == AddOn.db.profile.texture then
@@ -81,7 +81,7 @@ function module:Initialize()
 
     local function SetTexture(_, name)
 
-        local LSM = LibStub("LibSharedMedia-3.0", true) or assert(nil, "LibSharedMedia missing")
+        local LSM = assert(LibStub("LibSharedMedia-3.0", true), "LibSharedMedia missing.")
 
         if LSM:IsValid(LSM.MediaType.STATUSBAR, name) then
             AddOn.db.profile.texture = LSM:Fetch(LSM.MediaType.STATUSBAR, name)
@@ -91,7 +91,7 @@ function module:Initialize()
         end
     end
 
-    local statusBarTextures = AceGUIWidgetLSMlists.statusbar or assert(AceGUIWidgetLSMlists, "AceGUIWidgetLSM missing")
+    local statusBarTextures = assert(AceGUIWidgetLSMlists.statusbar, "AceGUIWidgetLSM missing")
     local options = {
         name = L["Settings"],
         handler = module,
