@@ -58,6 +58,14 @@ function module:Initialize()
         AddOn.modules.twilightCutter:Enable()
     end
 
+    local function ToggleAnnounceOpenPhase2()
+
+        AddOn.db.profile.announceOpenPhase2 = not (AddOn.db.profile.announceOpenPhase2 or false)
+
+        AddOn.modules.announceOpenPhase2:Disable()
+        AddOn.modules.announceOpenPhase2:Enable()
+    end
+
     local function GetTexture()
 
         local LSM = LibStub("LibSharedMedia-3.0", true) or assert(nil, "LibSharedMedia missing")
@@ -131,6 +139,16 @@ function module:Initialize()
                 values = statusBarTextures,
                 get = GetTexture,
                 set = SetTexture,
+            },
+            announceOpenPhase2 = {
+                type = "toggle",
+                width  = "full",
+                order = 60,
+                name = L["option_announceOpenPhase2_name"],
+                desc = L["option_announceOpenPhase2_desc"],
+                descStyle = "inline",
+                get = function() return AddOn.db.profile.announceOpenPhase2 end,
+                set = ToggleAnnounceOpenPhase2,
             },
         },
     }

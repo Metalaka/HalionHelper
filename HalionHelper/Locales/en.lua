@@ -33,3 +33,6 @@ L["option_cutter_desc"] = "This feature indicate where the orbs must be position
 L["option_texture_name"] = "Bar Texture"
 L["option_texture_desc"] = "Texture of every bar of the addon."
 L["option_texture_error"] = "Can't set texture to %s."
+L["option_announceOpenPhase2_name"] = "Enable announce on aggro Twilight Halion"
+L["option_announceOpenPhase2_desc"] = "Send a raid warning when the Main Tank or Main Assist first hit Twilight Halion. "..
+        "The Twilight Tank must have the addon. Allow to know when Twilight Halion is tanked."

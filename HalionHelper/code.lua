@@ -38,8 +38,9 @@ AddOn.defaultDb = {
         },
         texture = "Interface\\TargetingFrame\\UI-StatusBar",
         iconsSet = "REALM",
-        showCutterFrame = false,
         enable = true,
+        announceOpenPhase2 = true,
+        showCutterFrame = false,
     }
 }
 

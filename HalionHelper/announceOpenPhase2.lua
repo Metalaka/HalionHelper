@@ -54,8 +54,10 @@ function module:Initialize()
 
     function self:Enable()
 
-        frame:RegisterEvent("CHAT_MSG_MONSTER_YELL")
-        frame:RegisterEvent("PLAYER_REGEN_ENABLED")
+        if AddOn.db.profile.announceOpenPhase2 then
+            frame:RegisterEvent("CHAT_MSG_MONSTER_YELL")
+            frame:RegisterEvent("PLAYER_REGEN_ENABLED")
+        end
     end
 
     function self:Disable()

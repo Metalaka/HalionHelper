@@ -33,3 +33,6 @@ L["option_cutter_desc"] = "Indique où doivent être les orbe pour le prochain c
 L["option_texture_name"] = "Texture des bars"
 L["option_texture_desc"] = "Modifie la texture de toutes les bars de l'addon."
 L["option_texture_error"] = "Impossible de modifier la texture en %s."
+L["option_announceOpenPhase2_name"] = "Active l'annonce au pull d'Halion ombre"
+L["option_announceOpenPhase2_desc"] = "Envoie un avertissement raid quand un des tanks aggro Halion ombre. "..
+        "Le tank ombre doit avoir l'addon activé. Permet de savoir quand le tank ombre est placé et à prise l'aggro."
