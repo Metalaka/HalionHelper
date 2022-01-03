@@ -1,35 +1,17 @@
-local mod = _G.HalionHelper
+local _, ns = ...
 
-mod.modules.phase2CollectHealth = {
-    enableCollect = false,
-}
+local AddOn = ns.AddOn
+local module = {}
+AddOn.modules.phase2CollectHealth = module
 
-function mod.modules.phase2CollectHealth:Initialize()
-
-    function self:Enable()
-        self.frame:RegisterEvent("PLAYER_REGEN_DISABLED")
-        self.frame:RegisterEvent("PLAYER_REGEN_ENABLED")
-        self.frame:RegisterEvent("RAID_ROSTER_UPDATE")
-
-        self:ManageCollectActivation()
-    end
-
-    function self:Disable()
-        self.frame:UnregisterEvent("PLAYER_REGEN_DISABLED")
-        self.frame:UnregisterEvent("PLAYER_REGEN_ENABLED")
-        self.frame:UnregisterEvent("RAID_ROSTER_UPDATE")
-
-        self:ManageCollectActivation()
-    end
+function module:Initialize()
 
     -- functions
-
-    local _self = self
 
     local function CollectAndSendData(frame, elapsed)
 
         frame.elapsed = (frame.elapsed or 0) + elapsed
-        if frame.elapsed > mod.SLEEP_DELAY then
+        if frame.elapsed > AddOn.SLEEP_DELAY then
             frame.elapsed = 0
 
             if not UnitExists("boss2") then
@@ -38,50 +20,53 @@ function mod.modules.phase2CollectHealth:Initialize()
 
             local percent = UnitHealth("boss2") / UnitHealthMax("boss2")
 
-            if percent > mod.PHASE2_HEALTH_TRESHOLD then
+            if percent > AddOn.PHASE2_HEALTH_THRESHOLD then
                 return
             end
 
-            if percent < mod.PHASE3_HEALTH_TRESHOLD then
-                -- stop collect in P3
-                SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P2_END, nil, "RAID")
-
-                _self.enableCollect = false
+            if percent < AddOn.PHASE3_HEALTH_THRESHOLD then
+                -- Stop collect in P3
                 frame:SetScript("OnUpdate", nil)
+            end
 
+            if not AddOn:IsElected() then
                 return
             end
 
-            SendAddonMessage(mod.ADDON_MESSAGE_PREFIX_P2_DATA, percent, "RAID")
-        end
-    end
-
-    function self:ManageCollectActivation()
-        if not self.enableCollect and mod:IsRemarkablePlayer() then
-            self.enableCollect = true
-            self.frame:SetScript("OnUpdate", CollectAndSendData)
-        elseif self.enableCollect and not mod:IsRemarkablePlayer() then
-            self.enableCollect = false
-            self.frame:SetScript("OnUpdate", nil)
+            SendAddonMessage(AddOn.ADDON_MESSAGE_PREFIX_TWILIGHT_HEALTH_DATA, percent, "RAID")
         end
     end
 
     -- frame
 
-    self.frame = CreateFrame("Frame")
-    self.frame:SetScript("OnEvent", function(self, event, ...) if self[event] then return self[event](self, ...) end end)
+    local frame = CreateFrame("Frame")
+    frame:SetScript("OnEvent", function(self, event, ...)
+        if self[event] then
+            return self[event](self, ...)
+        end
+    end)
 
     -- event
 
-    function self.frame:PLAYER_REGEN_DISABLED()
-        _self:ManageCollectActivation()
+    function frame:PLAYER_REGEN_DISABLED()
+        self:SetScript("OnUpdate", CollectAndSendData)
     end
 
-    function self.frame:PLAYER_REGEN_ENABLED()
-        _self:ManageCollectActivation()
+    function frame:PLAYER_REGEN_ENABLED()
+        self:SetScript("OnUpdate", nil)
     end
 
-    function self.frame:RAID_ROSTER_UPDATE()
-        _self:ManageCollectActivation()
+    --
+
+    function self:Enable()
+
+        frame:RegisterEvent("PLAYER_REGEN_DISABLED")
+        frame:RegisterEvent("PLAYER_REGEN_ENABLED")
+    end
+
+    function self:Disable()
+
+        frame:UnregisterEvent("PLAYER_REGEN_DISABLED")
+        frame:UnregisterEvent("PLAYER_REGEN_ENABLED")
     end
 end

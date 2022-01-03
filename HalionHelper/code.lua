@@ -1,211 +1,212 @@
-HalionHelper = LibStub("AceAddon-3.0"):NewAddon("HalionHelper", "AceEvent-3.0", "AceTimer-3.0", "AceConsole-3.0")
-HalionHelper.MINOR_VERSION = tonumber(("$Revision: 11 $"):match("%d+"))
+local name, ns = ...
 
-local mod = _G.HalionHelper
+local LibStub = assert(LibStub, name .. " requires LibStub.")
 
-mod.initialized = 0
-mod.enabled = false
-mod.modules = {}
+local AddOn = LibStub("AceAddon-3.0"):NewAddon(name, "AceEvent-3.0", "AceTimer-3.0", "AceConsole-3.0")
+ns.AddOn = AddOn
 
+local L = LibStub("AceLocale-3.0"):GetLocale(name)
+ns.L = L
 
 -- constants
 
-mod.ADDON_NAME = "HalionHelper"
-mod.BOSS_NAME = "Halion"
-mod.SLEEP_DELAY = 0.2
-mod.PHASE2_HEALTH_TRESHOLD = 0.75
-mod.PHASE3_HEALTH_TRESHOLD = 0.5
-mod.ADDON_MESSAGE_PREFIX_P2_DATA = "HH_P2_DATA"
-mod.ADDON_MESSAGE_PREFIX_P2_END = "HH_P2_END"
-mod.ADDON_MESSAGE_PREFIX_P3_DATA = "HH_P3_DATA"
-mod.ADDON_MESSAGE_PREFIX_P3_TRANSITION = "HH_P3_TRANSI"
+AddOn.NAME = name
+AddOn.VERSION = 20002
+AddOn.ADDON_MESSAGE_PREFIX_TWILIGHT_HEALTH_DATA = AddOn.NAME .. "_TWILIGHT_HEALTH_DATA"
+AddOn.ADDON_MESSAGE_PREFIX_CORPOREALITY_DATA = AddOn.NAME .. "_CORPOREALITY_DATA"
+AddOn.ADDON_MESSAGE_PREFIX_P3_START = AddOn.NAME .. "_P3_START"
+AddOn.ADDON_MESSAGE_PREFIX_ELECTION = AddOn.NAME .. "_ELECTION_INSCRIPTION"
+AddOn.ADDON_MESSAGE_PREFIX_HELLO = AddOn.NAME .. "_CLIENT_HELLO"
+AddOn.ADDON_UPDATE_URL = "…" -- todo: github url
 
-mod.NPC_ID_HALION_PHYSICAL = 39863
-mod.NPC_ID_HALION_TWILIGHT = 40142
-mod.CORPOREALITY_AURA = 74826
+AddOn.BOSS_NAME = "Halion"
+AddOn.NPC_ID_HALION_PHYSICAL = 39863
+AddOn.NPC_ID_HALION_TWILIGHT = 40142
+AddOn.CORPOREALITY_AURA = 74826
+AddOn.SLEEP_DELAY = 0.2
+AddOn.ELECTION_DELAY = 5
+AddOn.PHASE2_HEALTH_THRESHOLD = 0.75
+AddOn.PHASE3_HEALTH_THRESHOLD = 0.5
+AddOn.ZONE_ID = 610 -- todo: GetCurrentMapAreaID()
 
-mod.defaults = {
+AddOn.defaultDb = {
     profile = {
         ui = {
-            point = "CENTER",
+            origin = "CENTER",
             x = 0,
-            y = 200,
+            y = 0,
         },
         texture = "Interface\\TargetingFrame\\UI-StatusBar",
         iconsSet = "REALM",
-        showCutterFrame = false,
-        forceDataCollect = false,
         enable = true,
+        announceOpenPhase2 = true,
+        showCutterFrame = false,
     }
 }
 
-local L = LibStub("AceLocale-3.0"):GetLocale(mod.ADDON_NAME)
+
+AddOn.modules = {}
+
+local NOT_INITIALIZED = 0
+local INITIALIZING = 1
+local INITIALIZED = 2
+local DISABLED = 3
+local initialized = NOT_INITIALIZED
+local updateMessageTriggered = false
+
+-- frame
+
+local frame = CreateFrame("Frame", AddOn.NAME .. "_MainFrame")
+frame:SetScript("OnEvent", function(self, event, ...)
+
+    if self[event] then
+        return self[event](self, ...)
+    end
+end)
 
 -- functions
 
-function mod:InitializeAddon()
+function AddOn:InitializeAddon()
 
-    if self.initialized > 0 then
+    if initialized > NOT_INITIALIZED then
         return
     end
 
-    self.initialized = 1
-    self.enabled = false
-    self.frame:UnregisterEvent("ADDON_LOADED")
+    initialized = INITIALIZING
+    frame:UnregisterEvent("ADDON_LOADED")
+    local enabled = false
 
-    self.db = LibStub("AceDB-3.0"):New("HalionHelperDB", mod.defaults, true)
+    self.db = LibStub("AceDB-3.0"):New(AddOn.NAME .. "DB", AddOn.defaultDb, true)
 
-    -- go
+    -- initialize modules
     self.modules.bar:Initialize()
+    self.modules.election:Initialize()
+    self.modules.announceOpenPhase2:Initialize()
     self.modules.phase2CollectHealth:Initialize()
     self.modules.phase2Ui:Initialize()
-    self.modules.phase3CollectLog:Initialize()
-    self.modules.phaseTwilightCutter:Initialize()
+    self.modules.corporeality.core:Initialize()
+    self.modules.twilightCutter:Initialize()
+    self.modules.options:Initialize()
 
-    self.initialized = 2
+    local function EnableModules()
 
-    function mod.frame:PLAYER_ENTERING_WORLD()
-        mod:OnZoneChange()
+        if initialized ~= INITIALIZED then
+            return
+        end
+
+        enabled = true
+
+        AddOn.modules.bar:Enable()
+        AddOn.modules.election:Enable()
+        AddOn.modules.announceOpenPhase2:Enable()
+        AddOn.modules.phase2CollectHealth:Enable()
+        AddOn.modules.phase2Ui:Enable()
+        AddOn.modules.corporeality.core:Enable()
+        AddOn.modules.twilightCutter:Enable()
+
+        AddOn:Print(L["Loaded"])
     end
 
-    function mod.frame:ZONE_CHANGED_NEW_AREA()
-        mod:OnZoneChange()
+    local function DisableModules()
+
+        if initialized < INITIALIZED then
+            return
+        end
+
+        enabled = false
+
+        AddOn.modules.bar:Disable()
+        AddOn.modules.election:Disable()
+        AddOn.modules.announceOpenPhase2:Disable()
+        AddOn.modules.phase2CollectHealth:Disable()
+        AddOn.modules.phase2Ui:Disable()
+        AddOn.modules.corporeality.core:Disable()
+        AddOn.modules.twilightCutter:Disable()
     end
+
+    local function ShouldEnableAddon()
+        return AddOn.db.profile.enable and GetRealZoneText() == L["ZoneName"] -- todo: GetCurrentMapAreaID()
+    end
+
+    -- events
+
+    function frame:PLAYER_ENTERING_WORLD()
+        AddOn:OnZoneChange()
+    end
+
+    function frame:ZONE_CHANGED_NEW_AREA()
+        AddOn:OnZoneChange()
+    end
+
+    function frame:CHAT_MSG_ADDON(prefix, message)
+        if prefix == AddOn.ADDON_MESSAGE_PREFIX_HELLO then
+            AddOn:OnClientHello(tonumber(message))
+        end
+    end
+
+    function self:OnZoneChange()
+
+        if not enabled and ShouldEnableAddon() then
+            EnableModules()
+        elseif enabled and not ShouldEnableAddon() then
+            DisableModules()
+        end
+    end
+
+    function self:OnClientHello(version)
+
+        if AddOn.VERSION < version then
+
+            if math.floor(AddOn.VERSION / 100) < math.floor(version / 100) then
+
+                self:Printf(L["UpdateRequired"], AddOn.ADDON_UPDATE_URL)
+                initialized = DISABLED
+
+                DisableModules()
+                frame:UnregisterEvent("CHAT_MSG_ADDON")
+                frame:UnregisterEvent("PLAYER_ENTERING_WORLD")
+                frame:UnregisterEvent("ZONE_CHANGED_NEW_AREA")
+                return
+            end
+
+            if updateMessageTriggered then
+                return
+            end
+
+            updateMessageTriggered = true
+
+            self:Printf(L["NewVersion"], AddOn.ADDON_UPDATE_URL)
+        end
+
+    end
+
+    function self:IsElected()
+        return self.modules.election.elected
+    end
+
+    -- initialized, run
+
+    initialized = INITIALIZED
+
+    SendAddonMessage(AddOn.ADDON_MESSAGE_PREFIX_HELLO, AddOn.VERSION, "RAID")
 
     self:OnZoneChange()
 end
 
-function mod:EnableModules()
-    if self.initialized ~= 2 then
-        return
-    end
-
-    self.enabled = true
-
-    self.modules.bar:Enable()
-    self.modules.phase2CollectHealth:Enable()
-    self.modules.phase2Ui:Enable()
-    self.modules.phase3CollectLog:Enable()
-    self.modules.phaseTwilightCutter:Enable()
-
-    self:Print(L["Loaded"])
-end
-
-function mod:DisableModules()
-    if self.initialized ~= 2 then
-        return
-    end
-
-    self.enabled = false
-
-    self.modules.bar:Disable()
-    self.modules.phase2CollectHealth:Disable()
-    self.modules.phase2Ui:Disable()
-    self.modules.phase3CollectLog:Disable()
-    self.modules.phaseTwilightCutter:Disable()
-end
-
-function mod:ShouldEnableAddon()
-
-    return self.db.profile.enable and GetRealZoneText() == L["ZoneName"]
-end
-
-function mod:OnZoneChange()
-
-    if self:ShouldEnableAddon() and not self.enabled then
-        self:EnableModules()
-    elseif not self:ShouldEnableAddon() and self.enabled then
-        self:DisableModules()
-    end
-end
-
--- frame
-
-mod.frame = CreateFrame("Frame", "HalionHelper_AddonMainFrame")
-mod.frame:SetScript("OnEvent", function(self, event, ...) if self[event] then return self[event](self, ...) end end)
-
 -- event
 
-function mod.frame:ADDON_LOADED(addon)
-    if addon ~= mod.ADDON_NAME then
+function frame:ADDON_LOADED(addon)
+
+    if addon ~= AddOn.NAME then
         return
     end
 
-    mod:InitializeAddon()
-end
-
--- Helpers functions
-
-function mod:IsInTwilightRealm()
-    local name = GetSpellInfo(74807)
-
-    return UnitAura("player", name)
-end
-
-function mod:IsRemarkablePlayer()
-    return self.db.profile.forceDataCollect
-            or IsRaidLeader()
-            or IsRaidOfficer()
-            or GetPartyAssignment("MAINTANK", "player")
-            or GetPartyAssignment("MAINASSIST", "player")
-end
-
--- Utils
-
-function mod:cut(ftext, fcursor)
-    local find = string.find(ftext, fcursor)
-    return string.sub(ftext, 0, find - 1), string.sub(ftext, find + 1)
-end
-
-function mod:max(a, b)
-    if a > b then return a end
-    return b
-end
-
-function mod:GetNpcId(guid)
-    return tonumber(guid:sub(-12, -7), 16)
-end
-
-function mod:GetDifficulty()
-    local _, instanceType, difficulty, _, _, playerDifficulty, isDynamicInstance = GetInstanceInfo() -- todo: pb difficulty ?
-    if instanceType == "raid" and isDynamicInstance then -- "new" instance (ICC)
-        if difficulty == 1 or difficulty == 3 then -- 10 men
-            return playerDifficulty == 0 and "normal10" or playerDifficulty == 1 and "heroic10" or "unknown"
-        elseif difficulty == 2 or difficulty == 4 then -- 25 men
-            return playerDifficulty == 0 and "normal25" or playerDifficulty == 1 and "heroic25" or "unknown"
-        end
-    else -- support for "old" instances
-        --[[if GetInstanceDifficulty() == 1 then
-            return (self.modId == "DBM-Party-WotLK" or self.modId == "DBM-Party-BC") and "normal5" or
-                    self.hasHeroic and "normal10" or "heroic10"
-        elseif GetInstanceDifficulty() == 2 then
-            return (self.modId == "DBM-Party-WotLK" or self.modId == "DBM-Party-BC") and "heroic5" or
-                    self.hasHeroic and "normal25" or "heroic25"
-        elseif GetInstanceDifficulty() == 3 then
-            return "heroic10"
-        elseif GetInstanceDifficulty() == 4 then
-            return "heroic25"
-        end]]
-    end
-
-    return "unknown"
-end
-
-function mod:IsDifficulty(...)
-    local diff = self:GetDifficulty()
-    for i = 1, select("#", ...) do
-        if diff == select(i, ...) then
-            return true
-        end
-    end
-    return false
+    AddOn:InitializeAddon()
 end
 
 -- Start addon
 
-mod.frame:RegisterEvent("ADDON_LOADED")
-mod.frame:RegisterEvent("PLAYER_ENTERING_WORLD")
-mod.frame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-
--- todo: update check, disable if major diff
--- todo: UI P2 can be shown out of combat after a BR
+frame:RegisterEvent("ADDON_LOADED")
+frame:RegisterEvent("CHAT_MSG_ADDON")
+frame:RegisterEvent("PLAYER_ENTERING_WORLD")
+frame:RegisterEvent("ZONE_CHANGED_NEW_AREA")

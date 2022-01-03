@@ -1,61 +1,92 @@
-local mod = _G.HalionHelper
+local _, ns = ...
 
-mod.modules.phase2Ui = {}
+local AddOn = ns.AddOn
+local module = {}
+AddOn.modules.phase2Ui = module
 
-function mod.modules.phase2Ui:Initialize()
+function module:Initialize()
 
-    function self:Enable()
-        self.healthBar:RegisterEvent("CHAT_MSG_ADDON")
-        self.healthBar:RegisterEvent("PLAYER_REGEN_ENABLED")
+    local healthBar = AddOn.modules.bar:NewBar(AddOn.NAME .. "_phase2Ui", nil)
+    healthBar:SetPoint(AddOn.db.profile.ui.origin, AddOn.db.profile.ui.x, AddOn.db.profile.ui.y)
+    healthBar:SetStatusBarColor(0, 1, 0)
+    healthBar:Hide()
+
+    AddOn.modules.bar:RegisterCallback(function()
+        healthBar:SetPoint(AddOn.db.profile.ui.origin, AddOn.db.profile.ui.x, AddOn.db.profile.ui.y)
+    end)
+
+    local function HideUI()
+
+        if healthBar:IsShown() then
+            healthBar:Hide()
+        end
+
+        healthBar:SetScript("OnUpdate", nil)
     end
 
-    function self:Disable()
-        self.healthBar:UnregisterEvent("CHAT_MSG_ADDON")
-        self.healthBar:UnregisterEvent("PLAYER_REGEN_ENABLED")
+    --- Hide UI when no data was received since a long time.
+    local function HideWhenNoData(frame, elapsed)
 
-        self.healthBar:Hide()
+        frame.elapsed = (frame.elapsed or 0) + elapsed
+        if frame.elapsed < (AddOn.SLEEP_DELAY * 10) then
+            return
+        end
+
+        frame.elapsed = 0
+
+        HideUI()
     end
-
-    -- functions
-
-    local _self = self
-
-    self.healthBar = mod.modules.bar:NewBar("HalionHelper_phase2Ui", nil)
-    self.healthBar:SetPoint(mod.db.profile.ui.point, mod.db.profile.ui.x, mod.db.profile.ui.y)
-    self.healthBar:SetStatusBarColor(0, 1, 0)
-    self.healthBar:Hide()
 
     local function SetHealthValue(value)
 
-        if value > mod.PHASE2_HEALTH_TRESHOLD or value < mod.PHASE3_HEALTH_TRESHOLD or mod:IsInTwilightRealm() then
-            if _self.healthBar:IsShown() then
-                _self.healthBar:Hide()
-            end
+        if ns.IsInTwilightRealm() or value > AddOn.PHASE2_HEALTH_THRESHOLD or value < AddOn.PHASE3_HEALTH_THRESHOLD then
+            HideUI()
 
             return
         end
 
-        _self.healthBar:SetValue(value)
-        _self.healthBar.timeText:SetText(string.format("%.1f", value * 100) .. " %")
+        healthBar.elapsed = 0
+        healthBar:SetValue(value)
+        healthBar.timeText:SetText(string.format("%.1f", value * 100) .. " %")
 
-        if not _self.healthBar:IsShown() then
-            _self.healthBar:Show()
+        if not healthBar:IsShown() then
+            healthBar:Show()
+            healthBar:SetScript("OnUpdate", HideWhenNoData)
         end
     end
 
     -- event
 
-    function self.healthBar:CHAT_MSG_ADDON(prefix, message)
-        if (prefix == mod.ADDON_MESSAGE_PREFIX_P2_END) then
-            SetHealthValue(0)
-        elseif (prefix == mod.ADDON_MESSAGE_PREFIX_P2_DATA) then
+    function healthBar:CHAT_MSG_ADDON(prefix, message)
+
+        if (prefix == AddOn.ADDON_MESSAGE_PREFIX_TWILIGHT_HEALTH_DATA) then
             SetHealthValue(tonumber(message))
         end
     end
 
-    function self.healthBar:PLAYER_REGEN_ENABLED()
+    function healthBar:PLAYER_REGEN_DISABLED()
 
-        self:Hide()
+        self:RegisterEvent("CHAT_MSG_ADDON")
+    end
+
+    function healthBar:PLAYER_REGEN_ENABLED()
+
+        self:UnregisterEvent("CHAT_MSG_ADDON")
+        HideUI()
+    end
+
+    --
+
+    function self:Enable()
+
+        healthBar:RegisterEvent("PLAYER_REGEN_DISABLED")
+        healthBar:RegisterEvent("PLAYER_REGEN_ENABLED")
+    end
+
+    function self:Disable()
+
+        healthBar:UnregisterEvent("PLAYER_REGEN_DISABLED")
+        healthBar:UnregisterEvent("PLAYER_REGEN_ENABLED")
     end
 end
 
