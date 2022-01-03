@@ -95,7 +95,7 @@ function module:Initialize()
 
         amount = amount / 1000
 
-        if amount > 1000 then
+        if math.abs(amount) > 1000 then
             return string.format("%.1f M", amount / 1000)
         end
 
