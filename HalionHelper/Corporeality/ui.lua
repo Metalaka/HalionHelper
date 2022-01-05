@@ -214,7 +214,7 @@ function module:Initialize()
         end
 
         -- send AR if we must stop
-        if not (frame.triggered or false) and frame.remaining < checkTimer and ShouldStop() then
+        if AddOn:IsElected() and not (frame.triggered or false) and frame.remaining < checkTimer and ShouldStop() then
             frame.triggered = true
             SendStopMessage()
         end
