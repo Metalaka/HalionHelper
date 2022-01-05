@@ -101,10 +101,6 @@ function module:Initialize()
 
     function frame:CHAT_MSG_ADDON(prefix, message)
 
-        if prefix == AddOn.ADDON_MESSAGE_PREFIX_P3_START then
-            AddOn:Print(message)
-        end
-
         if IsStartOfPhase3(prefix) then
             module:NewCorporeality(
                     AddOn.NPC_ID_HALION_PHYSICAL,
