@@ -117,6 +117,7 @@ function module:Initialize()
 
     function frame:PLAYER_REGEN_ENABLED()
         self:SetScript("OnUpdate", nil)
+        module.elected = false
     end
 
     function frame:CHAT_MSG_ADDON(prefix, message)
