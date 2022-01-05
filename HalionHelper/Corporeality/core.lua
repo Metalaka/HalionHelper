@@ -67,6 +67,10 @@ function module:Initialize()
 
     function self:NewCorporeality(npcId, aura)
 
+        if not UnitAffectingCombat('player') then
+            return
+        end
+
         module.side.npcId = npcId
         module.side.corporeality = aura
         module.amount[AddOn.NPC_ID_HALION_PHYSICAL] = 0
