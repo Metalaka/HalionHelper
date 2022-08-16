@@ -24,11 +24,11 @@ libs\AceGUI-3.0-SharedMediaWidgets\widget.xml
 Locales\en.lua
 Locales\fr.lua
 
-utilities.lua
+Utilities\utilities.lua
 code.lua
 
-barHelper.lua
-election.lua
+Utilities\barHelper.lua
+Utilities\election.lua
 announceOpenPhase2.lua
 phase2CollectHealth.lua
 phase2Ui.lua
