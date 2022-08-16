@@ -1,7 +1,7 @@
 ## Interface: 30300
 ## Author: Metalaka
 ## Title: HalionHelper
-## Version: 2.0.3
+## Version: 2.0.4
 ## Notes: Provide additional information during P2 & P3. At least one player on each realm must have the addon.
 ## SavedVariables: HalionHelperDB
 

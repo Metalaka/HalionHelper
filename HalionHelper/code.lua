@@ -11,7 +11,7 @@ ns.L = L
 -- constants
 
 AddOn.NAME = name
-AddOn.VERSION = 20003
+AddOn.VERSION = 20004
 AddOn.ADDON_MESSAGE_PREFIX_TWILIGHT_HEALTH_DATA = AddOn.NAME .. "_TWILIGHT_HEALTH_DATA"
 AddOn.ADDON_MESSAGE_PREFIX_CORPOREALITY_DATA = AddOn.NAME .. "_CORPOREALITY_DATA"
 AddOn.ADDON_MESSAGE_PREFIX_P3_START = AddOn.NAME .. "_P3_START"
@@ -160,6 +160,7 @@ function AddOn:InitializeAddon()
 
         if AddOn.VERSION < version then
 
+            -- todo: switch to semver the next BC
             if math.floor(AddOn.VERSION / 100) < math.floor(version / 100) then
 
                 self:Printf(L["UpdateRequired"], AddOn.ADDON_UPDATE_URL)
