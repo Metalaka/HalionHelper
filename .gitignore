@@ -1,1 +1,5 @@
+# Jetbrains IDE
+/.idea
+
+# bin
 /HalionHelper*.zip
