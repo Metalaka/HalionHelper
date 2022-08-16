@@ -29,9 +29,9 @@ code.lua
 
 Utilities\barHelper.lua
 Utilities\election.lua
-announceOpenPhase2.lua
-phase2CollectHealth.lua
-phase2Ui.lua
+Phase2\announceOpen.lua
+Phase2\collectHealth.lua
+Phase2\ui.lua
 twilightCutter.lua
 Corporeality\core.lua
 Corporeality\collect.lua
