@@ -192,7 +192,7 @@ function AddOn:InitializeAddon()
 
     initialized = INITIALIZED
 
-    SendAddonMessage(AddOn.ADDON_MESSAGE_PREFIX_HELLO, AddOn.VERSION, "RAID")
+    C_ChatInfo.SendAddonMessage(AddOn.ADDON_MESSAGE_PREFIX_HELLO, AddOn.VERSION, "RAID")
 
     self:OnZoneChange()
 end

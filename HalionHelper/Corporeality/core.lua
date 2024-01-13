@@ -43,18 +43,7 @@ function module:Initialize()
     -- functions
 
     local function SendData(frame, elapsed)
-
-        if not AddOn:IsElected() or not module.side.npcId or module.amount[module.side.npcId] == 0 then
-            return
-        end
-
-        frame.elapsed = (frame.elapsed or 0) + elapsed
-        if frame.elapsed > AddOn.SLEEP_DELAY then
-            frame.elapsed = 0
-
-            local payload = module.side.npcId .. SEPARATOR .. module.amount[module.side.npcId]
-            SendAddonMessage(AddOn.ADDON_MESSAGE_PREFIX_CORPOREALITY_DATA, payload, "RAID")
-        end
+       -- removed because data are visible by both realm in classic
     end
 
     --- Physical Realm Boss start phase 3 without a Corporeality aura.
@@ -95,7 +84,7 @@ function module:Initialize()
 
         if AddOn:IsElected() and ns.IsInTwilightRealm() then
             -- Send transition event to Physical Realm
-            SendAddonMessage(AddOn.ADDON_MESSAGE_PREFIX_P3_START, nil, "RAID")
+            C_ChatInfo.SendAddonMessage(AddOn.ADDON_MESSAGE_PREFIX_P3_START, nil, "RAID")
         end
     end
 

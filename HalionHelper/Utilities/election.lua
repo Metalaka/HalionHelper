@@ -69,7 +69,7 @@ function module:Initialize()
             DoElection()
             inscriptions = {}
         else
-            SendAddonMessage(AddOn.ADDON_MESSAGE_PREFIX_ELECTION, GetProfile(), "RAID")
+            C_ChatInfo.SendAddonMessage(AddOn.ADDON_MESSAGE_PREFIX_ELECTION, GetProfile(), "RAID")
         end
 
         frame.electionPhase = not (frame.electionPhase or false)

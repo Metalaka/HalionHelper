@@ -33,7 +33,7 @@ function module:Initialize()
                 return
             end
 
-            SendAddonMessage(AddOn.ADDON_MESSAGE_PREFIX_TWILIGHT_HEALTH_DATA, percent, "RAID")
+            C_ChatInfo.SendAddonMessage(AddOn.ADDON_MESSAGE_PREFIX_TWILIGHT_HEALTH_DATA, percent, "RAID")
         end
     end
 
