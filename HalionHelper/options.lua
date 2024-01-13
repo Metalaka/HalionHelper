@@ -153,15 +153,15 @@ function module:Initialize()
         },
     }
 
-    local registry = LibStub('AceConfigRegistry-3.0')
-    local dialog = LibStub('AceConfigDialog-3.0')
+    local config = LibStub("AceConfig-3.0")
+    local dialog = LibStub('AceConfigDialog-3.0') -- bliz option panel
     local profile = LibStub('AceDBOptions-3.0'):GetOptionsTable(AddOn.db)
 
-    registry:RegisterOptionsTable(AddOn.NAME .. 'Options', options)
-    registry:RegisterOptionsTable(AddOn.NAME .. 'Profiles', profile)
+    config:RegisterOptionsTable(AddOn.NAME, options, { AddOn.NAME, "hh" }) -- chat command
+    config:RegisterOptionsTable(AddOn.NAME .. '/Options', options)
+    dialog:AddToBlizOptions(AddOn.NAME .. '/Options', L["AddonName"])
 
-    LibStub("AceConfig-3.0"):RegisterOptionsTable(AddOn.NAME, options, { AddOn.NAME, "hh" }) -- just for chat
-    dialog:AddToBlizOptions(AddOn.NAME .. 'Options', L["AddonName"])
-    dialog:AddToBlizOptions(AddOn.NAME .. 'Profiles', 'Profiles', L["AddonName"])
+    config:RegisterOptionsTable(AddOn.NAME .. '/Profiles', profile)
+    dialog:AddToBlizOptions(AddOn.NAME .. '/Profiles', 'Profiles', L["AddonName"])
 
 end
