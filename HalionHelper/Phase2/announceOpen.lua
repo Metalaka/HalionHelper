@@ -24,7 +24,7 @@ function module:Initialize()
 
     -- event
 
-    function frame:COMBAT_LOG_EVENT_UNFILTERED(_, eventType, srcGUID, _, _, dstGUID)
+    function frame:COMBAT_LOG_EVENT_UNFILTERED(_, eventType, _, srcGUID, _, _, _, dstGUID)
 
         if IsPlayerDamageAgainstHalion(eventType, dstGUID, srcGUID) then
             -- event triggered, stop watch logs
@@ -42,6 +42,7 @@ function module:Initialize()
                 return
             end
 
+            -- start to watch logs at the beginning of phase 2 if i am tank
             self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
         end
     end
