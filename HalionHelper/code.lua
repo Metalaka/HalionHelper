@@ -27,7 +27,7 @@ AddOn.SLEEP_DELAY = 0.2
 AddOn.ELECTION_DELAY = 5
 AddOn.PHASE2_HEALTH_THRESHOLD = 0.75
 AddOn.PHASE3_HEALTH_THRESHOLD = 0.5
-AddOn.ZONE_ID = 610 -- todo: GetCurrentMapAreaID()
+AddOn.INSTANCE_ID = 724
 
 AddOn.defaultDb = {
     profile = {
@@ -39,7 +39,7 @@ AddOn.defaultDb = {
         texture = "Interface\\TargetingFrame\\UI-StatusBar",
         iconsSet = "REALM",
         enable = true,
-        announceOpenPhase2 = true,
+        announceOpenPhase2 = false,
         showCutterFrame = false,
     }
 }
@@ -128,7 +128,10 @@ function AddOn:InitializeAddon()
     end
 
     local function ShouldEnableAddon()
-        return AddOn.db.profile.enable and GetRealZoneText() == L["ZoneName"] -- todo: GetCurrentMapAreaID()
+        
+        local name, _, _, _, _, _, _, instanceID = GetInstanceInfo()
+
+        return AddOn.db.profile.enable and instanceID == AddOn.INSTANCE_ID
     end
 
     -- events
