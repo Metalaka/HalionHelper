@@ -27,7 +27,8 @@ function module:Initialize()
         module.announce55 = false
     end
 
-    local function SendPercentage(value)
+    -- say health inside physical realm
+    local function SayPercentage(value)
 
         if not AddOn:IsElected() then
             return
@@ -62,7 +63,7 @@ function module:Initialize()
     function frame:CHAT_MSG_ADDON(prefix, message)
 
         if (prefix == AddOn.ADDON_MESSAGE_PREFIX_TWILIGHT_HEALTH_DATA) then
-            SendPercentage(tonumber(message))
+            SayPercentage(tonumber(message))
         end
     end
 
