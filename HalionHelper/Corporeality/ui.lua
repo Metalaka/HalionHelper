@@ -16,11 +16,11 @@ function module:Initialize()
         ["REALM"] = {
             --            twilight = 75486, -- Dusk Shroud
             twilight = 74807, -- Twilight Realm
-            physical = 75949, -- Meteor Strike
+            physical = 74712, -- Meteor Strike
         },
         ["SPELL"] = {
-            twilight = 77846, -- Twilight Cutter
-            physical = 75887, -- Blazing Aura
+            twilight = 74769, -- Twilight Cutter
+            physical = 75886, -- Blazing Aura
         },
     }
     local shouldDoMoreDamage = true

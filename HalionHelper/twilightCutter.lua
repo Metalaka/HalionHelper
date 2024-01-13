@@ -10,7 +10,7 @@ function module:Initialize()
     local CUTTER_TIMER = 30
     local ANNOUNCE_CUTTER_DELAY = 5
     local FIRST_CUTTER_DELAY = 10
-    local SPELL_CUTTER = 77846
+    local SPELL_CUTTER = 74769
 
     --- 44 seconds for 360°
     local orbRotationSpeed = 44
