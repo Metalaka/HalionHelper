@@ -20,40 +20,33 @@ end
 
 function ns.IsInTwilightRealm()
 
-    local spellName = GetSpellInfo(74807)
-
-    return UnitAura("player", spellName) ~= nil
+    return GetPlayerAuraBySpellID(74807) ~= nil -- "Twilight Realm" aura
 end
 
 function ns.GetNpcId(guid)
-    return tonumber(guid:sub(-12, -7), 16)
+
+    local unitType, _, _, _, _, npcID, _ = strsplit("-", guid)
+    if unitType == "Creature" or unitType == "Vehicle" then
+        return tonumber(npcID)
+    end
+    
+    return nil
 end
 
 function ns.GetDifficulty()
 
-    local _, instanceType, difficulty, _, _, playerDifficulty, isDynamicInstance = GetInstanceInfo() -- todo: pb difficulty ?
-    if instanceType == "raid" and isDynamicInstance then
+    local _, instanceType, difficultyID, _, _, _, _ = GetInstanceInfo()
+    if instanceType == "raid" then
         -- "new" instance (ICC)
-        if difficulty == 1 or difficulty == 3 then
-            -- 10 men
-            return playerDifficulty == 0 and "normal10" or playerDifficulty == 1 and "heroic10" or "unknown"
-        elseif difficulty == 2 or difficulty == 4 then
-            -- 25 men
-            return playerDifficulty == 0 and "normal25" or playerDifficulty == 1 and "heroic25" or "unknown"
-        end
-    else
-        -- support for "old" instances
-        --[[if GetInstanceDifficulty() == 1 then
-            return (self.modId == "DBM-Party-WotLK" or self.modId == "DBM-Party-BC") and "normal5" or
-                    self.hasHeroic and "normal10" or "heroic10"
-        elseif GetInstanceDifficulty() == 2 then
-            return (self.modId == "DBM-Party-WotLK" or self.modId == "DBM-Party-BC") and "heroic5" or
-                    self.hasHeroic and "normal25" or "heroic25"
-        elseif GetInstanceDifficulty() == 3 then
+        if difficultyID == 3 then
+            return "normal10"
+        elseif difficultyID == 4 then
+            return "normal25"
+        elseif difficultyID == 5 then
             return "heroic10"
-        elseif GetInstanceDifficulty() == 4 then
+        elseif difficultyID == 6 then
             return "heroic25"
-        end]]
+        end
     end
 
     return "unknown"
@@ -73,11 +66,12 @@ function ns.IsDifficulty(...)
 end
 
 function ns.HasRaidWarningRight()
-    return IsRaidLeader() ~= nil
-            or IsRaidOfficer() ~= nil
+    return UnitIsGroupLeader("player") ~= nil
+            or UnitIsGroupAssistant("player") ~= nil
 end
 
 function ns.IsTank()
     return GetPartyAssignment("MAINTANK", "player") ~= nil
             or GetPartyAssignment("MAINASSIST", "player") ~= nil
+            or UnitGroupRolesAssigned("player") == "TANK"
 end
