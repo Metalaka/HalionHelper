@@ -82,7 +82,7 @@ function module:Initialize()
         version = tonumber(version)
         AddOn:OnClientHello(version)
 
-        if math.floor(AddOn.VERSION / 100) > math.floor(version / 100) then
+        if math.floor(AddOn.VERSION / 10000) > math.floor(version / 10000) then
             return
         end
 
