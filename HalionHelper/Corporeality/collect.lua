@@ -104,13 +104,25 @@ function module:Initialize()
         CombatLogEvent()
     end
 
+
+    function frame:PLAYER_REGEN_ENABLED()
+
+        core.isInPhase3 = false
+        core.corporeality[AddOn.NPC_ID_HALION_PHYSICAL] = core.corporealityAuras[AddOn.CORPOREALITY_AURA]
+        core.corporeality[AddOn.NPC_ID_HALION_TWILIGHT] = core.corporealityAuras[AddOn.CORPOREALITY_AURA]
+        core.amount[AddOn.NPC_ID_HALION_PHYSICAL] = 0
+        core.amount[AddOn.NPC_ID_HALION_TWILIGHT] = 0
+    end
+
     --
 
     function self:Enable()
+        frame:RegisterEvent("PLAYER_REGEN_ENABLED")
         frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
     end
 
     function self:Disable()
+        frame:UnregisterEvent("PLAYER_REGEN_ENABLED")
         frame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
     end
 end

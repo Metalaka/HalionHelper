@@ -11,7 +11,7 @@ local module = {
         [AddOn.NPC_ID_HALION_TWILIGHT] = nil,
     },
     isInPhase3 = false,
-    --
+    -- config
     corporealityAuras = {
         [74836] = { dealt = -70, taken = -100, }, -- 70% less dealt, 100% less taken
         [74835] = { dealt = -50, taken = -80, }, --  50% less dealt,  80% less taken
@@ -33,10 +33,120 @@ local module = {
 }
 AddOn.modules.corporeality = {}
 AddOn.modules.corporeality.core = module
+local L = ns.L
 
 function module:Initialize()
 
+    local preferGoTwilight = true -- goal is 60-50 in twilight, todo config
+
     -- functions
+
+    local function GetOtherSide(side)
+        return side == AddOn.NPC_ID_HALION_PHYSICAL and AddOn.NPC_ID_HALION_PHYSICAL or AddOn.NPC_ID_HALION_TWILIGHT
+    end
+
+    local function GetSideThatMustPush()
+
+        local physicalCorporeality = module.corporeality[AddOn.NPC_ID_HALION_PHYSICAL]
+
+        -- more damage to go to 50%
+        if physicalCorporeality.dealt > 1 then
+            return AddOn.NPC_ID_HALION_PHYSICAL
+        end
+
+        if physicalCorporeality.dealt < 1 then
+            return AddOn.NPC_ID_HALION_TWILIGHT
+        end
+
+        -- more damage according to our preference if 50%
+        if preferGoTwilight then
+            return AddOn.NPC_ID_HALION_PHYSICAL
+        else
+            return AddOn.NPC_ID_HALION_TWILIGHT
+        end
+    end
+
+    local function GetSideWithMoreDamage()
+
+        return module.amount[AddOn.NPC_ID_HALION_PHYSICAL] > module.amount[AddOn.NPC_ID_HALION_TWILIGHT]
+                and AddOn.NPC_ID_HALION_PHYSICAL
+                or AddOn.NPC_ID_HALION_TWILIGHT
+    end
+
+    -- return the damage diff between both realm
+    local function GetAmount(side)
+
+        local amount = module.amount[side] - module.amount[GetOtherSide(side)]
+
+        amount = amount / 1000
+
+        if math.abs(amount) > 1000 then
+            return string.format("%.1f M", amount / 1000)
+        end
+
+        return string.format("%.0f K", amount)
+    end
+
+    local function GetColor(side)
+        local sideThatMustPush = GetSideThatMustPush()
+        local sideWithMoreDamage = GetSideWithMoreDamage()
+
+        if sideThatMustPush == sideWithMoreDamage then
+            -- green - continue
+            return module.states.push
+        end
+
+        if sideThatMustPush == side then
+            -- blue - do more, others have red
+            return module.states.pushMore
+        end
+
+        -- red - stop
+        return module.states.stop
+    end
+
+    -- public API
+
+    function self:HasData()
+        return module.amount[AddOn.NPC_ID_HALION_PHYSICAL] > 0
+                and module.amount[AddOn.NPC_ID_HALION_TWILIGHT] > 0
+    end
+
+    function self:ShouldStop(dto)
+        return self:HasData()
+                and (dto.states[AddOn.NPC_ID_HALION_PHYSICAL] == module.states.stop
+                or dto.states[AddOn.NPC_ID_HALION_TWILIGHT] == module.states.stop)
+    end
+
+    function self:SendStopMessage(dto)
+        local channel = ns.HasRaidWarningRight() and "RAID_WARNING" or "RAID"
+        local sideName = dto.states[AddOn.NPC_ID_HALION_PHYSICAL] == module.states.stop and L["Physical"] or L["Twilight"]
+
+        AddOn:Print(string.format(L["AnnounceStop"], sideName))
+        --SendChatMessage(string.format(L["AnnounceStop"], sideName), channel)
+    end
+
+    function self:BuildDto()
+
+        local dto = {
+            -- amount as formatted string
+            -- our corporeality (not yet used) - display value
+            --- our side
+            -- states (color, message) - send message to ppl without addon
+            --- sideWithMoreDamage
+            --- ShouldDoMoreDamage
+        }
+
+        dto.side = ns.IsInTwilightRealm() and AddOn.NPC_ID_HALION_TWILIGHT or AddOn.NPC_ID_HALION_PHYSICAL
+        dto.corporeality = module.corporeality[dto.side]
+        dto.amount = GetAmount(dto.side) -- formatted
+        dto.states = {
+            [AddOn.NPC_ID_HALION_PHYSICAL] = GetColor(AddOn.NPC_ID_HALION_PHYSICAL),
+            [AddOn.NPC_ID_HALION_TWILIGHT] = GetColor(AddOn.NPC_ID_HALION_TWILIGHT),
+        }
+
+        return dto
+    end
 
     function self:NewCorporeality(npcId, aura)
 
@@ -52,24 +162,6 @@ function module:Initialize()
         AddOn.modules.corporeality.ui:StartMonitor()
     end
 
-    -- event
-
-    local frame = CreateFrame("Frame", AddOn.NAME .. "_corporeality")
-    frame:SetScript("OnEvent", function(self, event, ...)
-        if self[event] then
-            return self[event](self, ...)
-        end
-    end)
-
-    function frame:PLAYER_REGEN_ENABLED()
-
-        module.isInPhase3 = false
-        module.corporeality[AddOn.NPC_ID_HALION_PHYSICAL] = module.corporealityAuras[AddOn.CORPOREALITY_AURA]
-        module.corporeality[AddOn.NPC_ID_HALION_TWILIGHT] = module.corporealityAuras[AddOn.CORPOREALITY_AURA]
-
-        AddOn.modules.corporeality.ui:StopTimer()
-    end
-
     -- init
     module.corporeality[AddOn.NPC_ID_HALION_PHYSICAL] = module.corporealityAuras[AddOn.CORPOREALITY_AURA]
     module.corporeality[AddOn.NPC_ID_HALION_TWILIGHT] = module.corporealityAuras[AddOn.CORPOREALITY_AURA]
@@ -79,15 +171,11 @@ function module:Initialize()
     --
 
     function self:Enable()
-        frame:RegisterEvent("PLAYER_REGEN_ENABLED")
-
         AddOn.modules.corporeality.collect:Enable()
         AddOn.modules.corporeality.ui:Enable()
     end
 
     function self:Disable()
-        frame:UnregisterEvent("PLAYER_REGEN_ENABLED")
-
         AddOn.modules.corporeality.collect:Disable()
         AddOn.modules.corporeality.ui:Disable()
     end

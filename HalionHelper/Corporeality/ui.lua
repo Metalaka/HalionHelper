@@ -1,128 +1,21 @@
 local _, ns = ...
 
 local AddOn = ns.AddOn
-local module = {
-    dto = nil
-}
+local module = {}
 AddOn.modules.corporeality.ui = module
-local L = ns.L
 
 function module:Initialize()
 
     local CORPOREALITY_DURATION = 15
     local DELAY_AFTER_NEW_CORPOREALITY = 1 -- 1s of freeze after new corporeality
-    local preferGoTwilight = true -- goal is 60-50 in twilight, todo config
     local checkTimer = 7 -- send a message at this remaining time, todo config
 
     local core = AddOn.modules.corporeality.core
     local uiHelper = AddOn.modules.bar
+    
+    local dto = nil
 
     -- functions
-
-    local function GetOtherSide(side)
-        return side == AddOn.NPC_ID_HALION_PHYSICAL and AddOn.NPC_ID_HALION_PHYSICAL or AddOn.NPC_ID_HALION_TWILIGHT
-    end
-    
-    local function HasData()
-        return core.amount[AddOn.NPC_ID_HALION_PHYSICAL] > 0
-                and core.amount[AddOn.NPC_ID_HALION_TWILIGHT] > 0
-    end
-
-    local function GetSideThatMustPush()
-
-        local physicalCorporeality = core.corporeality[AddOn.NPC_ID_HALION_PHYSICAL]
-
-        -- more damage to go to 50%
-        if physicalCorporeality.dealt > 1 then
-            return AddOn.NPC_ID_HALION_PHYSICAL
-        end
-
-        if physicalCorporeality.dealt < 1 then
-            return AddOn.NPC_ID_HALION_TWILIGHT
-        end
-
-        -- more damage according to our preference if 50%
-        if preferGoTwilight then
-            return AddOn.NPC_ID_HALION_PHYSICAL
-        else
-            return AddOn.NPC_ID_HALION_TWILIGHT
-        end
-    end
-
-    local function GetSideWithMoreDamage()
-
-        return core.amount[AddOn.NPC_ID_HALION_PHYSICAL] > core.amount[AddOn.NPC_ID_HALION_TWILIGHT]
-                and AddOn.NPC_ID_HALION_PHYSICAL
-                or AddOn.NPC_ID_HALION_TWILIGHT
-    end
-
-    -- return the damage diff between both realm
-    local function GetAmount(side)
-
-        local amount = core.amount[side] - core.amount[GetOtherSide(side)]
-
-        amount = amount / 1000
-
-        if math.abs(amount) > 1000 then
-            return string.format("%.1f M", amount / 1000)
-        end
-
-        return string.format("%.0f K", amount)
-    end
-
-    local function GetColor(side)
-        local sideThatMustPush = GetSideThatMustPush()
-        local sideWithMoreDamage = GetSideWithMoreDamage()
-
-        if sideThatMustPush == sideWithMoreDamage then
-            -- green - continue
-            return core.states.push
-        end
-
-        if sideThatMustPush == side then
-            -- blue - do more, others have red
-            return core.states.pushMore
-        end
-
-        -- red - stop
-        return core.states.stop
-    end
-
-    local function ShouldStop(dto)
-        return HasData()
-                and (dto.states[AddOn.NPC_ID_HALION_PHYSICAL] == core.states.stop
-                or dto.states[AddOn.NPC_ID_HALION_TWILIGHT] == core.states.stop)
-    end
-
-    local function SendStopMessage(dto)
-        local channel = ns.HasRaidWarningRight() and "RAID_WARNING" or "RAID"
-        local sideName = dto.states[AddOn.NPC_ID_HALION_PHYSICAL] == core.states.stop and L["Physical"] or L["Twilight"]
-
-        AddOn:Print(string.format(L["AnnounceStop"], sideName))
-        --SendChatMessage(string.format(L["AnnounceStop"], sideName), channel)
-    end
-
-    local function BuildDto()
-
-        local dto = {
-            -- amount as formatted string
-            -- our corporeality (not yet used) - display value
-            --- our side
-            -- states (color, message) - send message to ppl without addon
-            --- sideWithMoreDamage
-            --- ShouldDoMoreDamage
-        }
-
-        dto.side = ns.IsInTwilightRealm() and AddOn.NPC_ID_HALION_TWILIGHT or AddOn.NPC_ID_HALION_PHYSICAL
-        dto.corporeality = core.corporeality[dto.side]
-        dto.amount = GetAmount(dto.side) -- formatted
-        dto.states = {
-            [AddOn.NPC_ID_HALION_PHYSICAL] = GetColor(AddOn.NPC_ID_HALION_PHYSICAL),
-            [AddOn.NPC_ID_HALION_TWILIGHT] = GetColor(AddOn.NPC_ID_HALION_TWILIGHT),
-        }
-
-        return dto
-    end
 
     local function OnUpdateColor(frame, elapsed)
 
@@ -134,9 +27,9 @@ function module:Initialize()
         frame.elapsed = 0
         frame.startDelay = 0
 
-        if HasData() then
+        if core:HasData() then
             
-            module.dto = BuildDto()
+            dto = core:BuildDto()
             local r, g, b = unpack(dto.states[dto.side].color)
 
             frame:SetValue(1)
@@ -161,15 +54,12 @@ function module:Initialize()
         end
 
         -- send RAID_WARNING if we must stop
-        if module.dto ~= nil and
-                AddOn:IsElected() and
-                not (frame.triggered or false) and
-                frame.remaining < checkTimer then
+        if AddOn:IsElected() and not (frame.triggered or false) and frame.remaining < checkTimer then
             
-            if ShouldStop(module.dto) then
+            if dto ~= nil and core:ShouldStop(dto) and UnitAffectingCombat('player') then
                 
                 frame.triggered = true
-                SendStopMessage(module.dto)
+                core:SendStopMessage(dto)
             end
         end
 
