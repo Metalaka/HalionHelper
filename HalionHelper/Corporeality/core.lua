@@ -6,9 +6,9 @@ local module = {
         [AddOn.NPC_ID_HALION_PHYSICAL] = 0,
         [AddOn.NPC_ID_HALION_TWILIGHT] = 0,
     },
-    side = {
-        npcId = nil,
-        corporeality = nil,
+    corporeality = {
+        [AddOn.NPC_ID_HALION_PHYSICAL] = nil,
+        [AddOn.NPC_ID_HALION_TWILIGHT] = nil,
     },
     isInPhase3 = false,
     --
@@ -25,13 +25,34 @@ local module = {
         [74830] = { dealt = 100, taken = 200, }, -- 100% more dealt, 200% more taken
         [74831] = { dealt = 200, taken = 400, }, -- 200% more dealt, 400% more taken
     },
+    states = {
+        push = { message = "PUSH", color = { 0, 1, 0 }, }, -- green
+        stop = { message = "STOP", color = { 1, 0, 0 }, }, -- red
+        pushMore = { message = "PUSH", color = { 0, 0, 1 }, }, -- blue - other have red
+    }
 }
 AddOn.modules.corporeality = {}
 AddOn.modules.corporeality.core = module
 
 function module:Initialize()
 
-    local SEPARATOR = ":"
+    -- functions
+
+    function self:NewCorporeality(npcId, aura)
+
+        if not UnitAffectingCombat('player') then
+            return
+        end
+
+        module.isInPhase3 = true
+        module.amount[AddOn.NPC_ID_HALION_PHYSICAL] = 0
+        module.amount[AddOn.NPC_ID_HALION_TWILIGHT] = 0
+        module.corporeality[npcId] = aura
+
+        AddOn.modules.corporeality.ui:StartMonitor()
+    end
+
+    -- event
 
     local frame = CreateFrame("Frame", AddOn.NAME .. "_corporeality")
     frame:SetScript("OnEvent", function(self, event, ...)
@@ -40,86 +61,18 @@ function module:Initialize()
         end
     end)
 
-    -- functions
-
-    local function SendData(frame, elapsed)
-       -- removed because data are visible by both realm in classic
-    end
-
-    --- Physical Realm Boss start phase 3 without a Corporeality aura.
-    --- This hack start the phase 3 from the Twilight aura event
-    local function IsStartOfPhase3(event)
-        return event == AddOn.ADDON_MESSAGE_PREFIX_P3_START
-                and not module.isInPhase3
-                and not ns.IsInTwilightRealm()
-    end
-
-    function self:NewCorporeality(npcId, aura)
-
-        if not UnitAffectingCombat('player') then
-            return
-        end
-
-        module.side.npcId = npcId
-        module.side.corporeality = aura
-        module.amount[AddOn.NPC_ID_HALION_PHYSICAL] = 0
-        module.amount[AddOn.NPC_ID_HALION_TWILIGHT] = 0
-
-        if not module.isInPhase3 then
-            return module:StartP3(npcId, aura)
-        end
-
-        AddOn.modules.corporeality.ui:StartMonitor()
-    end
-
-    function self:StartP3(npcId, aura)
-
-        module.isInPhase3 = true
-        frame:SetScript("OnUpdate", SendData)
-
-        AddOn.modules.corporeality.ui:StartTimer(5) -- display 5sec wait timer
-        AddOn:ScheduleTimer(function()
-            module:NewCorporeality(npcId, aura)
-        end, 5)
-
-        if AddOn:IsElected() and ns.IsInTwilightRealm() then
-            -- Send transition event to Physical Realm
-            C_ChatInfo.SendAddonMessage(AddOn.ADDON_MESSAGE_PREFIX_P3_START, nil, "RAID")
-        end
-    end
-
-    function frame:CHAT_MSG_ADDON(prefix, message)
-
-        if IsStartOfPhase3(prefix) then
-            module:NewCorporeality(
-                    AddOn.NPC_ID_HALION_PHYSICAL,
-                    module.corporealityAuras[AddOn.CORPOREALITY_AURA]
-            )
-        elseif prefix == AddOn.ADDON_MESSAGE_PREFIX_CORPOREALITY_DATA then
-
-            local npcId, amount = ns.cut(message, SEPARATOR)
-            npcId = tonumber(npcId)
-
-            if module.side.npcId == npcId then
-                -- Don't change our data
-                return
-            end
-
-            module.amount[npcId] = tonumber(amount)
-        end
-    end
-
     function frame:PLAYER_REGEN_ENABLED()
 
         module.isInPhase3 = false
-        module.side.corporeality = module.corporealityAuras[AddOn.CORPOREALITY_AURA]
-        self:SetScript("OnUpdate", nil)
+        module.corporeality[AddOn.NPC_ID_HALION_PHYSICAL] = module.corporealityAuras[AddOn.CORPOREALITY_AURA]
+        module.corporeality[AddOn.NPC_ID_HALION_TWILIGHT] = module.corporealityAuras[AddOn.CORPOREALITY_AURA]
 
         AddOn.modules.corporeality.ui:StopTimer()
     end
 
     -- init
-    module.side.corporeality = module.corporealityAuras[AddOn.CORPOREALITY_AURA]
+    module.corporeality[AddOn.NPC_ID_HALION_PHYSICAL] = module.corporealityAuras[AddOn.CORPOREALITY_AURA]
+    module.corporeality[AddOn.NPC_ID_HALION_TWILIGHT] = module.corporealityAuras[AddOn.CORPOREALITY_AURA]
     AddOn.modules.corporeality.collect:Initialize()
     AddOn.modules.corporeality.ui:Initialize()
 
@@ -127,7 +80,6 @@ function module:Initialize()
 
     function self:Enable()
         frame:RegisterEvent("PLAYER_REGEN_ENABLED")
-        frame:RegisterEvent("CHAT_MSG_ADDON")
 
         AddOn.modules.corporeality.collect:Enable()
         AddOn.modules.corporeality.ui:Enable()
@@ -135,7 +87,6 @@ function module:Initialize()
 
     function self:Disable()
         frame:UnregisterEvent("PLAYER_REGEN_ENABLED")
-        frame:UnregisterEvent("CHAT_MSG_ADDON")
 
         AddOn.modules.corporeality.collect:Disable()
         AddOn.modules.corporeality.ui:Disable()
