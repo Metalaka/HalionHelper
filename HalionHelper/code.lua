@@ -12,9 +12,6 @@ ns.L = L
 
 AddOn.NAME = name
 AddOn.VERSION = 30000
-AddOn.ADDON_MESSAGE_PREFIX_TWILIGHT_HEALTH_DATA = AddOn.NAME .. "_TWILIGHT_HEALTH_DATA"
-AddOn.ADDON_MESSAGE_PREFIX_CORPOREALITY_DATA = AddOn.NAME .. "_CORPOREALITY_DATA"
-AddOn.ADDON_MESSAGE_PREFIX_P3_START = AddOn.NAME .. "_P3_START"
 AddOn.ADDON_MESSAGE_PREFIX_ELECTION = AddOn.NAME .. "_ELECTION_INSCRIPTION"
 AddOn.ADDON_MESSAGE_PREFIX_HELLO = AddOn.NAME .. "_CLIENT_HELLO"
 AddOn.ADDON_UPDATE_URL = "https://github.com/Metalaka/HalionHelper/releases"
@@ -122,7 +119,7 @@ function AddOn:InitializeAddon()
 
     local function ShouldEnableAddon()
         
-        local name, _, _, _, _, _, _, instanceID = GetInstanceInfo()
+        local instanceID = select(8, GetInstanceInfo())
 
         return AddOn.db.profile.enable and instanceID == AddOn.INSTANCE_ID
     end

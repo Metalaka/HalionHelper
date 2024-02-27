@@ -37,7 +37,6 @@ function ns.GetDifficulty()
 
     local _, instanceType, difficultyID, _, _, _, _ = GetInstanceInfo()
     if instanceType == "raid" then
-        -- "new" instance (ICC)
         if difficultyID == 3 then
             return "normal10"
         elseif difficultyID == 4 then

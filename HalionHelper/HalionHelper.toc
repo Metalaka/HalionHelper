@@ -30,8 +30,6 @@ code.lua
 Utilities\barHelper.lua
 Utilities\election.lua
 Phase2\announceOpen.lua
-Phase2\collectHealth.lua
-Phase2\ui.lua
 Phase2\messages.lua
 twilightCutter.lua
 Corporeality\core.lua
