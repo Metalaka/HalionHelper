@@ -11,8 +11,8 @@ L["Yell_Phase3"] = "Je suis la lumière et l'ombre ! Tremblez, mortels, devant l
 L["Announce_TwilightCutter"] = "Les sphères volantes rayonnent d'énergie noire !"
 
 -- Addon strings
-L["AddonName"] = "Halion Helper"
-L["Settings"] = "Options de Halion Helper"
+L["AddonName"] = "Purple Dragon Slayer"
+L["Settings"] = "Options de Purple Dragon Slayer"
 L["Loaded"] = "Chargé - Bon jeu !"
 L["NewVersion"] = "Une nouvelle version est disponnible: %s"
 L["UpdateRequired"] = "Addon désactivé! La version est trop ancienne. Télécharger la dernière version: %s"
@@ -22,7 +22,7 @@ L["Physical"] = "LUMIÈRE"
 L["AnnounceStop"] = "%s - STOP DPS"
 
 -- Options
-L["option_header_desc"] = "Configuration général de Halion Helper."
+L["option_header_desc"] = "Configuration général de Purple Dragon Slayer."
 L["option_enable_name"] = "Active l'addon"
 L["option_enable_desc"] = "Active ou désactive l'addon."
 L["option_move_name"] = "Déverouille les fenêtres"

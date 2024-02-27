@@ -11,8 +11,8 @@ L["Yell_Phase3"] = "I am the light and the darkness! Cower, mortals, before the 
 L["Announce_TwilightCutter"] = "The orbiting spheres pulse with dark energy!"
 
 -- Addon strings
-L["AddonName"] = "Halion Helper"
-L["Settings"] = "Halion Helper Settings"
+L["AddonName"] = "Purple Dragon Slayer"
+L["Settings"] = "Purple Dragon Slayer Settings"
 L["Loaded"] = "loaded - Have fun!"
 L["NewVersion"] = "New version available. Download update at: %s"
 L["UpdateRequired"] = "Addon disabled. Version too old. Download latest version at: %s"
@@ -22,7 +22,7 @@ L["Physical"] = "Physical Realm"
 L["AnnounceStop"] = "%s - STOP DPS"
 
 -- Options
-L["option_header_desc"] = "General settings for Halion Helper."
+L["option_header_desc"] = "General settings for Purple Dragon Slayer."
 L["option_enable_name"] = "Enable addon"
 L["option_enable_desc"] = "Enable or disable the addon."
 L["option_move_name"] = "Enable move mode"
