@@ -29,25 +29,21 @@ function module:Initialize()
         local weight = UnitHealthMax("player")
 
         return AddOn.VERSION
-                .. SEPARATOR .. tostring(ns.IsInTwilightRealm())
                 .. SEPARATOR .. weight
                 .. SEPARATOR .. UnitGUID("player")
     end
 
     local function DoElection()
 
-        local isInTwilightRealm = ns.IsInTwilightRealm()
         local winner
 
         for _, inscription in ipairs(inscriptions) do
-            if isInTwilightRealm == inscription.IsInTwilightRealm then
-                if winner == nil then
-                    winner = inscription
-                elseif winner.Weight < inscription.Weight then
-                    winner = inscription
-                elseif winner.Weight == inscription.Weight and winner.Guid < inscription.Guid then
-                    winner = inscription
-                end
+            if winner == nil then
+                winner = inscription
+            elseif winner.Weight < inscription.Weight then
+                winner = inscription
+            elseif winner.Weight == inscription.Weight and winner.Guid < inscription.Guid then
+                winner = inscription
             end
         end
 
@@ -86,15 +82,13 @@ function module:Initialize()
             return
         end
 
-        local isInTwilightRealm, tmp2 = ns.cut(tmp, SEPARATOR)
-        local weight, guid = ns.cut(tmp2, SEPARATOR)
+        local weight, guid = ns.cut(tmp, SEPARATOR)
 
         if IsInInscriptions(guid) == true then
             return
         end
 
         table.insert(inscriptions, {
-            IsInTwilightRealm = isInTwilightRealm == "true",
             Weight = tonumber(weight),
             Guid = guid,
         })
@@ -112,6 +106,7 @@ function module:Initialize()
     -- event
 
     function frame:PLAYER_REGEN_DISABLED()
+        -- election only in combat
         self:SetScript("OnUpdate", OnUpdate)
     end
 
