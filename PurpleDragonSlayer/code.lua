@@ -14,7 +14,7 @@ AddOn.NAME = name
 AddOn.VERSION = 30000
 AddOn.ADDON_MESSAGE_PREFIX_ELECTION = AddOn.NAME .. "_ELECTION_INSCRIPTION"
 AddOn.ADDON_MESSAGE_PREFIX_HELLO = AddOn.NAME .. "_CLIENT_HELLO"
-AddOn.ADDON_UPDATE_URL = "https://github.com/Metalaka/HalionHelper/releases"
+AddOn.ADDON_UPDATE_URL = "https://github.com/Metalaka/PurpleDragonSlayer/releases"
 
 AddOn.BOSS_NAME = "Halion"
 AddOn.NPC_ID_HALION_PHYSICAL = 39863
