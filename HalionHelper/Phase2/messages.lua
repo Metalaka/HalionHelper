@@ -12,14 +12,7 @@ function module:Initialize()
     local ANNOUNCE_51_THRESHOLD = 0.51
     local ANNOUNCE_55_THRESHOLD = 0.55
 
-    -- frame
-
-    local frame = CreateFrame("Frame")
-    frame:SetScript("OnEvent", function(self, event, ...)
-        if self[event] then
-            return self[event](self, ...)
-        end
-    end)
+    -- functions
 
     local function Reset()
 
@@ -55,27 +48,53 @@ function module:Initialize()
             module.announce55 = true
             SendChatMessage("55%", "SAY")
         end
-
     end
-    
-    -- event
 
-    function frame:CHAT_MSG_ADDON(prefix, message)
+    local function CollectHealth(frame, elapsed)
 
-        if (prefix == AddOn.ADDON_MESSAGE_PREFIX_TWILIGHT_HEALTH_DATA) then
-            SayPercentage(tonumber(message))
+        frame.elapsed = (frame.elapsed or 0) + elapsed
+        if frame.elapsed > AddOn.SLEEP_DELAY then
+            frame.elapsed = 0
+
+            if not UnitExists("boss2") then
+                return
+            end
+
+            local percent = UnitHealth("boss2") / UnitHealthMax("boss2")
+
+            if percent > AddOn.PHASE2_HEALTH_THRESHOLD then
+                return
+            end
+
+            if percent < AddOn.PHASE3_HEALTH_THRESHOLD then
+                -- Stop collect in P3
+                frame:SetScript("OnUpdate", nil)
+            end
+
+            SayPercentage(percent)
         end
     end
 
+    -- frame
+
+    local frame = CreateFrame("Frame")
+    frame:SetScript("OnEvent", function(self, event, ...)
+        if self[event] then
+            return self[event](self, ...)
+        end
+    end)
+
+    -- event
+
     function frame:PLAYER_REGEN_DISABLED()
 
-        self:RegisterEvent("CHAT_MSG_ADDON")
         Reset()
+        self:SetScript("OnUpdate", CollectHealth)
     end
 
     function frame:PLAYER_REGEN_ENABLED()
 
-        self:UnregisterEvent("CHAT_MSG_ADDON")
+        self:SetScript("OnUpdate", nil)
     end
 
     --
