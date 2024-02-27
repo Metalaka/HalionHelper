@@ -65,6 +65,12 @@ function module:Initialize()
             DoElection()
             inscriptions = {}
         else
+            -- register on our list
+            table.insert(inscriptions, {
+                Weight = UnitHealthMax("player"),
+                Guid = UnitGUID("player"),
+            })
+
             C_ChatInfo.SendAddonMessage(AddOn.ADDON_MESSAGE_PREFIX_ELECTION, GetProfile(), "RAID")
         end
 
