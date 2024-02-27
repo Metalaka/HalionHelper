@@ -20,7 +20,9 @@ end
 
 function ns.IsInTwilightRealm()
 
-    return GetPlayerAuraBySpellID(74807) ~= nil -- "Twilight Realm" aura
+    local spellName = GetSpellInfo(74807) -- 74807 "Twilight Realm" aura
+    
+    return AuraUtil.FindAuraByName(spellName, "player") ~= nil 
 end
 
 function ns.GetNpcId(guid)
