@@ -24,9 +24,12 @@ function module:Initialize()
 
     -- event
 
-    function frame:COMBAT_LOG_EVENT_UNFILTERED(_, eventType, _, srcGUID, _, _, _, dstGUID)
+    function frame:COMBAT_LOG_EVENT_UNFILTERED()
 
-        if IsPlayerDamageAgainstHalion(eventType, dstGUID, srcGUID) then
+        local subevent = select(2, CombatLogGetCurrentEventInfo())
+        local srcGUID = select(4, CombatLogGetCurrentEventInfo())
+        local dstGUID = select(8, CombatLogGetCurrentEventInfo())
+        if IsPlayerDamageAgainstHalion(subevent, dstGUID, srcGUID) then
             -- event triggered, stop watch logs
             self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 

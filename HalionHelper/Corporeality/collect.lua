@@ -21,37 +21,41 @@ function module:Initialize()
 
         local npcId = ns.GetNpcId(dstGUID)
         core.amount[npcId] = core.amount[npcId] + amount
-
-        if core.side.npcId ~= npcId then
-            core.side.npcId = npcId
-
-            local spellName, _ = GetSpellInfo(AddOn.CORPOREALITY_AURA)
-            local _, _, _, _, _, _, _, _, _, _, spellId = UnitAura("boss1", spellName) or UnitAura("boss2", spellName)
-            core.side.corporeality = core.corporealityAuras[spellId] or core.corporealityAuras[AddOn.CORPOREALITY_AURA]
-        end
-
     end
 
-    local function SwingDamage(_, _, _, _, _, dstGUID, _, _, amount, _, _, _, _, _, _, _, _)
+    local function SwingDamage()
+
+        local dstGUID = select(8, CombatLogGetCurrentEventInfo())
+        local amount = select(12, CombatLogGetCurrentEventInfo())
         AddDamageData(dstGUID, amount)
     end
 
-    local function SpellDamage(_, _, _, _, _, dstGUID, _, _, _, _, _, amount, _, _, _, _, _, _, _, _)
+    local function SpellDamage()
+
+        local dstGUID = select(8, CombatLogGetCurrentEventInfo())
+        local amount = select(15, CombatLogGetCurrentEventInfo())
         AddDamageData(dstGUID, amount)
     end
 
-    local function EnvironmentalDamage(_, _, _, _, _, dstGUID, _, _, _, amount, _, _, _, _, _, _, _, _)
+    local function EnvironmentalDamage()
+
+        local dstGUID = select(8, CombatLogGetCurrentEventInfo())
+        local amount = select(13, CombatLogGetCurrentEventInfo())
         AddDamageData(dstGUID, amount)
     end
 
-    local function SpellAura(_, _, _, _, _, dstGUID, _, _, spellId, _, _, _)
+    local function SpellAura()
 
+        local spellId = select(12, CombatLogGetCurrentEventInfo())
         local aura = core.corporealityAuras[spellId]
 
+        -- skip non corporeality aura
         if not aura then
             return
         end
 
+        AddOn:Print("NewCorporeality from aura")
+        local dstGUID = select(8, CombatLogGetCurrentEventInfo())
         core:NewCorporeality(ns.GetNpcId(dstGUID), aura)
     end
 
@@ -66,30 +70,38 @@ function module:Initialize()
         ["SPELL_AURA_APPLIED"] = SpellAura,
     }
 
-    local function IsCorporealityAura(eventType, spellId)
-        return eventType == "SPELL_AURA_APPLIED"
-                and core.corporealityAuras[spellId] ~= nil
+    local function IsCorporealityAura(eventType)
+
+        if eventType ~= "SPELL_AURA_APPLIED" then
+            return false
+        end
+
+        local spellId = select(12, CombatLogGetCurrentEventInfo())
+
+        return core.corporealityAuras[spellId] ~= nil
     end
 
-    local function CombatLogEvent(timestamp, eventType, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, spellId, ...)
+    local function CombatLogEvent()
+        local subevent = select(2, CombatLogGetCurrentEventInfo())
+        local destName = select(9, CombatLogGetCurrentEventInfo())
 
-        if dstName ~= AddOn.BOSS_NAME then
+        if destName ~= AddOn.BOSS_NAME then
             return
         end
 
-        if not core.isInPhase3 and not IsCorporealityAura(eventType, spellId) then
+        if not core.isInPhase3 and not IsCorporealityAura(subevent) then
             return
         end
 
-        local parseFunc = EventParse[eventType]
+        local parseFunc = EventParse[subevent]
 
         if parseFunc then
-            parseFunc(timestamp, eventType, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, spellId, ...)
+            parseFunc()
         end
     end
 
-    function frame:COMBAT_LOG_EVENT_UNFILTERED(...)
-        CombatLogEvent(...)
+    function frame:COMBAT_LOG_EVENT_UNFILTERED()
+        CombatLogEvent()
     end
 
     --
