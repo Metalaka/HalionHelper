@@ -122,8 +122,7 @@ function module:Initialize()
         local channel = ns.HasRaidWarningRight() and "RAID_WARNING" or "RAID"
         local sideName = dto.states[AddOn.NPC_ID_HALION_PHYSICAL] == module.states.stop and L["Physical"] or L["Twilight"]
 
-        AddOn:Print(string.format(L["AnnounceStop"], sideName))
-        --SendChatMessage(string.format(L["AnnounceStop"], sideName), channel)
+        SendChatMessage(string.format(L["AnnounceStop"], sideName), channel)
     end
 
     function self:BuildDto()
