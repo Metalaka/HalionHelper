@@ -17,7 +17,7 @@ function module:Initialize()
 
     -- functions
 
-    local function OnUpdateColor(frame, elapsed)
+    local function OnUpdateCorporeality(frame, elapsed)
 
         frame.elapsed = (frame.elapsed or 0) + elapsed
         if frame.elapsed < AddOn.SLEEP_DELAY or frame.elapsed < (frame.startDelay or 0) then
@@ -44,14 +44,7 @@ function module:Initialize()
     local function OnUpdateTimer(frame, elapsed)
 
         frame.remaining = (frame.remaining or 0) - elapsed
-        if frame.remaining < 0 and UnitAffectingCombat('player') then
-            -- Sometimes the corporeality doesn't update, tracking is restarted by this hack
-            AddOn:Print("NewCorporeality hack")
-            core:NewCorporeality(AddOn.NPC_ID_HALION_PHYSICAL, core.corporeality[AddOn.NPC_ID_HALION_PHYSICAL])
-            core:NewCorporeality(AddOn.NPC_ID_HALION_TWILIGHT, core.corporeality[AddOn.NPC_ID_HALION_TWILIGHT])
-
-            return
-        end
+        frame:SetValue(frame.remaining)
 
         -- send RAID_WARNING if we must stop
         if AddOn:IsElected() and not (frame.triggered or false) and frame.remaining < checkTimer then
@@ -62,8 +55,6 @@ function module:Initialize()
                 core:SendStopMessage(dto)
             end
         end
-
-        frame:SetValue(frame.remaining)
     end
 
     -- frame
@@ -111,7 +102,7 @@ function module:Initialize()
     --
 
     function self:Enable()
-        colorBar:SetScript("OnUpdate", OnUpdateColor)
+        colorBar:SetScript("OnUpdate", OnUpdateCorporeality)
         timer:SetScript("OnUpdate", OnUpdateTimer)
     end
 
