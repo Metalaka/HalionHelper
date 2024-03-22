@@ -42,7 +42,7 @@ function module:Initialize()
     -- functions
 
     local function GetOtherSide(side)
-        return side == AddOn.NPC_ID_HALION_PHYSICAL and AddOn.NPC_ID_HALION_PHYSICAL or AddOn.NPC_ID_HALION_TWILIGHT
+        return side == AddOn.NPC_ID_HALION_PHYSICAL and AddOn.NPC_ID_HALION_TWILIGHT or AddOn.NPC_ID_HALION_PHYSICAL
     end
 
     local function GetSideThatMustPush()
