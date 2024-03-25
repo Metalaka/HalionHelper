@@ -76,11 +76,11 @@ function module:Initialize()
     -- return the damage diff between both realm
     local function GetAmount(side)
 
-        local amount = module.amount[side] - module.amount[GetOtherSide(side)]
+        local amount = math.abs(module.amount[side] - module.amount[GetOtherSide(side)])
 
         amount = amount / 1000
 
-        if math.abs(amount) > 1000 then
+        if amount > 1000 then
             return string.format("%.1f M", amount / 1000)
         end
 
