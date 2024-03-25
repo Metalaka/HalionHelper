@@ -157,7 +157,7 @@ function module:Initialize()
     local dialog = LibStub('AceConfigDialog-3.0') -- bliz option panel
     local profile = LibStub('AceDBOptions-3.0'):GetOptionsTable(AddOn.db)
 
-    config:RegisterOptionsTable(AddOn.NAME, options, { AddOn.NAME, "hh" }) -- chat command
+    config:RegisterOptionsTable(AddOn.NAME, options, { AddOn.NAME, "pds" }) -- chat command
     config:RegisterOptionsTable(AddOn.NAME .. '/Options', options)
     dialog:AddToBlizOptions(AddOn.NAME .. '/Options', L["AddonName"])
 
