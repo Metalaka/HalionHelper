@@ -111,6 +111,9 @@ function module:Initialize()
         core.corporeality[AddOn.NPC_ID_HALION_TWILIGHT] = core.corporealityAuras[AddOn.CORPOREALITY_AURA]
         core.amount[AddOn.NPC_ID_HALION_PHYSICAL] = 0
         core.amount[AddOn.NPC_ID_HALION_TWILIGHT] = 0
+
+        -- also hide the UI
+        AddOn.modules.corporeality.ui:StopTimer()
     end
 
     --
