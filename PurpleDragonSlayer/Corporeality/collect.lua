@@ -54,7 +54,6 @@ function module:Initialize()
             return
         end
 
-        AddOn:Print("NewCorporeality from aura")
         local dstGUID = select(8, CombatLogGetCurrentEventInfo())
         core:NewCorporeality(ns.GetNpcId(dstGUID), aura)
     end
