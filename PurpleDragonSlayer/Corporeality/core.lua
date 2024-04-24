@@ -112,10 +112,12 @@ function module:Initialize()
                 and module.amount[AddOn.NPC_ID_HALION_TWILIGHT] > 0
     end
 
+    -- only used for the stop message
     function self:ShouldStop(dto)
         return self:HasData()
+                and module.corporeality[AddOn.NPC_ID_HALION_PHYSICAL].dealt ~= 1 -- different that 50%
                 and (dto.states[AddOn.NPC_ID_HALION_PHYSICAL] == module.states.stop
-                or dto.states[AddOn.NPC_ID_HALION_TWILIGHT] == module.states.stop)
+                or dto.states[AddOn.NPC_ID_HALION_TWILIGHT] == module.states.stop) -- someone must STOP
     end
 
     function self:SendStopMessage(dto)
