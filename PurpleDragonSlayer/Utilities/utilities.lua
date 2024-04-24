@@ -67,8 +67,8 @@ function ns.IsDifficulty(...)
 end
 
 function ns.HasRaidWarningRight()
-    return UnitIsGroupLeader("player") ~= nil
-            or UnitIsGroupAssistant("player") ~= nil
+    return UnitIsGroupLeader("player") == true
+            or UnitIsGroupAssistant("player") == true
 end
 
 function ns.IsTank()
